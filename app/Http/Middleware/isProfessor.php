@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class isStudent
+class isProfessor
 {
     /**
      * Handle an incoming request.
@@ -15,11 +15,11 @@ class isStudent
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if($request->user()->role == 'student' || $request->user()->role == 'admin'){
-            
+
+        if($request->user()->role == 'professor' || $request->user()->role == 'admin'){
+
             return $next($request);
         }
-
         return response()->json([
             'message' => 'Forbidden'
         ], 403);

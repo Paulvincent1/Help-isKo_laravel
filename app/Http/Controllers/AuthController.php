@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,20 +11,28 @@ class AuthController extends Controller
 {
     public function register(Request $request){
 
-        $fields = $request->validate([
-            'name' => 'required|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|confirmed',
-            'role' => 'required|string|in:professor,student'
-        ]);
-        $user = User::create([
-            'name' => $fields['name'],
-            'email' => $fields['email'],
-            'password' => bcrypt($fields['password']),
-            'role' => $fields['role']
-        ]);
 
-        return response($user, 201);
+        try{
+
+            $fields = $request->validate([
+                'name' => 'required|max:255',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|string|confirmed',
+                'role' => 'required|string|in:professor,student'
+            ]);
+            $user = User::create([
+                'name' => $fields['name'],
+                'email' => $fields['email'],
+                'password' => bcrypt($fields['password']),
+                'role' => $fields['role']
+            ]);
+            
+            return response($user, 201);
+        }catch(Exception $e){
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 400);
+        }
     }
 
     public function loginProf(Request $request){
