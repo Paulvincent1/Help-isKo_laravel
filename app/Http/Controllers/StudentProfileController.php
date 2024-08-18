@@ -24,17 +24,43 @@ class StudentProfileController extends Controller
 
         
             $fields = $request->validate([
+
+                // student info
                 'student_number' => 'required|string|max:255',
                 'college' => 'required|string|max:255',
                 'course' => 'required|string|max:255',
                 'department' => 'required|string|max:255',
+                'learning_modality' => 'required|string|max:255',
                 'semester' => 'required|string|max:255',
                 'birthday' => 'required|string|max:255',
                 'contact_number' => 'required|string|max:255',
+
+                //family
                 'father_name' => 'required|string|max:255',
+                'father_contact_number' => 'required|string|max:255',
                 'mother_name' => 'required|string|max:255',
+                'mother_contact_number' => 'required|string|max:255',
+
+                //current address
                 'current_address' => 'required|string|max:255',
+                'current_province' => 'required|string|max:255',
+                'current_country' => 'required|string|max:255',
+                'current_city' => 'required|string|max:255',
+
+                //permanent address
                 'permanent_address' => 'required|string|max:255',
+                'permanent_province' => 'required|string|max:255',
+                'permanent_country' => 'required|string|max:255',
+                'permanent_city' => 'required|string|max:255',
+
+
+                // emergency person contact details
+                'emergency_person_name' => 'required|string|max:255',
+                'emergency_address' => 'required|string|max:255',
+                'relation' => 'required|string|max:255',
+                'emergency_contact_number' => 'required|string|max:255',
+
+
                 'profile_img' => 'image|mimes:jpg,bmp,png'
             ]);
             if($request->hasFile('profile_img')){
