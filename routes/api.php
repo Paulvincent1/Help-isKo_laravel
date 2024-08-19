@@ -2,12 +2,8 @@
 
 
 use App\Http\Controllers\Api\StudentFeedbackController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\StudentProfileController;
-
 use App\Models\HkStatus;
 use Illuminate\Http\Request;
-
 use App\Http\Middleware\isAdmin;
 use App\Http\Middleware\isStudent;
 use App\Http\Middleware\isProfessor;
@@ -33,7 +29,6 @@ Route::middleware(['auth:sanctum', isStudent::class])->group(function () {
     Route::post('/update-profile', [StudentProfileController::class, 'update']);
 
 
-
     Route::get('/hk-status', [HkStatusController::class, 'show']);
 
 });
@@ -53,21 +48,7 @@ Route::middleware(['auth:sanctum', isProfessor::class])->group(function (){
 Route::post('/feedback/{student_id}', [StudentFeedbackController::class, 'store']);    
 
 
-
-
-
-
-
-
-
-
-
 });
-
-Route::middleware(['auth:sanctum', isProfessor::class])->group(function () {});
-
-
-
 
 
 //admin
