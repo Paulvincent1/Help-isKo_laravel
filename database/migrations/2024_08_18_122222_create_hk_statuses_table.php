@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('hk_statuses', function (Blueprint $table) {
             $table->id();
+            $table->string('remaining_hours');
+            $table->string('duty_hours');
+            $table->foreignId('user_id')->unique()->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });
     }

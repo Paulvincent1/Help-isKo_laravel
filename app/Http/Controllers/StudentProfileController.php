@@ -21,8 +21,7 @@ class StudentProfileController extends Controller
     public function store(Request $request){
         $user = Auth::user();
         if($user->studentProfile == null){
-
-        
+            
             $fields = $request->validate([
 
                 // student info

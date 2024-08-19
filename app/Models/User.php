@@ -52,6 +52,7 @@ class User extends Authenticatable
         return $this->hasOne(StudentProfile::class);
     }
 
+
     public function ProfessorProfile(){
         return $this->hasOne(ProfessorProfile::class);
     }
@@ -70,4 +71,11 @@ class User extends Authenticatable
  {
      return $this->hasMany(StudentFeedback::class, 'professor_id');
  }
+
+    public function hkStatus(){
+        return $this->hasOne(HkStatus::class);
+    }
+    
+
+
 }
