@@ -52,9 +52,30 @@ class User extends Authenticatable
         return $this->hasOne(StudentProfile::class);
     }
 
+
+    public function ProfessorProfile(){
+        return $this->hasOne(ProfessorProfile::class);
+    }
+
+
+
+    
+ // Assuming User can be a student
+ public function feedbackReceived()
+ {
+     return $this->hasMany(StudentFeedback::class, 'student_id');
+ }
+
+ // Assuming User can be a professor
+ public function feedbackGiven()
+ {
+     return $this->hasMany(StudentFeedback::class, 'professor_id');
+ }
+
     public function hkStatus(){
         return $this->hasOne(HkStatus::class);
     }
     
+
 
 }
