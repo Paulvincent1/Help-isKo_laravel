@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\StudentFeedbackController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StudentProfileController;
 use App\Http\Middleware\isAdmin;
@@ -24,25 +25,20 @@ Route::middleware(['auth:sanctum', isStudent::class])->group(function (){
     Route::post('/create-profile', [StudentProfileController::class, 'store']);
     Route::post('/update-profile', [StudentProfileController::class, 'update']);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 });
 
+//Feedback show
+Route::get('/feedback/{id}', [StudentFeedbackController::class, 'show']);
+
+//show specific student feedbacks
+Route::get('/feedback/index/{student_id}', [StudentFeedbackController::class, 'index']);
 
 
 //professor
 Route::middleware(['auth:sanctum', isProfessor::class])->group(function (){
+
+//Prof nirerate si Student.
+Route::post('/feedback/{student_id}', [StudentFeedbackController::class, 'store']);    
 
 
 

@@ -8,4 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class ProfessorProfile extends Model
 {
     use HasFactory;
+
+
+
+
+
+
+
+public function user(){
+    $this->belongsTo(User::class);
 }
+};
+
+
