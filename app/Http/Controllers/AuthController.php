@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     public function register(Request $request){
-
+// updated
 
         try{
 
@@ -50,7 +50,9 @@ class AuthController extends Controller
             if($user->role == 'professor'){
 
                 return response()->json([
-                    "token" =>  $user->createToken($request->email)->plainTextToken
+                    "token" =>  $user->createToken($request->email)->plainTextToken,
+                    'name' => $user->name,
+                    'user' => $user->studentProfile
                 ], 200);
                 
             }else{
@@ -59,6 +61,8 @@ class AuthController extends Controller
             }
            
            
+        }else {
+            return response()->json(['message' => 'Log in failed'], 500);
         }
    
         
@@ -77,7 +81,9 @@ class AuthController extends Controller
             if($user->role == 'student'){
 
                 return response()->json([
-                    "token" =>  $user->createToken($request->email)->plainTextToken
+                    "token" =>  $user->createToken($request->email)->plainTextToken,
+                    'name' => $user->name,
+                    'user' => $user->studentProfile
                 ], 200);
                 
             }else{
@@ -86,6 +92,8 @@ class AuthController extends Controller
             }
            
            
+        }else {
+            return response()->json(['message' => 'Log in failed'], 500);
         }
        
         
@@ -100,5 +108,5 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Logged Out'], 200);
     }
-  
+  //d sd paul
 }
