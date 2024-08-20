@@ -75,7 +75,19 @@ class User extends Authenticatable
     public function hkStatus(){
         return $this->hasOne(HkStatus::class);
     }
+
+
+
+
     
+    public function studentDutyRecords()
+    {
+        return $this->hasMany(StudentDutyRecord::class, 'stud_id');
+    }
 
-
+    // Relationship to duties a professor creates
+    public function duties()
+    {
+        return $this->hasMany(Duty::class, 'prof_id');
+    }
 }
