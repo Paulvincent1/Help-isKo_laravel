@@ -12,7 +12,9 @@ class CreateDutiesTable extends Migration
             $table->id();
             $table->string('building');
             $table->date('date');
-            $table->time('time');
+            $table->time('start_time');
+            $table->time('end_time');
+            $table->integer('duration'); //added start_time + end_time
             $table->text('message')->nullable();
             $table->integer('max_scholars');
             $table->integer('current_scholars')->default(0);
