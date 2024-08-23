@@ -12,7 +12,9 @@ class Duty extends Model
     protected $fillable = [
         'building',
         'date',
-        'time',
+        'start_time',
+        'end_time',
+        'duration',
         'message',
         'max_scholars',
         'current_scholars',
@@ -26,5 +28,10 @@ class Duty extends Model
     {
         return $this->hasMany(StudentDutyRecord::class, 'duty_id');
     }
+
+    public function professor()
+{
+    return $this->belongsTo(User::class, 'prof_id');
 }
 
+}
