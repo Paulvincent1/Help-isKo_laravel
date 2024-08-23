@@ -9,7 +9,15 @@ class ProfessorProfile extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'birthday',
+        'contact_number',
+        'professor_number',
+        'profile_img',
 
+    ];
 
 
 

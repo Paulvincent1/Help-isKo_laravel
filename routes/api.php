@@ -13,9 +13,7 @@ use App\Http\Controllers\StudentProfileController;
 use App\Http\Controllers\Duty\DutyController;
 use App\Http\Controllers\Duty\StudentDutyController;
 use App\Http\Controllers\Duty\DutyProfController;
-
-
-
+use App\Http\Controllers\ProfessorProfileController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -31,8 +29,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 
 Route::middleware(['auth:sanctum', isStudent::class])->group(function () {
     Route::get('/stud-profile', [StudentProfileController::class, 'show']);
-    Route::post('/create-profile', [StudentProfileController::class, 'store']);
-    Route::post('/update-profile', [StudentProfileController::class, 'update']);
+    Route::post('/stud-profile/create', [StudentProfileController::class, 'store']);
+    Route::post('/stud-profile/update', [StudentProfileController::class, 'update']);
 
 
     Route::get('/hk-status', [HkStatusController::class, 'show']);
@@ -69,6 +67,14 @@ Route::post('/professors/duties/create', [DutyProfController::class, 'create']);
     Route::post('/professors/duties/{dutyId}/reject/{studentId}', [DutyProfController::class, 'rejectStudent']);
     Route::put('/professors/duties/{dutyId}/status', [DutyProfController::class, 'updateStatus']);
     Route::post('/professors/duties/{dutyId}/lock', [DutyProfController::class, 'lockDuty']);
+
+
+
+    //prof profile
+    Route::get('/prof-profile', [ProfessorProfileController::class, 'index']);
+    Route::get('/prof-profile/{id}', [ProfessorProfileController::class, 'show']);
+    Route::post('/prof-profile/create', [ProfessorProfileController::class, 'create']);
+    Route::put('/prof-profile/update', [ProfessorProfileController::class, 'update']);
 
 });
 
