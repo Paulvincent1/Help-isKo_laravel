@@ -26,6 +26,10 @@ Route::post('/login-prof', [AuthController::class, 'loginProf']);
 Route::post('/login-stud', [AuthController::class, 'loginStud']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
+//reset password
+Route::post('/forgot', [AuthController::class, 'forgot']);
+Route::put('/reset', [AuthController::class, 'resetpassword']);
+
 
 //student
 
