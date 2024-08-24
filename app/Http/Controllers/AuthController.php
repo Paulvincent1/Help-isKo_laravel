@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PasswordResetToken;
 use App\Models\User;
+use App\Notifications\ForgotPassword;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -109,4 +111,78 @@ class AuthController extends Controller
         return response()->json(['message' => 'Logged Out'], 200);
     }
   //d sd paul
+
+   public function forgot(Request $request){
+        $user = User::query();
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+        $user = $user->where('email', $request->input('email'))->first();
+
+        if(!$user){
+            return response()->json([
+                'message' => 'No record found'
+            ]);
+        }
+
+        $resetPasswordToken = str_pad(random_int(1, 9999), 4, '0', STR_PAD_LEFT);
+
+        if(!$userPassReset = PasswordResetToken::where('email', $user->email)->first()){
+            PasswordResetToken::create([
+                'email' => $user->email,
+                'token' => $resetPasswordToken
+            ]);
+        }else{
+            $userPassReset->update([
+                'email' => $user->email,
+                'token' => $resetPasswordToken
+            ]);
+        }
+        
+        $user->notify(new ForgotPassword($user, $resetPasswordToken));
+
+        return response()->json([
+            'message' => 'A code has been sent to your email Address.'
+        ]);
+        
+   }
+
+   public function resetpassword(Request $request)
+   {
+       $fields =  $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string|confirmed',
+            'token' => 'required|max:4'
+        ]);
+
+        $user = User::where('email', $fields['email'])->first();
+
+        if(!$user){
+            return response()->json([
+                'message' => 'No Record found, Incorrect email adress'
+            ]);
+        }
+
+        $resetRequest = PasswordResetToken::where('email', $fields['email'])->first();
+
+        if(!$resetRequest || $resetRequest->token != $fields['token']){
+            return response()->json([
+                'message' => ' token mismatch'
+            ]);
+        }
+
+        $user->update([
+            'password' => bcrypt($fields['password'])
+        ]);
+
+        $user->tokens()->delete();
+
+
+        return response()->json([
+            'message' => 'Reset password successfully'
+        ]);
+
+        
+
+   }
 }
