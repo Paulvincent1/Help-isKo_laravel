@@ -78,34 +78,36 @@ class DutyProfController extends Controller
     public function getRequestsForDuty($dutyId)
     {
         $professor = Auth::user();
-
+    
         // Check if the authenticated user is a professor
         if (!$professor || $professor->role !== 'professor') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-
+    
         // Retrieve the specific duty created by the professor
         $duty = Duty::where('id', $dutyId)
             ->where('prof_id', $professor->id)
             ->first();
-
+    
         // Check if the duty exists and is created by this professor
         if (!$duty) {
             return response()->json(['message' => 'Duty not found or you do not have permission to view it'], 404);
         }
-
-        // Get the requests for the duty
-        $requests = StudentDutyRecord::where('duty_id', $dutyId)->get();
-
+    
+        // Get the requests for the duty with request_status as 'undecided'
+        $requests = StudentDutyRecord::where('duty_id', $dutyId)
+            ->where('request_status', 'undecided')
+            ->get();
+    
         // Count the number of requests
         $requestCount = $requests->count();
-
+    
         // Get the names of students who have requested the duty
         $studentNames = $requests->map(function ($request) {
             $student = \App\Models\User::find($request->stud_id);
             return $student ? $student->name : 'Unknown';
         });
-
+    
         // Return the simplified response
         return response()->json([
             'duty_id' => $dutyId,
