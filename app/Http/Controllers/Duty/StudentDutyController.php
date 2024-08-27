@@ -11,38 +11,38 @@ class StudentDutyController extends Controller
 {
     // View all available duties for students to request
     public function viewAvailableDuties()
-{
-    // Fetch duties that are pending and not locked, along with professor details
-    $duties = Duty::with('professor')
-        ->where('duty_status', 'pending')
-        ->where('is_locked', false)
-        ->get();
+    {
+        // Fetch duties that are pending, not locked, and have available slots, along with professor details
+        $duties = Duty::with('professor')
+            ->where('duty_status', 'pending')
+            ->where('is_locked', false)
+            ->whereColumn('current_scholars', '<', 'max_scholars')
+            ->get();
 
-    // Check if there are no duties found
-    if ($duties->isEmpty()) {
-        return response()->json(['message' => 'No available duties at the moment.'], 200);
+        // Check if there are no duties found
+        if ($duties->isEmpty()) {
+            return response()->json(['message' => 'No available duties at the moment.'], 200);
+        }
+
+        // Prepare the response with professor names included
+        $response = $duties->map(function ($duty) {
+            return [
+                'id' => $duty->id,
+                'building' => $duty->building,
+                'date' => $duty->date,
+                'start_time' => $duty->start_time,
+                'end_time' => $duty->end_time,
+                'duration' => $duty->duration,
+                'message' => $duty->message,
+                'max_scholars' => $duty->max_scholars,
+                'current_scholars' => $duty->current_scholars,
+                'professor_name' => $duty->professor->name,  
+            ];
+        });
+
+        // Return the list of available duties with professor names
+        return response()->json($response, 200);
     }
-
-    // Prepare the response with professor names included
-    $response = $duties->map(function ($duty) {
-        return [
-            'id' => $duty->id,
-            'building' => $duty->building,
-            'date' => $duty->date,
-            'start_time' => $duty->start_time,
-            'end_time' => $duty->end_time,
-            'duration' => $duty->duration,
-            'message' => $duty->message,
-            'max_scholars' => $duty->max_scholars,
-            'current_scholars' => $duty->current_scholars,
-            'professor_name' => $duty->professor->name,  
-        ];
-    });
-
-    // Return the list of available duties with professor names
-    return response()->json($response, 200);
-}
-
 
 
     // Request to join a specific duty
