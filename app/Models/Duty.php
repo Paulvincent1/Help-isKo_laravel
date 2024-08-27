@@ -20,6 +20,7 @@ class Duty extends Model
         'current_scholars',
         'is_locked',
         'duty_status',
+        'is_completed',
         'prof_id',
     ];
 

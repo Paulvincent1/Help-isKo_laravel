@@ -73,13 +73,12 @@ class DutyProfController extends Controller
 
         return response()->json($duty);
     }
-    // In your DutyProfController.php
 
     public function getRequestsForDuty($dutyId)
     {
         $professor = Auth::user();
     
-        // Check if the authenticated user is a professor
+        // Check if the user is authorized
         if (!$professor || $professor->role !== 'professor') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
@@ -89,12 +88,19 @@ class DutyProfController extends Controller
             ->where('prof_id', $professor->id)
             ->first();
     
-        // Check if the duty exists and is created by this professor
+        // Check if the duty exists and if the professor is authorized
         if (!$duty) {
             return response()->json(['message' => 'Duty not found or you do not have permission to view it'], 404);
         }
     
-        // Get the requests for the duty with request_status as 'undecided'
+        // Check if the duty is completed or locked
+        if ($duty->duty_status === 'completed' || $duty->is_locked) {
+            return response()->json([
+                'message' => 'This duty is finished or locked.',
+                'duty_id' => $dutyId,
+            ]);
+        }
+    
         $requests = StudentDutyRecord::where('duty_id', $dutyId)
             ->where('request_status', 'undecided')
             ->get();
@@ -102,46 +108,57 @@ class DutyProfController extends Controller
         // Count the number of requests
         $requestCount = $requests->count();
     
-        // Get the names of students who have requested the duty
-        $studentNames = $requests->map(function ($request) {
+        // Get the student IDs and names
+        $studentData = $requests->map(function ($request) {
             $student = \App\Models\User::find($request->stud_id);
-            return $student ? $student->name : 'Unknown';
+            return [
+                'student_id' => $request->stud_id,
+                'name' => $student ? $student->name : 'Unknown'
+            ];
         });
     
-        // Return the simplified response
         return response()->json([
             'duty_id' => $dutyId,
             'request_count' => $requestCount,
-            'student_names' => $studentNames
+            'student_data' => $studentData
         ]);
     }
-
+    
 
 
     public function getAcceptedStudents($dutyId)
-    {
-        $professor = Auth::user();
+{
+    $professor = Auth::user();
 
-        // Get the specific duty created by the professor
-        $duty = Duty::where('id', $dutyId)
-            ->where('prof_id', $professor->id)
-            ->first();
+    // Get the specific duty created by the professor
+    $duty = Duty::where('id', $dutyId)
+        ->where('prof_id', $professor->id)
+        ->first();
 
-        if (!$duty) {
-            return response()->json(['message' => 'Duty not found or you do not have permission to view it'], 404);
-        }
-
-        // Get the students who have been accepted for this duty
-        $acceptedStudents = StudentDutyRecord::where('duty_id', $dutyId)
-            ->where('request_status', 'accepted')
-            ->with('student')
-            ->get();
-
-        return response()->json([
-            'duty' => $duty,
-            'accepted_students' => $acceptedStudents,
-        ]);
+    if (!$duty) {
+        return response()->json(['message' => 'Duty not found or you do not have permission to view it'], 404);
     }
+
+    // Get the students who have been accepted for this duty
+    $acceptedStudents = StudentDutyRecord::where('duty_id', $dutyId)
+        ->where('request_status', 'accepted')
+        ->with('student')
+        ->get()
+        ->map(function ($record) {
+            return [
+                'student_id' => $record->student->id,
+                'name' => $record->student->name,
+                'request_status' => $record->request_status,
+            ];
+        });
+
+    return response()->json([
+        'duty_id' => $duty->id,
+        'duty_status' => $duty->duty_status,
+        'accepted_students' => $acceptedStudents,
+    ]);
+}
+
 
     // Update a specific duty
     public function update($dutyId, Request $request)
@@ -245,41 +262,47 @@ class DutyProfController extends Controller
 
     // Accept a student's request to join a duty
     public function acceptStudent($dutyId, $studentId)
-    {
-        $professor = Auth::user();
+{
+    $professor = Auth::user();
 
-        // Get the specific duty created by the professor
-        $duty = Duty::where('id', $dutyId)->where('prof_id', $professor->id)->first();
+    // Get the specific duty created by the professor
+    $duty = Duty::where('id', $dutyId)->where('prof_id', $professor->id)->first();
 
-        if (!$duty) {
-            return response()->json(['message' => 'Duty not found or you do not have permission to accept students for it'], 404);
-        }
-
-        // Find the student's request
-        $studentDutyRecord = StudentDutyRecord::where('duty_id', $dutyId)
-            ->where('stud_id', $studentId)
-            ->first();
-
-        if (!$studentDutyRecord) {
-            return response()->json(['message' => 'Student request not found'], 404);
-        }
-
-        // Prevent changing the decision once made
-        if ($studentDutyRecord->request_status !== 'undecided') {
-            return response()->json(['message' => 'This request has already been ' . $studentDutyRecord->request_status . ' and cannot be changed.'], 400);
-        }
-
-        // Accept the student's request
-        $studentDutyRecord->update(['request_status' => 'accepted']);
-        $duty->increment('current_scholars');
-
-        // Lock the duty if max scholars reached
-        if ($duty->current_scholars >= $duty->max_scholars) {
-            $duty->update(['is_locked' => true]);
-        }
-
-        return response()->json(['message' => 'Student accepted successfully', 'duty' => $duty]);
+    if (!$duty) {
+        return response()->json(['message' => 'Duty not found or you do not have permission to handle student requests for it'], 404);
     }
+
+    // Find the student's request
+    $studentDutyRecord = StudentDutyRecord::where('duty_id', $dutyId)
+        ->where('stud_id', $studentId)
+        ->first();
+
+    if (!$studentDutyRecord) {
+        return response()->json(['message' => 'Student request not found'], 404);
+    }
+
+    // Prevent changing the decision once made
+    if ($studentDutyRecord->request_status !== 'undecided') {
+        return response()->json(['message' => 'This request has already been ' . $studentDutyRecord->request_status . ' and cannot be changed.'], 400);
+    }
+
+    // Ensure that the duty is not over its max scholars limit
+    if ($duty->current_scholars >= $duty->max_scholars) {
+        return response()->json(['message' => 'Cannot accept more students, max scholars limit reached'], 400);
+    }
+
+    // Accept the student's request
+    $studentDutyRecord->update(['request_status' => 'accepted']);
+    $duty->increment('current_scholars');
+
+    // Lock the duty if max scholars reached
+    if ($duty->current_scholars >= $duty->max_scholars) {
+        $duty->update(['is_locked' => true]);
+    }
+
+    return response()->json(['message' => 'Student accepted successfully', 'duty' => $duty]);
+}
+
 
     public function rejectStudent($dutyId, $studentId)
     {
@@ -317,24 +340,38 @@ class DutyProfController extends Controller
     public function updateStatus($dutyId, Request $request)
     {
         $professor = Auth::user();
-
-        // Get the specific duty created by the professor
+    
         $duty = Duty::where('id', $dutyId)->where('prof_id', $professor->id)->first();
-
+    
         if (!$duty) {
             return response()->json(['message' => 'Duty not found or you do not have permission to update its status'], 404);
         }
-
-        // Validate the new status
+    
+        // Check if the duty is already marked as completed
+        if ($duty->is_completed) {
+            return response()->json(['message' => 'This duty has already been completed and cannot be updated.'], 400);
+        }
+    
+        // Validate the new status from the request
         $data = $request->validate([
             'duty_status' => 'required|in:pending,active,completed',
         ]);
-
-        // Update the duty status
-        $duty->update(['duty_status' => $data['duty_status']]);
-
+    
+        // Check if manually requested status is valid
+        if ($data['duty_status'] === 'completed') {
+            // Set status to completed and mark as completed
+            $duty->update(['duty_status' => 'completed', 'is_completed' => true]);
+        } else {
+            // Prevent reverting to pending or active if already completed
+            if ($duty->duty_status === 'completed') {
+                return response()->json(['message' => 'Cannot revert a completed duty to another status.'], 400);
+            }
+            $duty->update(['duty_status' => $data['duty_status']]);
+        }
+    
         return response()->json(['message' => 'Duty status updated successfully', 'duty' => $duty]);
     }
+    
 
     public function cancelDuty($dutyId)
     {
@@ -363,19 +400,25 @@ class DutyProfController extends Controller
 
     // Lock a duty to prevent further requests
     public function lockDuty($dutyId)
-    {
-        $professor = Auth::user();
+{
+    $professor = Auth::user();
 
-        // Get the specific duty created by the professor
-        $duty = Duty::where('id', $dutyId)->where('prof_id', $professor->id)->first();
+    // Get the specific duty created by the professor
+    $duty = Duty::where('id', $dutyId)->where('prof_id', $professor->id)->first();
 
-        if (!$duty) {
-            return response()->json(['message' => 'Duty not found or you do not have permission to lock it'], 404);
-        }
-
-        // Lock the duty
-        $duty->update(['is_locked' => true]);
-
-        return response()->json(['message' => 'Duty locked successfully', 'duty' => $duty]);
+    if (!$duty) {
+        return response()->json(['message' => 'Duty not found or you do not have permission to lock it'], 404);
     }
+
+    // Check if the duty is already locked
+    if ($duty->is_locked) {
+        return response()->json(['message' => 'This duty is already locked'], 400);
+    }
+
+    // Lock the duty
+    $duty->update(['is_locked' => true]);
+
+    return response()->json(['message' => 'Duty locked successfully', 'duty_id' => $duty->id]);
+}
+
 }

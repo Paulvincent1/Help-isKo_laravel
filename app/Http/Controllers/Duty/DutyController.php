@@ -1,4 +1,4 @@
-<?php
+<?php //duty-controller
 namespace App\Http\Controllers\Duty;
 
 use App\Http\Controllers\Controller;
@@ -7,12 +7,11 @@ use App\Models\Duty;
 
 class DutyController extends Controller
 {
-    // View all available duties (Pending and not locked)
-    // functionaity for both prof and students
-    public function index()
+       public function index()
     {
         $duties = Duty::where('duty_status', 'pending')
                       ->where('is_locked', false)
+                      ->whereColumn('current_scholars', '<', 'max_scholars')
                       ->get();
 
         return response()->json($duties);
