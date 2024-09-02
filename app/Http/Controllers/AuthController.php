@@ -28,7 +28,7 @@ class AuthController extends Controller
                 'password' => bcrypt($fields['password']),
                 'role' => $fields['role']
             ]);
-            
+
             return response($user, 201);
         }catch(Exception $e){
             return response()->json([
@@ -39,7 +39,7 @@ class AuthController extends Controller
 
     public function loginProf(Request $request){
 
-      
+
         $creds = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
@@ -56,18 +56,18 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'user' => $user->studentProfile
                 ], 200);
-                
+
             }else{
 
                 return response()->json(["message" => "not a professor"]);
             }
-           
-           
+
+
         }else {
             return response()->json(['message' => 'Log in failed'], 500);
         }
-   
-        
+
+
     }
     public function loginStud(Request $request){
 
@@ -87,18 +87,18 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'user' => $user->studentProfile
                 ], 200);
-                
+
             }else{
 
                 return response()->json(["message" => "not a student"]);
             }
-           
-           
+
+
         }else {
             return response()->json(['message' => 'Log in failed'], 500);
         }
-       
-        
+
+
     }
 
     public function logout(Request $request)
@@ -138,13 +138,13 @@ class AuthController extends Controller
                 'token' => $resetPasswordToken
             ]);
         }
-        
+
         $user->notify(new ForgotPassword($user, $resetPasswordToken));
 
         return response()->json([
             'message' => 'A code has been sent to your email Address.'
         ]);
-        
+
    }
 
    public function resetpassword(Request $request)
@@ -182,7 +182,7 @@ class AuthController extends Controller
             'message' => 'Reset password successfully'
         ]);
 
-        
+
 
    }
 }

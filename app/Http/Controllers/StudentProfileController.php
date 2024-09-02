@@ -21,7 +21,7 @@ class StudentProfileController extends Controller
     public function store(Request $request){
         $user = Auth::user();
         if($user->studentProfile == null){
-            
+
             $fields = $request->validate([
 
                 // student info
@@ -65,20 +65,20 @@ class StudentProfileController extends Controller
             if($request->hasFile('profile_img')){
 
                 $file = $request->file('profile_img');
-                
+
                 $filename = time() . '.' . $file->getClientOriginalExtension();
-                
+
                 $path = $file->storeAs('profile_img',$filename, 'public');
-                
+
                 $fields['profile_img'] = 'storage/' . $path;
-                
-                
+
+
             }
-                
+
             $res = $user->studentProfile()->create($fields);
 
             return response($res, 201);
-        } 
+        }
         return response()->json([
             'message' => 'Already have a profile'
         ], 403);
@@ -93,7 +93,7 @@ class StudentProfileController extends Controller
 
         $user = Auth::user();
 
-       
+
         if($request->hasFile('profile_img')){
             if(File::exists($user->studentProfile->profile_img)){
                 File::delete($user->studentProfile->profile_img);
@@ -109,7 +109,7 @@ class StudentProfileController extends Controller
             'contact_number' => $fields['contact_number'] ?? ""
 
         ]);
-        
+
         return response($res, 201);
 
     }

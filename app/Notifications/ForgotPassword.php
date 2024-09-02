@@ -20,7 +20,7 @@ class ForgotPassword extends Notification
     public function __construct($user, $resetPasswordToken)
     {
         $this->resetPasswordToken = $resetPasswordToken;
-        $this->user = $user; 
+        $this->user = $user;
     }
 
     /**
@@ -39,6 +39,7 @@ class ForgotPassword extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
+                    ->greeting('Hello' . $this->user->name)
                     ->line('Reset password token.')
                     ->line('token: ' . $this->resetPasswordToken);
     }
