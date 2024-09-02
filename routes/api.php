@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\StudentFeedbackController;
 use App\Models\HkStatus;
 use Illuminate\Http\Request;
@@ -61,7 +62,7 @@ Route::get('/feedback/index/{student_id}', [StudentFeedbackController::class, 'i
 Route::middleware(['auth:sanctum', isProfessor::class])->group(function (){
 
 //Prof nirerate si Student.
-Route::post('/feedback/{student_id}', [StudentFeedbackController::class, 'store']);    
+Route::post('/feedback/{student_id}', [StudentFeedbackController::class, 'store']);
 
 //PROFESSOR DUTY APIS
 //creation and listing info regarding request
@@ -71,7 +72,7 @@ Route::get('/professors/duties/{dutyId}', [DutyProfController::class, 'show']);
 Route::get('/professors/duties/{dutyId}/requests', [DutyProfController::class, 'getRequestsForDuty']);
 
 //Executable as long as prof has no accepted request
-Route::put('/professors/updateInfo/{dutyId}', [DutyProfController::class, 'update']); 
+Route::put('/professors/updateInfo/{dutyId}', [DutyProfController::class, 'update']);
 Route::delete('/professors/duties/{dutyId}', [DutyProfController::class, 'delete']);
 
 // For accepting and rejecting a request for a duty from students
@@ -101,6 +102,14 @@ Route::post('/professors/duties/{dutyId}/lock', [DutyProfController::class, 'loc
 //admin
 Route::middleware(['auth:sanctum', isAdmin::class])->group(function () {
     Route::post('/create-hk-status', [HkStatusController::class, 'store']);
+
+
+    // Announcement
+    Route::get('/announcements',[AnnouncementController::class, 'index']);
+    Route::get('/announcement/{id}',[AnnouncementController::class, 'show']);
+    Route::post('/create-announcement',[AnnouncementController::class, 'store']);
+    Route::put('/update-announcement/{id}',[AnnouncementController::class, 'update']);
+    Route::put('/delete-announcement/{id}',[AnnouncementController::class, 'delete']);
 });
 
 
