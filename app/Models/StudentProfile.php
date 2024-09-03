@@ -10,6 +10,8 @@ class StudentProfile extends Model
     use HasFactory;
 
     protected $fillable = [
+        'first_name',
+        'last_name',
         'student_number',
         'college',
         'course',
@@ -18,20 +20,20 @@ class StudentProfile extends Model
         'semester',
         'birthday',
         'contact_number',
-        
-        // family 
+
+        // family
         'father_name',
         'father_contact_number',
         'mother_name',
         'mother_contact_number',
 
-        // current address 
+        // current address
         'current_address',
         'current_province',
         'current_country',
         'current_city',
 
-        // permanent address 
+        // permanent address
         'permanent_address',
         'permanent_province',
         'permanent_country',

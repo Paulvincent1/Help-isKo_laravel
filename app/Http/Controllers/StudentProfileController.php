@@ -25,6 +25,8 @@ class StudentProfileController extends Controller
             $fields = $request->validate([
 
                 // student info
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
                 'student_number' => 'required|string|max:255',
                 'college' => 'required|string|max:255',
                 'course' => 'required|string|max:255',
