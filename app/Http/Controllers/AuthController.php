@@ -39,15 +39,15 @@ class AuthController extends Controller
 
     public function loginProf(Request $request){
 
-
+      
         $creds = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
-        if(Auth::attempt($creds)){
-
-            $user = Auth::user();
+    // Attempt to authenticate the user
+    if (Auth::attempt($creds)) {
+        $user = Auth::user();
 
             if($user->role == 'professor'){
 
@@ -56,18 +56,18 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'user' => $user->studentProfile
                 ], 200);
-
+                
             }else{
 
                 return response()->json(["message" => "not a professor"]);
             }
-
-
+           
+           
         }else {
             return response()->json(['message' => 'Log in failed'], 500);
         }
-
-
+   
+        
     }
     public function loginStud(Request $request){
 
@@ -122,7 +122,7 @@ class AuthController extends Controller
         if(!$user){
             return response()->json([
                 'message' => 'No record found'
-            ]);
+            ], 404);
         }
 
         $resetPasswordToken = str_pad(random_int(1, 9999), 4, '0', STR_PAD_LEFT);
@@ -144,7 +144,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'A code has been sent to your email Address.'
         ]);
-
+        
    }
 
    public function resetpassword(Request $request)
@@ -160,7 +160,7 @@ class AuthController extends Controller
         if(!$user){
             return response()->json([
                 'message' => 'No Record found, Incorrect email adress'
-            ]);
+            ], 404);
         }
 
         $resetRequest = PasswordResetToken::where('email', $fields['email'])->first();
@@ -168,7 +168,7 @@ class AuthController extends Controller
         if(!$resetRequest || $resetRequest->token != $fields['token']){
             return response()->json([
                 'message' => ' token mismatch'
-            ]);
+            ], 400);
         }
 
         $user->update([
@@ -180,7 +180,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Reset password successfully'
-        ]);
+        ], 200);
 
 
 
