@@ -18,7 +18,7 @@ class DutyProfController extends Controller
         // Validate the incoming request data
         $data = $request->validate([
             'building' => 'required|string|max:255',
-            'date' => 'required|date',
+            'date' => 'required|date|date_format:Y-m-d',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'message' => 'nullable|string',
@@ -45,7 +45,7 @@ class DutyProfController extends Controller
             'duty_status' => 'pending',
         ]);
 
-        return response()->json(['message' => 'Duty created successfully', 'duty' => $duty], 201);
+        return response()->json(['message' => 'Duty created successfully', 'duty' => $duty], 200);
     }
 
     // View all duties created by the professor
