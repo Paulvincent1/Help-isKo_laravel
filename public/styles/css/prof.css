@@ -1,0 +1,318 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Courier New", Courier, monospace;
+}
+
+.layout_admin {
+  display: flex;
+}
+
+.sidebar {
+  background-color: #e5e5e5;
+  flex: 0 1 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+
+  position: sticky;
+  top: 0;
+}
+
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar_header {
+  margin-bottom: 30px;
+}
+
+.sidebar_content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.sidebar_content img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+
+  border-radius: 100px;
+  transition: all 1s ease-out;
+}
+
+.sidebar_content div {
+  width: 100px;
+  height: 100px;
+
+  border-radius: 100px;
+
+  overflow: hidden;
+}
+
+.sidebar_content div:hover img {
+  transform: scale(1.2);
+}
+
+.sidebar nav {
+  padding-left: 20px;
+}
+
+.sidebar nav ul {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar nav ul a {
+  list-style: none;
+  text-decoration: none;
+  display: inline-block;
+  height: 50px;
+
+  display: flex;
+
+  align-items: center;
+
+  position: relative;
+  color: green;
+  border-radius: 50px 0 0 50px;
+  padding: 20px;
+}
+
+.selected {
+  background-color: white;
+}
+.selected::after {
+  content: "";
+  height: 50px;
+  width: 30px;
+  border-radius: 0 0 50px 0;
+
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  box-shadow: 0 25px 0 0 white;
+
+  transform: translateY(-100%);
+}
+
+.selected::before {
+  content: "";
+  height: 50px;
+  width: 30px;
+  border-radius: 0 50px 0 0;
+
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  box-shadow: 0 -25px 0 0 white;
+
+  transform: translateY(100%);
+}
+
+.sidebar_logout {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.main_content {
+  flex: 1;
+
+  padding: 0 50px;
+  padding-top: 50px;
+}
+
+.main_content h1 {
+  margin-bottom: 20px;
+}
+
+.cards_dashboard {
+  display: flex;
+  gap: 10px;
+  font-size: 30px;
+  color: green;
+}
+
+.cards div {
+  display: flex;
+  flex-direction: column;
+}
+
+.cards {
+  box-shadow: 0 0 10px #edede9;
+  flex: 1 1 0;
+  height: 150px;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.main_content_nav {
+  margin-bottom: 20px;
+}
+
+.main_content_nav ul {
+  list-style: none;
+  display: flex;
+  gap: 10px;
+}
+
+.main_content_nav a {
+  background-color: #e5e5e5;
+  text-decoration: none;
+  padding: 20px;
+  color: black;
+
+  z-index: 1;
+  position: relative;
+}
+
+.main_content_nav .selected_main {
+  background-color: green;
+  color: white;
+}
+
+.guide_tab {
+  display: flex;
+  align-items: center;
+}
+
+.guide_tab-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+
+  font-size: 1.2rem;
+  color: gray;
+  font-weight: 900;
+
+  margin-bottom: 40px;
+}
+.hr {
+  flex-basis: 200px;
+}
+hr {
+  height: 2px;
+  background-color: gray;
+}
+
+.guide_tab-register {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.current-tab {
+  color: #0077b6;
+}
+
+.create_account {
+  background-color: #e5e5e5;
+  padding: 50px 60px;
+}
+
+.create_account p {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.create_account-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.create_account-content div {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.create_account-content div input {
+  height: 40px;
+  padding: 20px;
+  border: 0;
+}
+
+.create_account-content div input:focus {
+  outline: 1px solid blue;
+}
+
+.create_account-content div label {
+  font-weight: 900;
+}
+
+.submit-button {
+  display: flex;
+  justify-content: end;
+  margin-top: 20px;
+}
+.submit-button input {
+  border: 0;
+  background-color: #0077b6;
+  color: white;
+  display: inline-block;
+  padding: 10px 20px;
+}
+
+.submit-button input:hover {
+  cursor: pointer;
+}
+
+form .form_layout {
+  background-color: #e5e5e5;
+  padding: 50px 60px;
+}
+
+form .form_layout div p {
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+}
+form .form_layout div {
+  margin-bottom: 20px;
+}
+
+form .form_layout .form_layout-information {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px;
+  justify-content: space-between;
+}
+
+form .form_layout .form_layout-information div {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+}
+form .form_layout .form_layout-information div label {
+  margin-bottom: 10px;
+  font-weight: 900;
+}
+
+form .form_layout .form_layout-information div input {
+  height: 40px;
+
+  padding: 20px;
+  border: 0;
+}
+form .form_layout .form_layout-information div input:focus {
+  outline: 1px solid blue;
+}
