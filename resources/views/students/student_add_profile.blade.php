@@ -71,21 +71,40 @@
         <p>Student Information</p>
         <div class="form_layout-information">
           <div>
+            <label for="">First Name</label>
+            <input
+              type="text"
+              id="student_number"
+              placeholder="First Name"
+              name="first_name"
+            />
+          </div>
+          <div>
+            <label for="">Last Name</label>
+            <input
+              type="text"
+              id="student_number"
+              placeholder="Last Name"
+              name="last_name"
+            />
+          </div>
+          <div>
             <label for="">Student Number</label>
             <input
               type="text"
               id="student_number"
               placeholder="Student Number"
-              name=""
+              name="student_number"
             />
           </div>
           <div>
             <label for="">College</label>
-            <input type="text" placeholder="College" />
+            <input type="text" placeholder="College" 
+            name="college"/>
           </div>
           <div>
             <label for="">Course</label>
-            <input type="text" placeholder="Course" />
+            <input type="text" placeholder="Course" name="course"/>
           </div>
 
           <div>
@@ -93,20 +112,28 @@
             <input
               type="text"
               id="student_number"
-              placeholder="Department"
+              placeholder="Department" name="department"
             />
           </div>
           <div>
             <label for="">Semester</label>
-            <input type="text" placeholder="Semester" />
+            <input type="text" placeholder="Semester" name="semester" />
           </div>
           <div>
             <label for="">Learning Modality</label>
-            <input type="text" placeholder="Learning Modality" />
+            <input type="text" placeholder="Learning Modality" name="learning_modality" />
+          </div>
+          <div>
+            <label for="">Birthday</label>
+            <input type="text" placeholder="Birthday" name="birthday" />
+          </div>
+          <div>
+            <label for="">Contact Number</label>
+            <input type="text" placeholder="Birthday" name="contact_number" />
           </div>
           <div>
             <label for="">Profile Picture</label>
-            <input type="file" placeholder="Profile Picture" />
+            <input type="file" placeholder="Profile Picture" name="profile_img" />
           </div>
         </div>
       </div>
@@ -119,15 +146,16 @@
               type="text"
               id="student_number"
               placeholder="Father name"
+              name="father_name"
             />
           </div>
           <div>
             <label for="">Father Contact Number</label>
-            <input type="text" placeholder="Father Contact Number" />
+            <input type="text" placeholder="Father Contact Number" name="father_contact_number"/>
           </div>
           <div>
             <label for="">Mother Name</label>
-            <input type="text" placeholder="Mother Name" />
+            <input type="text" placeholder="Mother Name" name="mother_name" />
           </div>
 
           <div>
@@ -136,6 +164,8 @@
               type="text"
               id="student_number"
               placeholder="Department"
+
+              name="mother_contact_number"
             />
           </div>
         </div>
@@ -149,15 +179,18 @@
               type="text"
               id="student_number"
               placeholder="Current Address"
+
+              name="current_address"
             />
           </div>
           <div>
             <label for="">Current Province</label>
-            <input type="text" placeholder="Current Province" />
+            <input type="text" placeholder="Current Province"
+            name="current_province" />
           </div>
           <div>
             <label for="">Current Country</label>
-            <input type="text" placeholder="Current Country" />
+            <input type="text" placeholder="Current Country" name="current_country" />
           </div>
 
           <div>
@@ -166,6 +199,8 @@
               type="text"
               id="student_number"
               placeholder="Current City"
+
+              name="current_city"
             />
           </div>
           <div>
@@ -174,15 +209,18 @@
               type="text"
               id="student_number"
               placeholder="Permanent Address"
+              name="permanent_address"
             />
           </div>
           <div>
             <label for="">Permanent Province</label>
-            <input type="text" placeholder="Permanent Province" />
+            <input type="text" placeholder="Permanent Province"
+            name="permanent_province"
+            />
           </div>
           <div>
             <label for="">Permanent Country</label>
-            <input type="text" placeholder="Permanent Country" />
+            <input type="text" placeholder="Permanent Country" name="permanent_country" />
           </div>
 
           <div>
@@ -191,6 +229,7 @@
               type="text"
               id="student_number"
               placeholder="Permanent City"
+              name="permanent_city"
             />
           </div>
         </div>
@@ -204,15 +243,16 @@
               type="text"
               id="student_number"
               placeholder="Father name"
+              name="emergency_person_name"
             />
           </div>
           <div>
             <label for="">Emergency Address</label>
-            <input type="text" placeholder="Emergency Address" />
+            <input type="text" placeholder="Emergency Address" name="emergency_address" />
           </div>
           <div>
             <label for="">Relation</label>
-            <input type="text" placeholder="Relation" />
+            <input type="text" placeholder="Relation" name="relation" />
           </div>
 
           <div>
@@ -221,6 +261,7 @@
               type="text"
               id="student_number"
               placeholder="Emergency Contact Number"
+              name="emergency_contact_number"
             />
           </div>
         </div>
