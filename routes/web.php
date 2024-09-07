@@ -4,10 +4,12 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Middleware\Admin\isAdmin;
 use Illuminate\Support\Facades\Route;
 
+Route::middleware(['guest'])->group(function(){
 
-Route::get('/login',[AdminAuthController::class, 'index'])->name('login');
-Route::post('/login-admin',[AdminAuthController::class, 'login'])->name('loginAdmin');
-
+    Route::get('/login',[AdminAuthController::class, 'index'])->name('login');
+    Route::post('/login-admin',[AdminAuthController::class, 'login'])->name('loginAdmin');
+    
+});
 Route::get('/', function () {
     return view('index');
 })->name('index');
