@@ -64,19 +64,15 @@
     </div>
   </div>
 
-  <form action="student_add_profile" class="create_account">
+  <form action="{{route('students.hkDutyQuota_post')}}" class="create_account" method="POST">
+    @csrf
     <div class="quota-assignment">
       <h2>Assign Duty Hour Quota</h2>
       
-          <label for="student">Select Student:</label>
-          <select id="student">
-              <option value="student1">Student 1</option>
-              <option value="student2">Student 2</option>
-              <!-- Add more options -->
-          </select>
-  
+    
+         
           <label for="quota">Assign Quota (in hours):</label>
-          <input type="number" id="quota" name="quota" min="1">           
+          <input type="number" id="quota" name="duty_hours" min="1">           
   </div>
     
     <div class="submit-button">

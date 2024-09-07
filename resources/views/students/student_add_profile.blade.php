@@ -64,7 +64,8 @@
     </div>
   </div>
 
-  <form action="student">
+  <form action="{{ route('students.student_add_profile_post')}}" method="POST">
+    @csrf
     <div class="form_layout">
       <div>
         <p>Student Information</p>
@@ -75,6 +76,7 @@
               type="text"
               id="student_number"
               placeholder="Student Number"
+              name=""
             />
           </div>
           <div>

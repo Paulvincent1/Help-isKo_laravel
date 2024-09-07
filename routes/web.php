@@ -29,18 +29,17 @@ Route::middleware([isAdmin::class, 'auth'])->group(function (){
     })->name('announcement.announcement_add');
     
     //student route
-    Route::get('/student', function () {
-        return view('students.student');
-    })->name('student');
+    Route::get('/student', [StudentProfileController::class, 'studentsTable'])->name('student');
     
     Route::get('/student/add',[StudentProfileController::class, 'index'])->name('students.student_add');
     Route::post('/student/add',[StudentProfileController::class, 'register'])->name('students.student_add_post');
     
-    Route::get('/student_add_profile', function () {
-        return view('students.student_add_profile');
-    })->name('students.student_add_profile');
+    Route::get('/student_add_profile', [StudentProfileController::class, 'studentAddProfile'])->name('students.student_add_profile');
+    Route::post('/student_add_profile', [StudentProfileController::class, 'store'])->name('students.student_add_profile_post');
     
     Route::get('/student/hk_duty_quota', [StudentProfileController::class ,'hkQuotaIndex'])->name('students.hkDutyQuota');
+
+    Route::post('/student/hk_duty_quota', [StudentProfileController::class ,'hkQuotaStore'])->name('students.hkDutyQuota_post');
     
     
     
