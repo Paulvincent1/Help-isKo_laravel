@@ -34,8 +34,8 @@ Route::middleware([isAdmin::class, 'auth'])->group(function (){
     Route::get('/student/add',[StudentProfileController::class, 'index'])->name('students.student_add');
     Route::post('/student/add',[StudentProfileController::class, 'register'])->name('students.student_add_post');
     
-    Route::get('/student_add_profile', [StudentProfileController::class, 'studentAddProfile'])->name('students.student_add_profile');
-    Route::post('/student_add_profile', [StudentProfileController::class, 'store'])->name('students.student_add_profile_post');
+    Route::get('/student/student_add_profile', [StudentProfileController::class, 'studentAddProfile'])->name('students.student_add_profile');
+    Route::post('/student/student_add_profile', [StudentProfileController::class, 'store'])->name('students.student_add_profile_post');
     
     Route::get('/student/hk_duty_quota', [StudentProfileController::class ,'hkQuotaIndex'])->name('students.hkDutyQuota');
 

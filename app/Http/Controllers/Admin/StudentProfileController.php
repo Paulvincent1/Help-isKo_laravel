@@ -136,7 +136,7 @@ class StudentProfileController extends Controller
 
            $user->studentProfile()->create($fields);
 
-            return redirect()->route('students.student_add_profile');
+            return redirect()->route('student');
         }
         return redirect()->back();
 

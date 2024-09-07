@@ -64,7 +64,7 @@
     </div>
   </div>
 
-  <form action="{{ route('students.student_add_profile_post')}}" method="POST">
+  <form action="{{ route('students.student_add_profile_post')}}" method="POST" enctype="multipart/form-data">
     @csrf
     <div class="form_layout">
       <div>
@@ -278,4 +278,12 @@
         />
       </div>
   </form>
+  @if ($errors->any())
+  <ul>
+    @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+    @endforeach
+  </ul>
+      
+  @endif
 </x-layout>
