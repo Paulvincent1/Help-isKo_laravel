@@ -65,32 +65,33 @@
     </div>
   </div>
 
-  <form action="hk_duty_quota" class="create_account">
+  <form action="{{route('students.student_add_post')}}" class="create_account" method="POST">
+    @csrf
     <p>Register</p>
     <div class="create_account-layout">
       <div class="create_account-content">
         <div class="">
           <label for="">Name</label>
-          <input type="text" placeholder="Enter name" />
+          <input type="text" placeholder="Enter name" name="name"/>
         </div>
       </div>
       <div class="create_account-content">
         <div>
           <label for="">Phinmaed Email</label>
-          <input type="text" placeholder="Enter phinmaed email" />
+          <input type="text" placeholder="Enter phinmaed email" name="email" />
         </div>
       </div>
 
       <div class="create_account-content">
         <div class="">
           <label for="">Password</label>
-          <input type="password" placeholder="Password" />
+          <input type="password" placeholder="Password" name="password"/>
         </div>
       </div>
       <div class="create_account-content">
         <div>
           <label for="">Confirm Password</label>
-          <input type="password" placeholder="Confirm Password" />
+          <input type="password" placeholder="Confirm Password" name="password_confirmation"/>
         </div>
       </div>
     </div>
@@ -98,6 +99,15 @@
       <input type="submit" value="Next" />
     </div>
   </form>
+  @if ($errors->any())
+
+  <ul>
+    @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+    @endforeach
+  </ul>
+      
+  @endif
   <!-- <form action="">
     <div class="form_layout">
       <div class="form_layout-information">

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\StudentProfileController;
 use App\Http\Middleware\Admin\isAdmin;
 use Illuminate\Support\Facades\Route;
 
@@ -11,12 +12,14 @@ Route::middleware(['guest'])->group(function(){
     
 });
 
-Route::middleware([isAdmin::class, 'auth','auth.session'])->group(function (){
 
+
+Route::middleware([isAdmin::class, 'auth'])->group(function (){
+    
     Route::get('/', function () {
         return view('index');
     })->name('index');
-    
+
     Route::get('/announcement', function () {
         return view('announcement.announcement');
     })->name('announcement');
@@ -30,17 +33,14 @@ Route::middleware([isAdmin::class, 'auth','auth.session'])->group(function (){
         return view('students.student');
     })->name('student');
     
-    Route::get('/student_add', function () {
-        return view('students.student_add');
-    })->name('students.student_add');
+    Route::get('/student/add',[StudentProfileController::class, 'index'])->name('students.student_add');
+    Route::post('/student/add',[StudentProfileController::class, 'register'])->name('students.student_add_post');
     
     Route::get('/student_add_profile', function () {
         return view('students.student_add_profile');
     })->name('students.student_add_profile');
     
-    Route::get('/hk_duty_quota', function () {
-        return view('students.hkDutyQuota');
-    })->name('students.hkDutyQuota');
+    Route::get('/student/hk_duty_quota', [StudentProfileController::class ,'hkQuotaIndex'])->name('students.hkDutyQuota');
     
     
     

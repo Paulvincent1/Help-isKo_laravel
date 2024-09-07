@@ -15,11 +15,11 @@ class isAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if($request->user() === 'admin'){
+        if($request->user()->role === 'admin'){
 
             return $next($request);
         }
 
-        return redirect('/login');
+        return redirect()->route('login');
     }
 }
