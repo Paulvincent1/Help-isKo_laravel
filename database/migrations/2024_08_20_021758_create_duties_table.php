@@ -19,7 +19,7 @@ class CreateDutiesTable extends Migration
             $table->integer('max_scholars');
             $table->integer('current_scholars')->default(0);
             $table->boolean('is_locked')->default(false);
-            $table->enum('duty_status', ['pending', 'active', 'completed', 'cancelled'])->default('pending');
+            $table->enum('duty_status', ['Pending', 'Active', 'Completed', 'Cancelled'])->default('Pending');
             $table->boolean('is_completed')->default(false);
             $table->foreignId('prof_id')->constrained('users')->cascadeOnDelete(); // Foreign key to users (professors)
             $table->timestamps();

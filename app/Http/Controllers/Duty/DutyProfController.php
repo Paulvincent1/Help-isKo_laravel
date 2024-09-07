@@ -60,6 +60,25 @@ class DutyProfController extends Controller
     }
 
     // View a specific duty created by the professor
+    // public function show($userId)
+    // {
+    //     $professor = Auth::user();
+    
+    //     // Check if the authenticated user has permission to view the duties of the specified user
+    //     if ($professor->id != $userId) {
+    //         return response()->json(['message' => 'Unauthorized access'], 403);
+    //     }
+    
+    //     // Retrieve all duties created by the specified user
+    //     $duties = Duty::where('prof_id', $userId)->get();
+    
+    //     if ($duties->isEmpty()) {
+    //         return response()->json(['message' => 'No duties found for this user'], 404);
+    //     }
+    
+    //     return response()->json($duties);
+    // }
+
     public function show($dutyId)
     {
         $professor = Auth::user();
@@ -73,6 +92,7 @@ class DutyProfController extends Controller
 
         return response()->json($duty);
     }
+    
 
     public function getRequestsForDuty($dutyId)
     {

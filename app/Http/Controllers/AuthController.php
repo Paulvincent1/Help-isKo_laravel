@@ -54,7 +54,7 @@ class AuthController extends Controller
                 return response()->json([
                     "token" =>  $user->createToken($request->email)->plainTextToken,
                     'name' => $user->name,
-                    'user' => $user->studentProfile
+                    'user' => $user->professorProfile
                 ], 200);
                 
             }else{
