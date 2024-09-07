@@ -10,13 +10,12 @@ Route::middleware(['guest'])->group(function(){
     Route::post('/login-admin',[AdminAuthController::class, 'login'])->name('loginAdmin');
     
 });
-Route::get('/', function () {
-    return view('index');
-})->name('index');
+
 Route::middleware([isAdmin::class, 'auth','auth.session'])->group(function (){
 
-
-
+    Route::get('/', function () {
+        return view('index');
+    })->name('index');
     
     Route::get('/announcement', function () {
         return view('announcement.announcement');
