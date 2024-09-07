@@ -11,12 +11,14 @@ Route::middleware(['guest'])->group(function(){
     
 });
 
-Route::middleware([isAdmin::class, 'auth','auth.session'])->group(function (){
 
+
+Route::middleware([isAdmin::class, 'auth'])->group(function (){
+    
     Route::get('/', function () {
         return view('index');
     })->name('index');
-    
+
     Route::get('/announcement', function () {
         return view('announcement.announcement');
     })->name('announcement');
