@@ -107,7 +107,7 @@ Route::middleware(['auth:sanctum', isAdmin::class])->group(function () {
 
 
     // Announcement
-    // Route::get('/announcements',[AnnouncementController::class, 'index']);
+    // Route::get('/announcement',[AnnouncementController::class, 'index']);
     Route::get('/announcement/{id}',[AnnouncementController::class, 'show']);
     Route::post('/create-announcement',[AnnouncementController::class, 'store']);
     Route::put('/update-announcement/{id}',[AnnouncementController::class, 'update']);

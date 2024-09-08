@@ -51,7 +51,7 @@ class StudentDutyController extends Controller
         $student = Auth::user();
         $duty = Duty::find($dutyId);
 
-        if (!$duty || $duty->duty_status !== 'pending' || $duty->is_locked) {
+        if (!$duty || $duty->duty_status !== 'Pending' || $duty->is_locked) {
             return response()->json(['message' => 'Duty is not available for requests'], 400);
         }
 

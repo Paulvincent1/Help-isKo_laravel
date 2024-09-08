@@ -99,7 +99,7 @@ class DutyProfController extends Controller
         $professor = Auth::user();
     
         // Check if the user is authorized
-        if (!$professor || $professor->role !== 'professor') {
+        if (!$professor || $professor->role !== 'employee') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
     
@@ -140,6 +140,12 @@ class DutyProfController extends Controller
         return response()->json([
             'duty_id' => $dutyId,
             'request_count' => $requestCount,
+            'duty_details' => [
+                'date' => $duty->date,
+                'start_time' => $duty->start_time,
+                'end_time' => $duty->end_time,
+                'message' => $duty->message,
+            ],
             'student_data' => $studentData
         ]);
     }
@@ -147,37 +153,37 @@ class DutyProfController extends Controller
 
 
     public function getAcceptedStudents($dutyId)
-{
-    $professor = Auth::user();
+    {
+        $professor = Auth::user();
 
-    // Get the specific duty created by the professor
-    $duty = Duty::where('id', $dutyId)
-        ->where('prof_id', $professor->id)
-        ->first();
+        // Get the specific duty created by the professor
+        $duty = Duty::where('id', $dutyId)
+            ->where('prof_id', $professor->id)
+            ->first();
 
-    if (!$duty) {
-        return response()->json(['message' => 'Duty not found or you do not have permission to view it'], 404);
+        if (!$duty) {
+            return response()->json(['message' => 'Duty not found or you do not have permission to view it'], 404);
+        }
+
+        // Get the students who have been accepted for this duty
+        $acceptedStudents = StudentDutyRecord::where('duty_id', $dutyId)
+            ->where('request_status', 'accepted')
+            ->with('student')
+            ->get()
+            ->map(function ($record) {
+                return [
+                    'student_id' => $record->student->id,
+                    'name' => $record->student->name,
+                    'request_status' => $record->request_status,
+                ];
+            });
+
+        return response()->json([
+            'duty_id' => $duty->id,
+            'duty_status' => $duty->duty_status,
+            'accepted_students' => $acceptedStudents,
+        ]);
     }
-
-    // Get the students who have been accepted for this duty
-    $acceptedStudents = StudentDutyRecord::where('duty_id', $dutyId)
-        ->where('request_status', 'accepted')
-        ->with('student')
-        ->get()
-        ->map(function ($record) {
-            return [
-                'student_id' => $record->student->id,
-                'name' => $record->student->name,
-                'request_status' => $record->request_status,
-            ];
-        });
-
-    return response()->json([
-        'duty_id' => $duty->id,
-        'duty_status' => $duty->duty_status,
-        'accepted_students' => $acceptedStudents,
-    ]);
-}
 
 
     // Update a specific duty
