@@ -39,9 +39,9 @@
               <a href="{{route('student')}}"  class="{{Request::is('student') ? 'selected' : ''}}"
                 ><li><i class="fa-solid fa-graduation-cap"></i> Student</li></a
               >
-          <a href="{{route('professor')}}" class="{{Request::is('professor') ? 'selected' : ''}}"
+          <a href="{{route('employee')}}" class="{{Request::is('employee') ? 'selected' : ''}}"
                 ><li>
-                  <i class="fa-solid fa-chalkboard-user"></i> Professor
+                  <i class="fa-solid fa-chalkboard-user"></i> Employee
                 </li></a
               >
               <a href="{{route('announcement')}}" class="{{Request::is('announcement') ? 'selected' : ''}}"

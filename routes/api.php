@@ -14,14 +14,16 @@ use App\Http\Controllers\StudentProfileController;
 use App\Http\Controllers\Duty\DutyController;
 use App\Http\Controllers\Duty\StudentDutyController;
 use App\Http\Controllers\Duty\DutyProfController;
+use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\ProfessorProfileController;
+use App\Http\Middleware\isEmployee;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login-prof', [AuthController::class, 'loginProf']);
+Route::post('/login-employee', [AuthController::class, 'loginEmployee']);
 Route::post('/login-stud', [AuthController::class, 'loginStud']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
@@ -59,7 +61,7 @@ Route::get('/feedback/index/{student_id}', [StudentFeedbackController::class, 'i
 
 //PROFESSOR
 
-Route::middleware(['auth:sanctum', isProfessor::class])->group(function (){
+Route::middleware(['auth:sanctum', isEmployee::class])->group(function (){
 
 //Prof nirerate si Student.
 Route::post('/feedback/{student_id}', [StudentFeedbackController::class, 'store']);
@@ -90,11 +92,11 @@ Route::post('/professors/duties/{dutyId}/lock', [DutyProfController::class, 'loc
 
 
 
-    //prof profile
-    Route::get('/prof-profile', [ProfessorProfileController::class, 'index']);
-    Route::get('/prof-profile/{id}', [ProfessorProfileController::class, 'show']);
-    Route::post('/prof-profile/create', [ProfessorProfileController::class, 'create']);
-    Route::put('/prof-profile/update', [ProfessorProfileController::class, 'update']);
+    //employee profile
+    Route::get('/employee-profile', [EmployeeProfileController::class, 'index']);
+    Route::get('/employee-profile/{id}', [EmployeeProfileController::class, 'show']);
+    Route::post('/employee-profile/create', [EmployeeProfileController::class, 'create']);
+    Route::put('/employee-profile/update', [EmployeeProfileController::class, 'update']);
 
 });
 

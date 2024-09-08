@@ -20,7 +20,7 @@ class AuthController extends Controller
                 'name' => 'required|max:255',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|string|confirmed',
-                'role' => 'required|string|in:professor,student'
+                'role' => 'required|string|in:employee,student'
             ]);
             $user = User::create([
                 'name' => $fields['name'],
@@ -37,7 +37,7 @@ class AuthController extends Controller
         }
     }
 
-    public function loginProf(Request $request){
+    public function loginEmployee(Request $request){
 
       
         $creds = $request->validate([
@@ -49,17 +49,17 @@ class AuthController extends Controller
     if (Auth::attempt($creds)) {
         $user = Auth::user();
 
-            if($user->role == 'professor'){
+            if($user->role == 'employee'){
 
                 return response()->json([
                     "token" =>  $user->createToken($request->email)->plainTextToken,
                     'name' => $user->name,
-                    'user' => $user->studentProfile
+                    'user' => $user->employeeProfile
                 ], 200);
                 
             }else{
 
-                return response()->json(["message" => "not a professor"]);
+                return response()->json(["message" => "not a employee"]);
             }
            
            
