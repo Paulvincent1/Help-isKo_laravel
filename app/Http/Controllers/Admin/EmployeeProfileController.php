@@ -6,16 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 
-class ProfessorProfileController extends Controller
+class EmployeeProfileController extends Controller
 {
 
     public function profTable()
     {
-        return view('professor.professor');
+        return view('employee.employee');
     }
     public function index()
     {
-        return view('professor.professor_add');
+        return view('employee.employee_add');
     }
 
     public function register(Request $request)
@@ -30,31 +30,31 @@ class ProfessorProfileController extends Controller
             'name' => $fields['name'],
             'email' => $fields['email'],
             'password' => bcrypt($fields['password']),
-            'role' => 'professor'
+            'role' => 'employee'
         ]);
 
-        session(['prof_id' => $user->id]);
+        session(['emp_id' => $user->id]);
 
-        return redirect()->route('professor.professor_add_profile');
+        return redirect()->route('employee.employee_add_profile');
     }
 
     public function profAddProfileIndex()
     {
-        return view('professor.professor_add_profile');
+        return view('employee.employee_add_profile');
     }
 
     public function profAddProfileStore(Request $request)
     {
-        $id = session('prof_id');
+        $id = session('emp_id');
         $user = User::where('id', $id)->first();
 
-        if ($user->professorProfile == null) {
+        if ($user->employeeProfile == null) {
             $fields = $request->validate([
                 'first_name' => 'required|max:255',
                 'last_name' => 'required|max:255',
                 'birthday' => 'required|max:255',
                 'contact_number' => 'required|max:255',
-                'professor_number' => 'required|max:255',
+                'employee_number' => 'required|max:255',
                 'profile_img' => 'image|mimes:jpg,bmp,png'
             ]);
 
@@ -65,7 +65,7 @@ class ProfessorProfileController extends Controller
 
                 $fields['profile_img'] = 'storage/' . $path;
             }
-            $user->professorProfile()->create($fields);
+            $user->employeeProfile()->create($fields);
             return redirect()->route('professor');
         }
         return redirect()->back();

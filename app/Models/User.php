@@ -53,8 +53,8 @@ class User extends Authenticatable
     }
 
 
-    public function professorProfile(){
-        return $this->hasOne(ProfessorProfile::class);
+    public function employeeProfile(){
+        return $this->hasOne(EmployeeProfile::class);
     }
 
 
