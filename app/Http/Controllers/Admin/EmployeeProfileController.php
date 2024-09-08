@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class EmployeeProfileController extends Controller
 {
 
-    public function profTable()
+    public function employeeTable()
     {
         return view('employee.employee');
     }
@@ -38,12 +38,12 @@ class EmployeeProfileController extends Controller
         return redirect()->route('employee.employee_add_profile');
     }
 
-    public function profAddProfileIndex()
+    public function employeeAddProfileIndex()
     {
         return view('employee.employee_add_profile');
     }
 
-    public function profAddProfileStore(Request $request)
+    public function employeeAddProfileStore(Request $request)
     {
         $id = session('emp_id');
         $user = User::where('id', $id)->first();
@@ -66,7 +66,7 @@ class EmployeeProfileController extends Controller
                 $fields['profile_img'] = 'storage/' . $path;
             }
             $user->employeeProfile()->create($fields);
-            return redirect()->route('professor');
+            return redirect()->route('employee');
         }
         return redirect()->back();
     }

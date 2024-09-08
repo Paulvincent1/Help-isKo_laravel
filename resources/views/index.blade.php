@@ -12,7 +12,7 @@
           <div class="cards">
             <div>
               <p>0</p>
-              <p>Professor</p>
+              <p>Employee</p>
             </div>
             <i class="fa-solid fa-chalkboard-user"></i>
           </div>

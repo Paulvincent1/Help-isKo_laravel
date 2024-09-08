@@ -3,7 +3,7 @@
 
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\EmployeeProfileController;
-use App\Http\Controllers\Admin\ProfessorProfileController as AdminProfessorProfileController;
+use App\Http\Controllers\Admin\EmployeeProfileController as AdminEmployeeProfileController;
 use App\Http\Controllers\Admin\StudentProfileController;
 use App\Http\Middleware\Admin\isAdmin;
 use Illuminate\Support\Facades\Route;
@@ -54,11 +54,11 @@ Route::middleware([isAdmin::class, 'auth'])->group(function () {
 
 
     //prof route
-    Route::get('/employee', [EmployeeProfileController::class, 'index'])->name('professor');
+    Route::get('/employee', [EmployeeProfileController::class, 'index'])->name('employee');
 
-    Route::get('/employee/add', [EmployeeProfileController::class, 'index'])->name('professor.professor_add');
-    Route::post('/employee/add', [EmployeeProfileController::class, 'register'])->name('professor.professor_add_post');
-    Route::get('/employee/add/profile', [EmployeeProfileController::class, 'profAddProfileIndex'])->name('professor.professor_add_profile');
-    Route::post('/employee/add/profile', [EmployeeProfileController::class, 'profAddProfileStore'])->name('professor.professor_add_profile_store');
-    Route::get('/employee', [EmployeeProfileController::class, 'profTable'])->name('professor');
+    Route::get('/employee/add', [EmployeeProfileController::class, 'index'])->name('employee.employee_add');
+    Route::post('/employee/add', [EmployeeProfileController::class, 'register'])->name('employee.employee_add_post');
+    Route::get('/employee/add/profile', [EmployeeProfileController::class, 'employeeAddProfileIndex'])->name('employee.employee_add_profile');
+    Route::post('/employee/add/profile', [EmployeeProfileController::class, 'employeeAddProfileStore'])->name('employee.employee_add_profile_store');
+    Route::get('/employee', [EmployeeProfileController::class, 'employeeTable'])->name('employee');
 });
