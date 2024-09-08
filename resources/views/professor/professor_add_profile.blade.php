@@ -46,35 +46,37 @@
     </div>
   </div>
 
-  <form action="professor">
+  <form action="{{route('professor.professor_add_profile')}}" method="POST" enctype="multipart/form-data">
+    @csrf
     <div class="form_layout">
       <div>
         <p>Professor Information</p>
         <div class="form_layout-information">
           <div>
             <label for="">First Name</label>
-            <input type="text" placeholder="First Name" />
+            <input type="text" placeholder="First Name" name="first_name"/>
           </div>
           <div>
             <label for="">Last Name</label>
-            <input type="text" placeholder="Last Name" />
+            <input type="text" placeholder="Last Name" 
+            name="last_name"/>
           </div>
           <div>
             <label for="">Birthday</label>
-            <input type="text" placeholder="Birthday" />
+            <input type="text" placeholder="Birthday" name="birthday"/>
           </div>
 
           <div>
             <label for="">Contact Number</label>
-            <input type="text" placeholder="Contact Number" />
+            <input type="text" placeholder="Contact Number" name="contact_number"/>
           </div>
           <div>
             <label for="">Professor Number</label>
-            <input type="text" placeholder="Professor Number" />
+            <input type="text" placeholder="Professor Number" name="professor_number"/>
           </div>
           <div>
             <label for="">Profile Picture</label>
-            <input type="file" />
+            <input type="file" name="profile_img"/>
           </div>
         </div>
       </div>
@@ -83,4 +85,13 @@
         <input type="submit" value="Next" />
       </div>
     </div>
+  </form>
+  @if ($errors->any())
+  <ul>
+    @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+    @endforeach
+  </ul>
+      
+  @endif
 </x-layout>
