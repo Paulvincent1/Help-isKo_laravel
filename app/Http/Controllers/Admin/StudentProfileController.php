@@ -73,7 +73,8 @@ class StudentProfileController extends Controller
         return view('students.student_add_profile');
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $id = session('student_id');
         $user = User::where('id', $id)->first();
       

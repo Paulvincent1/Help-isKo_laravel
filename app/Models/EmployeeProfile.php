@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProfessorProfile extends Model
+class EmployeeProfile extends Model
 {
     use HasFactory;
 
@@ -15,7 +15,7 @@ class ProfessorProfile extends Model
         'employe_number',
         'birthday',
         'contact_number',
-        'professor_number',
+        'employee_number',
         'profile_img',
 
     ];

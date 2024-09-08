@@ -1,9 +1,9 @@
 <x-layout>
   <div class="main_content_nav">
     <ul>
-      <a href="{{route('professor')}}"><li>Professor table</li></a>
-      <a href="{{Route('professor.professor_add')}}" class="selected_main"
-        ><li>Manage Professor</li></a
+      <a href="{{route('employee')}}"><li>Employee table</li></a>
+      <a href="{{Route('employee.employee_add')}}" class="selected_main"
+        ><li>Manage Employee</li></a
       >
     </ul>
   </div>
@@ -40,41 +40,42 @@
               d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.646 6.24v.07H5.375v-.064c0-1.213.879-2.402 2.637-2.402 1.582 0 2.613.949 2.613 2.215 0 1.002-.6 1.667-1.287 2.43l-.096.107-1.974 2.22v.077h3.498V12H5.422v-.832l2.97-3.293c.434-.475.903-1.008.903-1.705 0-.744-.557-1.236-1.313-1.236-.843 0-1.336.615-1.336 1.306"
             />
           </svg>
-          <p>Professor Profile</p>
+          <p>Employee Profile</p>
         </div>
       </div>
     </div>
   </div>
 
   <form
-    action="professor_add_profile"
+    action="{{route('employee.employee_add_post')}}"
     class="create_account"
-  >
+    method="POST"
+  >@csrf
     <p>Register</p>
     <div class="create_account-layout">
       <div class="create_account-content">
         <div class="">
           <label for="">Name</label>
-          <input type="text" placeholder="Enter name" />
+          <input type="text" placeholder="Enter name" name="name"/>
         </div>
       </div>
       <div class="create_account-content">
         <div>
           <label for="">Phinmaed Email</label>
-          <input type="text" placeholder="Enter phinmaed email" />
+          <input type="text" placeholder="Enter phinmaed email" name="email"/>
         </div>
       </div>
 
       <div class="create_account-content">
         <div class="">
           <label for="">Password</label>
-          <input type="password" placeholder="Password" />
+          <input type="password" placeholder="Password" name="password"/>
         </div>
       </div>
       <div class="create_account-content">
         <div>
           <label for="">Confirm Password</label>
-          <input type="password" placeholder="Confirm Password" />
+          <input type="password" placeholder="Confirm Password" name="password_confirmation"/>
         </div>
       </div>
     </div>
@@ -82,4 +83,13 @@
       <input type="submit" value="Next" />
     </div>
   </form>
+  @if ($errors->any())
+
+  <ul>
+    @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+    @endforeach
+  </ul>
+      
+  @endif
 </x-layout>

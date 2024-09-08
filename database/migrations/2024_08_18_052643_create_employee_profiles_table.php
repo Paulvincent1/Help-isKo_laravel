@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('professor_profiles', function (Blueprint $table) {
+        Schema::create('employee_profiles', function (Blueprint $table) {
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
             $table->string('employe_number');
             $table->string('birthday');
             $table->string('contact_number');
-            $table->string('professor_number');
+            $table->string('employee_number');
             $table->string('profile_img')->nullable(true);
             $table->foreignId('user_id')->unique()->constrained('users')->cascadeOnDelete();
             $table->timestamps();
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('professor_profiles');
+        Schema::dropIfExists('employee_profiles');
     }
 };

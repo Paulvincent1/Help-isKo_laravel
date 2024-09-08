@@ -7,21 +7,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 
-class ProfessorProfileController extends Controller
+class EmployeeProfileController extends Controller
 {
     public function index(){
         $user = Auth::user();
        
 
         return response()->json([
-            'professor' =>  $user->professorProfile
+            'employee' =>  $user->employeeProfile
         ],200 );
     }
     public function show(User $id){
         
         return response()->json([
             'name' => $id->name,
-            'professor' => $id->professorProfile
+            'employee' => $id->employeeProfile
         ]);
     }
     public function create(Request $request){
@@ -33,7 +33,7 @@ class ProfessorProfileController extends Controller
             'employe_number' => 'required|max:255',
             'birthday' => 'required|max:255',
             'contact_number' => 'required|max:255',
-            'professor_number' => 'required|max:255',
+            'employee_number' => 'required|max:255',
             'profile_img' => 'image|mimes:jpg,bmp,png'
         ]);
 
@@ -44,7 +44,8 @@ class ProfessorProfileController extends Controller
 
             $fields['profile_img'] = 'storage/' . $path;
         }
-        $res = $user->professorProfile()->create($fields);
+
+        $res = $user->employeeProfile()->create($fields);
         return response($res, 201);
     }
 
@@ -56,13 +57,13 @@ class ProfessorProfileController extends Controller
             'employe_number' => 'required|max:255',
             'birthday' => 'required|max:255',
             'contact_number' => 'required|max:255',
-            'professor_number' => 'required|max:255',
+            'employee_number' => 'required|max:255',
             'profile_img' => 'image|mimes:jpg,bmp,png',
         ]);
 
         if($request->hasFile('profile_img')){
-            if(File::exists($user->professorProfile->profile_img)){
-                File::delete($user->professorProfile->profile_img);
+            if(File::exists($user->employeeProfile->profile_img)){
+                File::delete($user->employeeProfile->profile_img);
             }
             else{
 
@@ -75,7 +76,7 @@ class ProfessorProfileController extends Controller
             }
         }
 
-        $res = $user->professorProfile()->create($fields);
+        $res = $user->employeeProfile()->create($fields);
         
         return response($res, 201);
     }
