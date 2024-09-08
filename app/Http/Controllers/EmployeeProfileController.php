@@ -30,7 +30,6 @@ class EmployeeProfileController extends Controller
         $fields = $request->validate([
             'first_name' => 'required|max:255',
             'last_name' => 'required|max:255',
-            'employe_number' => 'required|max:255',
             'birthday' => 'required|max:255',
             'contact_number' => 'required|max:255',
             'employee_number' => 'required|max:255',
@@ -54,7 +53,6 @@ class EmployeeProfileController extends Controller
         $fields = $request->validate([
             'first_name' => 'required|max:255',
             'last_name' => 'required|max:255',
-            'employe_number' => 'required|max:255',
             'birthday' => 'required|max:255',
             'contact_number' => 'required|max:255',
             'employee_number' => 'required|max:255',

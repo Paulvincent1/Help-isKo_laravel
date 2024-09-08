@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('employe_number');
             $table->string('birthday');
             $table->string('contact_number');
             $table->string('employee_number');

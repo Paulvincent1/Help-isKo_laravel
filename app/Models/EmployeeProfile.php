@@ -12,7 +12,6 @@ class EmployeeProfile extends Model
     protected $fillable = [
         'first_name',
         'last_name',
-        'employe_number',
         'birthday',
         'contact_number',
         'employee_number',

@@ -59,7 +59,7 @@ class AuthController extends Controller
                 
             }else{
 
-                return response()->json(["message" => "not a employee"]);
+                return response()->json(["message" => "not a employee"], 403);
             }
            
            
