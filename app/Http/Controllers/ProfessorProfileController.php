@@ -30,6 +30,7 @@ class ProfessorProfileController extends Controller
         $fields = $request->validate([
             'first_name' => 'required|max:255',
             'last_name' => 'required|max:255',
+            'employe_number' => 'required|max:255',
             'birthday' => 'required|max:255',
             'contact_number' => 'required|max:255',
             'professor_number' => 'required|max:255',
@@ -42,17 +43,9 @@ class ProfessorProfileController extends Controller
             $path = $file->storeAs('profile_img', $filename,'public');
 
             $fields['profile_img'] = 'storage/' . $path;
-
-            
-
         }
-
-
         $res = $user->professorProfile()->create($fields);
-
         return response($res, 201);
-
-        
     }
 
     public function update(Request $request){
@@ -60,6 +53,7 @@ class ProfessorProfileController extends Controller
         $fields = $request->validate([
             'first_name' => 'required|max:255',
             'last_name' => 'required|max:255',
+            'employe_number' => 'required|max:255',
             'birthday' => 'required|max:255',
             'contact_number' => 'required|max:255',
             'professor_number' => 'required|max:255',
@@ -78,10 +72,7 @@ class ProfessorProfileController extends Controller
                 $path = $file->storeAs('profile_img', $filename, 'public');
 
                 $fields['profile_img'] = '/storage' . $path;
-
             }
-
-
         }
 
         $res = $user->professorProfile()->create($fields);

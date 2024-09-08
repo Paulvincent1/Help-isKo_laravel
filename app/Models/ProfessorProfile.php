@@ -12,6 +12,7 @@ class ProfessorProfile extends Model
     protected $fillable = [
         'first_name',
         'last_name',
+        'employe_number',
         'birthday',
         'contact_number',
         'professor_number',
