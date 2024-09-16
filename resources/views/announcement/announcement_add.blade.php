@@ -17,42 +17,40 @@
     </div>
   </div>
 
-  <form action="announcement" class="create_account">
-    <div class="form-header">
-      <div class="target-selection">
-        <label for="target">Target:</label>
-        <select id="target" name="target">
-          <option value="student">Student</option>
-          <option value="professor">Professor</option>
-        </select>
-      </div>
-      <div class="date-selection">
-        <label for="announcement-date">Date:</label>
-        <input
-          type="date"
-          id="announcement-date"
-          name="announcement-date"
-        />
-      </div>
-    </div>
+  <form action="{{route('announcements.store')}}" method="POST" class="create_account" enctype="multipart/form-data">
+    @csrf
     <div>
-      <label class="label_layout" for="announcement">Announcement:</label
-      ><br />
-      <textarea
-        id="announcement"
-        class="announcement"
-        name="announcement"
-        rows="30"
-        cols="100"
-        placeholder="Write your announcement here..."
-      ></textarea
-      ><br /><br />
-      <div class="footer">
-        <p>From: Admin</p>
-      </div>
-      <div class="submit-button">
-        <input type="submit" value="Create" />
-      </div>
+        <label for="heading">Heading:</label><br />
+        <input
+            type="text"
+            id="heading"
+            name="heading"
+            placeholder="Enter the heading"
+            required
+        /><br /><br />
+
+        <label for="description">Description:</label><br />
+        <textarea
+            id="description"
+            name="description"
+            rows="10"
+            placeholder="Enter the description here..."
+            required
+        ></textarea><br /><br />
+
+        <label for="announcement_image">Upload File:</label><br />
+        <input
+            type="file"
+            id="announcement_image"
+            name="announcement_image"
+        /><br /><br />
+
+        <div class="footer">
+            <p>From: Admin</p>
+        </div>
+        <div class="submit-button">
+            <input type="submit" value="Submit" />
+        </div>
     </div>
-  </form>
+</form>
 </x-layout>

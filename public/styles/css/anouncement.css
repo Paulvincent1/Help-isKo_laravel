@@ -376,3 +376,152 @@ input[type="submit"] {
 .footer p {
   margin: 0;
 }
+
+
+
+/* ANNOUNCEMENT FORM DESIGN */
+/* Basic reset for margin and padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Styling the form container */
+.create_account {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    font-family: Arial, sans-serif;
+}
+
+/* Styling labels */
+.create_account label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+/* Styling text input and textarea */
+.create_account input[type="text"],
+.create_account textarea,
+.create_account input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+/* Specific styling for textarea */
+.create_account textarea {
+    resize: vertical;
+}
+
+/* Styling the submit button */
+.create_account .submit-button input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.create_account .submit-button input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* Styling the footer section */
+.create_account .footer {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #555;
+}
+
+
+
+/* CSS DESIGN FOR ANNOUNCEMENT LIST CONTAINER */
+* {
+    margin:  0;
+    padding: 0;
+}
+.main-container{
+    display: flex;
+    justify-content: center;
+    align-items: top;
+    height: 100vh;
+
+}
+.list-container{
+    border-style: solid;
+    border-width: 1px;
+    border-color: gray;
+    max-height: 1000px; /* Adjust this value as needed */
+    overflow-y: auto;  /* Enables vertical scrolling */
+    width: 100%;       /* Ensures it takes up the full width of the parent container */
+    padding-right: 15px; /* Optional: Adds some padding to avoid cutting off scrollbar */
+}
+
+.announcement-container{
+   margin: 50px;
+   width: 800px;
+   height: 250px;
+   background-color: white;
+   border-radius: 20px;
+   position: relative;
+   box-shadow: 0px 0px 10px rgba(0, 0, 0, .5);
+}
+
+
+.delete {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: red;
+    color: white;
+    width: 70px;
+    height: 35px;
+    border-radius: 10px;
+    font-weight: bold;
+    border: none;
+}
+
+.edit {
+    position: absolute;
+    top: 20px;
+    right: 100px;
+    width: 70px;
+    height: 35px;
+    background-color: green;
+    color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    border: none;
+}
+
+.heading {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 36px;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.description {
+    box-sizing: border-box;
+    width: 100%;
+    padding-top: 100px;
+    padding-left: 20px;
+    padding-right: 20px;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+}
