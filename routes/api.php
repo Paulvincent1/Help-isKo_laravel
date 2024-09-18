@@ -15,6 +15,7 @@ use App\Http\Controllers\Duty\DutyController;
 use App\Http\Controllers\Duty\StudentDutyController;
 use App\Http\Controllers\Duty\DutyProfController;
 use App\Http\Controllers\EmployeeProfileController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfessorProfileController;
 use App\Http\Middleware\isEmployee;
 
@@ -120,4 +121,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/duties', [DutyController::class, 'index']);
     Route::get('/duties/{dutyId}', [DutyController::class, 'show']);
     Route::get('/duties/status/{dutyId}', [DutyController::class, 'checkStatus']);
+
+
+    // chat routes
+    Route::get('/existing-chat-users',[MessageController::class, 'existingChats']);
+    Route::get('/viewMessages/{id}',[MessageController::class,'viewMessages']);
+    Route::post('/send-message/{id}', [MessageController::class,'sendMessage']);
 });
