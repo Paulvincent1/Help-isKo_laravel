@@ -42,9 +42,11 @@ class Message implements ShouldBroadcastNow
 
     public function broadcastWith(){
         return [
+            'id' => $this->message->id,
             'message' => $this->message->message,
             'sender_id' => $this->message->sender_id,
             'receiver_id' => $this->message->receiver_id,
+            'created_at' => $this->message->created_at
         ];
     }
 }

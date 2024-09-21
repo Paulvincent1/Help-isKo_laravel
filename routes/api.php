@@ -125,6 +125,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // chat routes
     Route::get('/existing-chat-users',[MessageController::class, 'existingChats']);
-    Route::get('/viewMessages/{id}',[MessageController::class,'viewMessages']);
+    Route::get('/view-messages/{id}',[MessageController::class,'viewMessages']);
     Route::post('/send-message/{id}', [MessageController::class,'sendMessage']);
 });
