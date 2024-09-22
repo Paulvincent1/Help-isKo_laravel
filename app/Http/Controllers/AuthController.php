@@ -90,7 +90,7 @@ class AuthController extends Controller
 
             }else{
 
-                return response()->json(["message" => "not a student"]);
+                return response()->json(["message" => "not a student"], 403);
             }
 
 

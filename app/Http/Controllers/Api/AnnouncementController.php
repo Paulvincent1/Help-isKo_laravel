@@ -45,13 +45,18 @@ class AnnouncementController extends Controller
         ]);
     }
 
-    public function index(){
+    public function index()
+{
+    $announcements = Announcement::all()->map(function ($announcement) {
+        $announcement->created_at = $announcement->created_at->format('Y-m-d');
+        return $announcement;
+    });
 
-        $announcements = Announcement::all();
-        return response()->json([
-            'announcement' => $announcements
-        ], 200);
-    }
+    return response()->json([
+        'announcement' => $announcements
+    ], 200);
+}
+
 
     public function update(Request $request, Announcement $id){
         $fields = $request->validate([

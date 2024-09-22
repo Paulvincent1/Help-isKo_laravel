@@ -16,6 +16,7 @@ use App\Http\Controllers\Duty\StudentDutyController;
 use App\Http\Controllers\Duty\DutyProfController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\ProfessorProfileController;
+use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Middleware\isEmployee;
 
 Route::get('/user', function (Request $request) {
@@ -103,6 +104,7 @@ Route::post('/professors/duties/{dutyId}/lock', [DutyProfController::class, 'loc
 
 //admin
 Route::middleware(['auth:sanctum', isAdmin::class])->group(function () {
+    Route::post('/login-admin', [AdminAuthController::class, 'login']);
     Route::post('/create-hk-status', [HkStatusController::class, 'store']);
 
 
