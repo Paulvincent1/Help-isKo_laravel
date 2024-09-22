@@ -15,6 +15,7 @@ use App\Http\Controllers\Duty\DutyController;
 use App\Http\Controllers\Duty\StudentDutyController;
 use App\Http\Controllers\Duty\DutyProfController;
 use App\Http\Controllers\EmployeeProfileController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfessorProfileController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Middleware\isEmployee;
@@ -72,15 +73,15 @@ Route::post('/feedback/{student_id}', [StudentFeedbackController::class, 'store'
 Route::post('/professors/duties/create', [DutyProfController::class, 'create']);
 Route::get('/professors/duties', [DutyProfController::class, 'index']);
 Route::get('/professors/duties/{dutyId}', [DutyProfController::class, 'show']);
-Route::get('/professors/duties/{dutyId}/requests', [DutyProfController::class, 'getRequestsForDuty']);
+Route::get('/professors/{profId}/duties/requests', [DutyProfController::class, 'getRequestsForAllDuties']);
 
 //Executable as long as prof has no accepted request
 Route::put('/professors/updateInfo/{dutyId}', [DutyProfController::class, 'update']);
 Route::delete('/professors/duties/{dutyId}', [DutyProfController::class, 'delete']);
 
 // For accepting and rejecting a request for a duty from students
-Route::post('/professors/duties/{dutyId}/accept/{studentId}', [DutyProfController::class, 'acceptStudent']);
-Route::post('/professors/duties/{dutyId}/reject/{studentId}', [DutyProfController::class, 'rejectStudent']);
+Route::post('/professors/requests/{recordId}/accept', [DutyProfController::class, 'acceptStudent']);
+Route::delete('/professors/requests/{recordId}/reject', [DutyProfController::class, 'rejectStudent']);
 
 //Show status of duties with accepted students
 Route::get('/professors/duties/{dutyId}/accepted-students', [DutyProfController::class, 'getAcceptedStudents']);
@@ -123,4 +124,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/duties', [DutyController::class, 'index']);
     Route::get('/duties/{dutyId}', [DutyController::class, 'show']);
     Route::get('/duties/status/{dutyId}', [DutyController::class, 'checkStatus']);
+
+
+    // chat routes
+    Route::get('/existing-chat-users',[MessageController::class, 'existingChats']);
+    Route::get('/view-messages/{id}',[MessageController::class,'viewMessages']);
+    Route::post('/send-message/{id}', [MessageController::class,'sendMessage']);
 });
