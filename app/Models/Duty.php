@@ -11,6 +11,7 @@ class Duty extends Model
 
     protected $fillable = [
         'building',
+        'emp_id',
         'date',
         'start_time',
         'end_time',
@@ -21,7 +22,7 @@ class Duty extends Model
         'is_locked',
         'duty_status',
         'is_completed',
-        'prof_id',
+       ,
     ];
 
     // Relationship with the intermediate model (StudentDutyRecord)
@@ -30,9 +31,9 @@ class Duty extends Model
         return $this->hasMany(StudentDutyRecord::class, 'duty_id');
     }
 
-    public function professor()
-{
-    return $this->belongsTo(User::class, 'prof_id');
-}
-
+    // Relationship to fetch the employee who created the duty
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'emp_id');
+    }
 }

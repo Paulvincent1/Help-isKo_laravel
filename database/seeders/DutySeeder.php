@@ -13,14 +13,14 @@ class DutySeeder extends Seeder
     public function run(): void
     {
         Duty::create([
-            'prof_id' => 1, 
-            'description' => 'PTC 304',
+            'emp_id' => 1, 
+            'description' => 'NH 304',
             'duty_status' => 'pending',
             'max_scholars' => 2,
             'current_scholars' => 0,
             'is_locked' => false,
             'is_completed' => false,
-            'building' => '3 Hays Building',
+            'building' => ' NH Building',
             'date' => now()->addDay()->format('Y-m-d'), 
             'start_time' => '09:00',
             'end_time' => '12:00',
@@ -29,7 +29,7 @@ class DutySeeder extends Seeder
         ]);
 
         Duty::create([
-            'prof_id' => 2,
+            'emp_id' => 2,
             'description' => 'ITS 201',
             'duty_status' => 'pending',
             'max_scholars' => 1,
