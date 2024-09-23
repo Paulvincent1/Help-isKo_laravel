@@ -13,7 +13,7 @@ class StudentDutyController extends Controller
     public function viewAvailableDuties()
     {
         // Fetch duties that are pending, not locked, and have available slots, along with professor details
-        $duties = Duty::with('professor')
+        $duties = Duty::with('employee')
             ->where('duty_status', 'pending')
             ->where('is_locked', false)
             ->whereColumn('current_scholars', '<', 'max_scholars')
@@ -36,7 +36,7 @@ class StudentDutyController extends Controller
                 'message' => $duty->message,
                 'max_scholars' => $duty->max_scholars,
                 'current_scholars' => $duty->current_scholars,
-                'professor_name' => $duty->professor->name,  
+                'employee_name' => $duty->employee->name,  
             ];
         });
 
