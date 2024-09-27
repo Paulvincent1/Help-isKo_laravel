@@ -14,7 +14,6 @@ class DutySeeder extends Seeder
     {
         Duty::create([
             'emp_id' => 1, 
-            'description' => 'NH 304',
             'duty_status' => 'pending',
             'max_scholars' => 2,
             'current_scholars' => 0,
@@ -30,7 +29,6 @@ class DutySeeder extends Seeder
 
         Duty::create([
             'emp_id' => 2,
-            'description' => 'ITS 201',
             'duty_status' => 'pending',
             'max_scholars' => 1,
             'current_scholars' => 0,

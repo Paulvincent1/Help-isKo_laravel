@@ -24,7 +24,6 @@ class StudentDutyController extends Controller
             return response()->json(['message' => 'No available duties at the moment.'], 200);
         }
 
-        // Prepare the response with professor names included
         $response = $duties->map(function ($duty) {
             return [
                 'id' => $duty->id,

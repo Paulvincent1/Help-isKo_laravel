@@ -15,7 +15,6 @@ class CreateStudentDutyRecordsTable extends Migration
             $table->foreignId('emp_id')->constrained('users')->cascadeOnDelete();
             $table->enum('request_status', ['undecided', 'accepted', 'rejected'])->default('undecided');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

@@ -22,7 +22,6 @@ class Duty extends Model
         'is_locked',
         'duty_status',
         'is_completed',
-       ,
     ];
 
     // Relationship with the intermediate model (StudentDutyRecord)
