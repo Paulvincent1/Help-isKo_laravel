@@ -72,11 +72,6 @@ class EmployeeDutyController extends Controller
         // Retrieve all duties created by the authenticated employee
         $duties = Duty::where('emp_id', $employee->id)->get();
 
-        // If no duties are found, return a 404
-        if ($duties->isEmpty()) {
-            return response()->json(['message' => 'No duties found'], 404);
-        }
-
         return response()->json($duties);
     }
     public function show($dutyId)
