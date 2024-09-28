@@ -89,7 +89,7 @@ Route::middleware(['auth:sanctum', isAdmin::class])->group(function () {
     Route::post('/create-hk-status', [HkStatusController::class, 'store']);
 
     // Announcements
-    Route::get('/announcements', [AnnouncementController::class, 'index']);
+    // Route::get('/announcements', [AnnouncementController::class, 'index']);
     Route::get('/announcement/{id}', [AnnouncementController::class, 'show']);
     Route::post('/create-announcement', [AnnouncementController::class, 'store']);
     Route::put('/update-announcement/{id}', [AnnouncementController::class, 'update']);
@@ -99,6 +99,7 @@ Route::middleware(['auth:sanctum', isAdmin::class])->group(function () {
 // General duty routes accessible to students and employees
 Route::middleware(['auth:sanctum'])->group(function () {
     // Duties
+    Route::get('/announcements', [AnnouncementController::class, 'index']);
     Route::get('/duties', [DutyController::class, 'index']);
     Route::get('/duties/{dutyId}', [DutyController::class, 'show']);
     Route::get('/duties/status/{dutyId}', [DutyController::class, 'checkStatus']);
