@@ -40,14 +40,17 @@ class MessageController extends Controller
             }
             if($user->role == 'employee'){
                 $profile = $user->employeeProfile()->first() ?? '';
+                $schoolId = $profile->employee_number ?? '';
             }else{
                 $profile = $user->studentProfile()->first() ?? '';
+                $schoolId =  $profile->student_number ?? '';
             }
 
             $messages[] = [
                 'user_profile' => [
                     'user' => $user,
                     'profile_image' => $profile->profile_img ?? '',
+                    'user_school_id' => $schoolId
                 ],
                
                 'latest_message' => $latestMessage
