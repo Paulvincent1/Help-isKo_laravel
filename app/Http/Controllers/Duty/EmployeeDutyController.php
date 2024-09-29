@@ -108,11 +108,6 @@ class EmployeeDutyController extends Controller
             ->where('is_locked', false)
             ->get();
 
-        // Return a 404 if no pending duties are found
-        if ($duties->isEmpty()) {
-            return response()->json(['message' => 'No pending duties found for this employee'], 404);
-        }
-
         // Process duties to get details and associated undecided requests
         $dutyDetails = $duties->map(function ($duty) {
             $requests = StudentDutyRecord::where('duty_id', $duty->id)
