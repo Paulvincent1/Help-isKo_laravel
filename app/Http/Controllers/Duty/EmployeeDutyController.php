@@ -128,6 +128,7 @@ class EmployeeDutyController extends Controller
                 // Compile student data for each request
                 foreach ($requests as $request) {
                     $student = \App\Models\User::find($request->stud_id);
+                    $studentProfile = $student ? $student->studentProfile : null;
                     $dutyDetails[] = [
                         'duty_id' => $duty->id,
                         'building' => $duty->building,
@@ -140,8 +141,12 @@ class EmployeeDutyController extends Controller
                         'request_count' => $requests->count(), // Total requests count
                         'student_data' => [
                             'student_id' => $request->stud_id,
-                            'profile_img' => $request->profile_img,
-                            'name' => $student ? $student->name : 'Unknown'
+                            'email' => $student->email,
+                            'name' => $student ? $student->name : 'Unknown',
+                            'last_name' => $studentProfile ? $studentProfile->last_name : null,
+                            'student_number' => $studentProfile ? $studentProfile->student_number : null,
+                            'course' => $studentProfile ? $studentProfile->course : null,
+                            'semester' => $studentProfile ? $studentProfile->semester : null,
                         ]
                     ];
                 }
