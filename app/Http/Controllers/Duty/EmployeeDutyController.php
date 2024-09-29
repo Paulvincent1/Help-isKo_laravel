@@ -119,6 +119,11 @@ class EmployeeDutyController extends Controller
                 ->where('request_status', 'undecided')
                 ->get();
 
+                if($requests->isEmpty())
+                {
+                    return null;
+                }
+
             // Compile student data for each request
             $studentData = $requests->map(function ($request) {
                 $student = \App\Models\User::find($request->stud_id);
@@ -136,7 +141,7 @@ class EmployeeDutyController extends Controller
                 'request_count' => $requests->count(),
                 'student_data' => $studentData
             ];
-        });
+        })->filter();
 
         return response()->json($dutyDetails);
     }

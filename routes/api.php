@@ -70,7 +70,7 @@ Route::middleware(['auth:sanctum', isEmployee::class])->group(function () {
     Route::post('/employees/duties/create', [EmployeeDutyController::class, 'create']);
     Route::get('/employees/duty', [EmployeeDutyController::class, 'index']);
     Route::get('/employees/duties/{dutyId}', [EmployeeDutyController::class, 'show']);
-    Route::get('/employees/duties/requests', [EmployeeDutyController::class, 'getRequestsForAllDuties']);
+    Route::get('/employees/duties/requests/student', [EmployeeDutyController::class, 'getRequestsForAllDuties']);
 
     // Duty management
     Route::put('/employees/updateInfo/{dutyId}', [EmployeeDutyController::class, 'update']);
