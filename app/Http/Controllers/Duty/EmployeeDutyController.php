@@ -69,8 +69,13 @@ class EmployeeDutyController extends Controller
             return response()->json(['message' => 'Unauthorized or invalid user role'], 403);
         }
 
-        // Retrieve all duties created by the authenticated employee
         $duties = Duty::where('emp_id', $employee->id)->get();
+        // Loop through the duties and update duty_status if is_locked is true
+        foreach ($duties as $duty) {
+            if ($duty->is_locked) {
+                $duty->duty_status = 'active';
+            }
+        }
 
         return response()->json($duties);
     }
