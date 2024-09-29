@@ -108,39 +108,43 @@ class EmployeeDutyController extends Controller
             ->where('is_locked', false)
             ->get();
 
-        // Process duties to get details and associated undecided requests
-        $dutyDetails = $duties->map(function ($duty) {
+        // Prepare an array to store duty details
+        $dutyDetails = [];
+
+        // Process each duty to get details and associated undecided requests
+        foreach ($duties as $duty) {
+            // Get requests for the current duty
             $requests = StudentDutyRecord::where('duty_id', $duty->id)
                 ->where('request_status', 'undecided')
                 ->get();
 
-                if($requests->isEmpty())
-                {
-                    return null;
+            // Only add the duty details if there are requests
+            if (!$requests->isEmpty()) {
+                // Compile student data for each request
+                foreach ($requests as $request) {
+                    $student = \App\Models\User::find($request->stud_id);
+                    $dutyDetails[] = [
+                        'duty_id' => $duty->id,
+                        'building' => $duty->building,
+                        'start_time' => $duty->start_time,
+                        'end_time' => $duty->end_time,
+                        'date' => $duty->date,
+                        'message' => $duty->message,
+                        'current_scholars' => $duty->current_scholars,
+                        'max_scholars' => $duty->max_scholars,
+                        'request_count' => $requests->count(), // Total requests count
+                        'student_data' => [
+                            'student_id' => $request->stud_id,
+                            'profile_img' => $request->profile_img,
+                            'name' => $student ? $student->name : 'Unknown'
+                        ]
+                    ];
                 }
-
-            // Compile student data for each request
-            $studentData = $requests->map(function ($request) {
-                $student = \App\Models\User::find($request->stud_id);
-                return [
-                    'student_id' => $request->stud_id,
-                    'name' => $student ? $student->name : 'Unknown'
-                ];
-            });
-
-            // Return comprehensive duty details
-            return [
-                'duty_id' => $duty->id,
-                'current_scholars' => $duty->current_scholars,
-                'max_scholars' => $duty->max_scholars,
-                'request_count' => $requests->count(),
-                'student_data' => $studentData
-            ];
-        })->filter();
+            }
+        }
 
         return response()->json($dutyDetails);
     }
-
 
     // Update a specific duty
     public function update($dutyId, Request $request)
