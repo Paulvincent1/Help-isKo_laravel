@@ -63,6 +63,7 @@ class StudentDutyController extends Controller
             $studentDutyRecord = StudentDutyRecord::create([
                 'duty_id' => $dutyId,
                 'stud_id' => $student->id,
+                'emp_id' => $duty->emp_id,
                 'request_status' => 'undecided',
             ]);
         
