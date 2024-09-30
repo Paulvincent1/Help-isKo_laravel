@@ -144,6 +144,7 @@ class EmployeeDutyController extends Controller
                             'email' => $student->email,
                             'name' => $student ? $student->name : 'Unknown',
                             'last_name' => $studentProfile ? $studentProfile->last_name : null,
+                            'contact_number' => $studentProfile ? $studentProfile->contact_number : null,
                             'student_number' => $studentProfile ? $studentProfile->student_number : null,
                             'course' => $studentProfile ? $studentProfile->course : null,
                             'semester' => $studentProfile ? $studentProfile->semester : null,
