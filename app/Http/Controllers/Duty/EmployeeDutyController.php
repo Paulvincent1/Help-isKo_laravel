@@ -69,16 +69,42 @@ class EmployeeDutyController extends Controller
             return response()->json(['message' => 'Unauthorized or invalid user role'], 403);
         }
 
+        // Get the duties for the authenticated employee
         $duties = Duty::where('emp_id', $employee->id)->get();
-        // Loop through the duties and update duty_status if is_locked is true
+
+        // Prepare the response data
+        $response = [];
+
         foreach ($duties as $duty) {
+            // Update duty_status if is_locked is true
             if ($duty->is_locked) {
                 $duty->duty_status = 'active';
             }
+
+            // Get the accepted students for this duty
+            $acceptedStudents = StudentDutyRecord::where('duty_id', $duty->id)
+                ->where('request_status', 'accepted')
+                ->with('student.studentProfile')
+                ->get()
+                ->map(function ($record) {
+                    return [
+                        'student_id' => $record->student->id,
+                        'name' => $record->student->name,
+                        'course' => $record->student->studentProfile->course,
+                        'request_status' => $record->request_status,
+                    ];
+                });
+
+            // Add the raw duty and accepted students to the response
+            $response[] = [
+                'duty' => $duty, // Return the entire duty object
+                'accepted_students' => $acceptedStudents,
+            ];
         }
 
-        return response()->json($duties);
+        return response()->json($response);
     }
+
     public function show($dutyId)
 {
     $employee = Auth::user();
@@ -345,12 +371,13 @@ class EmployeeDutyController extends Controller
      // Get the students who have been accepted for this duty
      $acceptedStudents = StudentDutyRecord::where('duty_id', $dutyId)
          ->where('request_status', 'accepted')
-         ->with('student')
+         ->with('student.studentProfile')
          ->get()
          ->map(function ($record) {
              return [
                  'student_id' => $record->student->id,
                  'name' => $record->student->name,
+                 'course' => $record->student->studentProfile->course,
                  'request_status' => $record->request_status,
              ];
          });
