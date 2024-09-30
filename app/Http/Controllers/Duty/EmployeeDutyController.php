@@ -90,6 +90,10 @@ class EmployeeDutyController extends Controller
                     return [
                         'student_id' => $record->student->id,
                         'name' => $record->student->name,
+                        'email' => $record->student->email,
+                        'student_number' => $record->student->studentProfile->student_number,
+                        'contact_number' => $record->student->studentProfile->contact_number,
+                        'semester' => $record->student->studentProfile->semester,
                         'course' => $record->student->studentProfile->course,
                         'request_status' => $record->request_status,
                     ];
