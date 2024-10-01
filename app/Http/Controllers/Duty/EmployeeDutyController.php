@@ -396,6 +396,7 @@ class EmployeeDutyController extends Controller
                  'student_id' => $record->student->id,
                  'name' => $record->student->name,
                  'course' => $record->student->studentProfile->course,
+                 'student_number' => $record->student->studentProfile->student_number,
                  'request_status' => $record->request_status,
              ];
          });
