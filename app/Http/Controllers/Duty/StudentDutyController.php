@@ -6,14 +6,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Duty;
 use App\Models\StudentDutyRecord;
+use Carbon\Carbon;
 
 class StudentDutyController extends Controller
 {
     // View all available duties for students to request
     public function viewAvailableDuties()
     {
-        $student = Auth::user(); 
-    
+        $student = Auth::user();
+
         $duties = Duty::with('employee')
             ->where('duty_status', 'pending')
             ->where('is_locked', false)
@@ -21,14 +22,14 @@ class StudentDutyController extends Controller
             ->whereDoesntHave('studentDutyRecords', function ($query) use ($student) {
                 // Exclude duties that the student has already been accepted to
                 $query->where('stud_id', $student->id)
-                      ->where('request_status', 'accepted');
+                    ->where('request_status', 'accepted');
             })
             ->get();
-    
+
         if ($duties->isEmpty()) {
             return response()->json(['message' => 'No available duties at the moment.'], 200);
         }
-    
+
         $response = $duties->map(function ($duty) {
             return [
                 'id' => $duty->id,
@@ -40,7 +41,7 @@ class StudentDutyController extends Controller
                 'message' => $duty->message,
                 'max_scholars' => $duty->max_scholars,
                 'current_scholars' => $duty->current_scholars,
-                'employee_name' => $duty->employee->name,  
+                'employee_name' => $duty->employee->name,
             ];
         });
         return response()->json($response, 200);
@@ -48,91 +49,83 @@ class StudentDutyController extends Controller
 
 
     // Request to join a specific duty
-    public function requestDuty($dutyId)
-    {
-        $student = Auth::user();
-        $duty = Duty::find($dutyId);
-    
-        if (!$duty || $duty->duty_status !== 'pending' || $duty->is_locked) {
-            return response()->json(['message' => 'Duty is not available for requests'], 400);
-        }
-    
-        $existingRequest = StudentDutyRecord::where('duty_id', $dutyId)
-            ->where('stud_id', $student->id)
-            ->first();
-    
-        if ($existingRequest) {
-            return response()->json(['message' => 'You have already requested this duty'], 400);
-        }
-    
-        $studentDutyRecord = StudentDutyRecord::create([
-            'duty_id' => $dutyId,
-            'stud_id' => $student->id,
-            'emp_id' => $duty->emp_id,
-            'request_status' => 'undecided',
-        ]);
-    
-        return response()->json([
-            'message' => 'Request submitted successfully',
-            'request' => $studentDutyRecord,
-            'duty' => $duty
-        ], 201);
-    }
-
-    // View all duties the student has requested
     public function viewRequestedDuties()
-    {
-        $student = Auth::user();
+{
+    $student = Auth::user();
 
-        // Fetch only the duties that are still undecided
-        $requestedDuties = StudentDutyRecord::where('stud_id', $student->id)
-            ->where('request_status', 'undecided')
-            ->with('duty') // Load the associated duty regardless of its status
-            ->get();
+    $requestedDuties = StudentDutyRecord::where('stud_id', $student->id)
+        ->whereIn('request_status', ['undecided', 'accepted'])
+        ->with(['duty' => function ($query) {
+            $query->whereIn('duty_status', ['pending', 'active', 'ongoing']);
+        }])
+        ->get();
 
-        // Filter out any records where the duty is null
-        $requestedDuties = $requestedDuties->filter(function ($record) {
-            return $record->duty !== null;
-        });
+    $requestedDuties = $requestedDuties->filter(function ($record) {
+        return $record->duty !== null;
+    });
 
-        // Check if there are no requested duties left after filtering
-        if ($requestedDuties->isEmpty()) {
-            return response()->json(['message' => 'You have no requested duties at the moment.'], 200);
-        }
-
-        // Return the list of requested duties
-        return response()->json($requestedDuties);
+    if ($requestedDuties->isEmpty()) {
+        return response()->json(['message' => 'You have no requested duties at the moment.'], 200);
     }
 
+    $formattedDuties = $requestedDuties->map(function ($record) {
+        $duty = $record->duty;
 
+        return [
+            'id' => $duty->id,
+            'employee_name' => $duty->employee ? $duty->employee->name : 'Unknown',
+            'message' => $duty->message,
+            'date' => Carbon::parse($duty->date)->format('F j, Y'),
+            'building' => $duty->building,
+            'time' => Carbon::createFromFormat('H:i:s', $duty->start_time)->format('g:i A') . ' - ' . Carbon::createFromFormat('H:i:s', $duty->end_time)->format('g:i A'),
+            'duty_status' => $duty->duty_status,
+        ];
+    });
+
+    return response()->json($formattedDuties);
+}
+
+
+ 
     // View details of a specific requested duty
-    public function viewRequestedDutyDetails($dutyId)
-    {
-        $student = Auth::user();
+public function viewRequestedDutyDetails($dutyId)
+{
+    $student = Auth::user();
 
-        // Find the specific duty requested by the student
-        $duty = Duty::find($dutyId);
+    // Find the specific duty requested by the student
+    $duty = Duty::where('id', $dutyId)
+        ->whereIn('duty_status', ['pending', 'active', 'ongoing']) // Ensure the duty is in an acceptable state
+        ->first();
 
-        if (!$duty) {
-            return response()->json(['message' => 'Duty not found'], 404);
-        }
-
-        // Find the student's request for the duty
-        $studentDutyRecord = StudentDutyRecord::where('duty_id', $dutyId)
-            ->where('stud_id', $student->id)
-            ->where('request_status', 'undecided') // Only consider undecided requests
-            ->first();
-
-        if (!$studentDutyRecord) {
-            return response()->json(['message' => 'You have not requested this duty or the request has already been processed.'], 400);
-        }
-
-        // Return the duty details along with the request status
-        return response()->json([
-            'duty' => $duty,
-            'request_status' => $studentDutyRecord->request_status,
-        ]);
+    if (!$duty) {
+        return response()->json(['message' => 'Duty not found or it is not available'], 404);
     }
+
+    // Find the student's request for the duty
+    $studentDutyRecord = StudentDutyRecord::where('duty_id', $dutyId)
+        ->where('stud_id', $student->id)
+        ->first();
+
+    if (!$studentDutyRecord) {
+        return response()->json(['message' => 'You have not requested this duty or the request has already been processed.'], 400);
+    }
+
+    // Format the duty details
+    return response()->json([
+        'id' => $duty->id,
+        'employee_name' => $duty->employee ? $duty->employee->name : 'Unknown',
+        'message' => $duty->message,
+        'date' => Carbon::parse($duty->date)->format('F j, Y'), // Format: August 10, 2024
+        'building' => $duty->building,
+        'time' => Carbon::createFromFormat('H:i:s', $duty->start_time)->format('g:i A') . ' - ' . Carbon::createFromFormat('H:i:s', $duty->end_time)->format('g:i A'),
+        'duration' => $duty->duration,
+        'max_scholars' => $duty->max_scholars,
+        'current_scholars' => $duty->current_scholars,
+        'duty_status' => $duty->duty_status,
+        'created_at' => Carbon::parse($duty->created_at)->format('F j, Y g:i A'), 
+        'updated_at' => Carbon::parse($duty->updated_at)->format('F j, Y g:i A'),
+    ]);
+}
 
 
     // Cancel a request to join a duty
@@ -158,46 +151,46 @@ class StudentDutyController extends Controller
 
     // Added return duty information
     public function viewAcceptedDuties(Request $request)
-{
-    $student = Auth::user();
+    {
+        $student = Auth::user();
 
-    // Fetch accepted duties for the student
-    $query = StudentDutyRecord::with('duty.employee')  // Load the employee along with the duty
-        ->where('stud_id', $student->id)
-        ->where('request_status', 'accepted');
+        // Fetch accepted duties for the student
+        $query = StudentDutyRecord::with('duty.employee')  // Load the employee along with the duty
+            ->where('stud_id', $student->id)
+            ->where('request_status', 'accepted');
 
-    // Optionally filter by status if provided (active, ongoing, completed, cancelled)
-    if ($request->has('status')) {
-        $status = $request->input('status');
-        $query->whereHas('duty', function ($q) use ($status) {
-            $q->where('duty_status', $status);
+        // Optionally filter by status if provided (active, ongoing, completed, cancelled)
+        if ($request->has('status')) {
+            $status = $request->input('status');
+            $query->whereHas('duty', function ($q) use ($status) {
+                $q->where('duty_status', $status);
+            });
+        }
+
+        $acceptedDuties = $query->get();
+
+        // Check if any accepted duties were found
+        if ($acceptedDuties->isEmpty()) {
+            return response()->json(['message' => 'No accepted duties found'], 404);
+        }
+
+        // Format the response to include duty details and employee name
+        $response = $acceptedDuties->map(function ($record) {
+            return [
+                'duty_id' => $record->duty->id,
+                'building' => $record->duty->building,
+                'date' => $record->duty->date,
+                'start_time' => $record->duty->start_time,
+                'end_time' => $record->duty->end_time,
+                'status' => $record->duty->duty_status,
+                'employee_name' => $record->duty->employee->name,
+            ];
         });
+
+        return response()->json($response, 200);
     }
 
-    $acceptedDuties = $query->get();
-
-    // Check if any accepted duties were found
-    if ($acceptedDuties->isEmpty()) {
-        return response()->json(['message' => 'No accepted duties found'], 404);
-    }
-
-    // Format the response to include duty details and employee name
-    $response = $acceptedDuties->map(function ($record) {
-        return [
-            'duty_id' => $record->duty->id,
-            'building' => $record->duty->building,
-            'date' => $record->duty->date,
-            'start_time' => $record->duty->start_time,
-            'end_time' => $record->duty->end_time,
-            'status' => $record->duty->duty_status,
-            'employee_name' => $record->duty->employee->name,  
-        ];
-    });
-
-    return response()->json($response, 200);
-}
-
-public function viewCompletedDuties()
+    public function viewCompletedDuties()
     {
         $student = Auth::user();
 
