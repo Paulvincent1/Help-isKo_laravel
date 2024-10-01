@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AnnouncementController;
+use App\Http\Controllers\RetrieveStudentsController;
 use App\Http\Controllers\Api\StudentFeedbackController;
 use App\Http\Controllers\HkStatusController;
 use App\Http\Controllers\StudentProfileController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Duty\DutyNotificationsController;
+use App\Http\Controllers\Duty\DutyRecentActivitiesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\isAdmin;
@@ -26,6 +28,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login-employee', [AuthController::class, 'loginEmployee']);
 Route::post('/login-stud', [AuthController::class, 'loginStud']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+
 
 // Password reset routes
 Route::post('/forgot', [AuthController::class, 'forgot']);
@@ -83,6 +87,7 @@ Route::middleware(['auth:sanctum', isEmployee::class])->group(function () {
     Route::delete('/duties/{dutyId}/cancel', [EmployeeDutyController::class, 'cancelDuty']);
 });
 
+
 // Admin routes
 Route::middleware(['auth:sanctum', isAdmin::class])->group(function () {
     // HK Status
@@ -109,11 +114,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/view-messages/{id}', [MessageController::class, 'viewMessages']);
     Route::post('/send-message/{id}', [MessageController::class, 'sendMessage']);
 
-    // Notifications
-    Route::get('/notifications', function (Request $request) {
-        return $request->user()->notifications;
-    });
-
+    // Get All Students
+    Route::get('/retrieve/students', [RetrieveStudentsController::class, 'index']);
+    // Recent Duty Activities 
+    Route::get('duty/recent-activities', [DutyRecentActivitiesController::class, 'index']);
     // Duty notifications
     Route::get('duty/notifications', [DutyNotificationsController::class, 'index']);
 });

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\DutyNotifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
@@ -16,7 +16,7 @@ class CompletedDutyNotification extends Notification
     public function __construct($duty, $user)
     {
         $this->duty = $duty;
-        $this->user = $user; // This will help tailor the message based on the role
+        $this->user = $user;
     }
 
     public function via($notifiable)
@@ -28,7 +28,7 @@ class CompletedDutyNotification extends Notification
     {
         return [
             'title' => 'Duty Completed!',
-            'message' => $this->getMessage(), // Custom message for student or employee
+            'message' => $this->getMessage(),
             'duty_id' => $this->duty->id,
             'time' => now(),
         ];
@@ -46,7 +46,6 @@ class CompletedDutyNotification extends Notification
 
     private function getMessage()
     {
-        // Differentiate message based on role
         if ($this->user->role === 'student') {
             return 'You completed a duty at ' . $this->duty->building . ' on ' . $this->duty->date;
         } elseif ($this->user->role === 'employee') {

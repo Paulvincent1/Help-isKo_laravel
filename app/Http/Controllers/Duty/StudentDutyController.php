@@ -12,18 +12,23 @@ class StudentDutyController extends Controller
     // View all available duties for students to request
     public function viewAvailableDuties()
     {
-        // Fetch duties that are pending, not locked, and have available slots, along with professor details
+        $student = Auth::user(); 
+    
         $duties = Duty::with('employee')
             ->where('duty_status', 'pending')
             ->where('is_locked', false)
             ->whereColumn('current_scholars', '<', 'max_scholars')
+            ->whereDoesntHave('studentDutyRecords', function ($query) use ($student) {
+                // Exclude duties that the student has already been accepted to
+                $query->where('stud_id', $student->id)
+                      ->where('request_status', 'accepted');
+            })
             ->get();
-
-        // Check if there are no duties found
+    
         if ($duties->isEmpty()) {
             return response()->json(['message' => 'No available duties at the moment.'], 200);
         }
-
+    
         $response = $duties->map(function ($duty) {
             return [
                 'id' => $duty->id,
@@ -38,8 +43,6 @@ class StudentDutyController extends Controller
                 'employee_name' => $duty->employee->name,  
             ];
         });
-
-        // Return the list of available duties with professor names
         return response()->json($response, 200);
     }
 
@@ -153,28 +156,48 @@ class StudentDutyController extends Controller
         return response()->json(['message' => 'Request canceled successfully']);
     }
 
-    public function viewAcceptedDuties()
-    {
-        $student = Auth::user();
+    // Added return duty information
+    public function viewAcceptedDuties(Request $request)
+{
+    $student = Auth::user();
 
-        // Retrieve all duties where the student's request has been accepted
-        $acceptedDuties = StudentDutyRecord::with('duty')
-            ->where('stud_id', $student->id)
-            ->where('request_status', 'accepted')
-            ->get();
+    // Fetch accepted duties for the student
+    $query = StudentDutyRecord::with('duty.employee')  // Load the employee along with the duty
+        ->where('stud_id', $student->id)
+        ->where('request_status', 'accepted');
 
-        // Check if any accepted duties were found
-        if ($acceptedDuties->isEmpty()) {
-            return response()->json(['message' => 'No accepted duties found'], 404);
-        }
-
-        return response()->json($acceptedDuties);
+    // Optionally filter by status if provided (active, ongoing, completed, cancelled)
+    if ($request->has('status')) {
+        $status = $request->input('status');
+        $query->whereHas('duty', function ($q) use ($status) {
+            $q->where('duty_status', $status);
+        });
     }
 
+    $acceptedDuties = $query->get();
 
+    // Check if any accepted duties were found
+    if ($acceptedDuties->isEmpty()) {
+        return response()->json(['message' => 'No accepted duties found'], 404);
+    }
 
-    // View all completed duties by the student
-    public function viewCompletedDuties()
+    // Format the response to include duty details and employee name
+    $response = $acceptedDuties->map(function ($record) {
+        return [
+            'duty_id' => $record->duty->id,
+            'building' => $record->duty->building,
+            'date' => $record->duty->date,
+            'start_time' => $record->duty->start_time,
+            'end_time' => $record->duty->end_time,
+            'status' => $record->duty->duty_status,
+            'employee_name' => $record->duty->employee->name,  
+        ];
+    });
+
+    return response()->json($response, 200);
+}
+
+public function viewCompletedDuties()
     {
         $student = Auth::user();
 
