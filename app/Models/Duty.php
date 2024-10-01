@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
 
 class Duty extends Model
 {
@@ -11,6 +12,7 @@ class Duty extends Model
 
     protected $fillable = [
         'building',
+        'emp_id',
         'date',
         'start_time',
         'end_time',
@@ -21,7 +23,6 @@ class Duty extends Model
         'is_locked',
         'duty_status',
         'is_completed',
-        'prof_id',
     ];
 
     // Relationship with the intermediate model (StudentDutyRecord)
@@ -30,9 +31,37 @@ class Duty extends Model
         return $this->hasMany(StudentDutyRecord::class, 'duty_id');
     }
 
-    public function professor()
-{
-    return $this->belongsTo(User::class, 'prof_id');
-}
+    // Relationship to fetch the employee who created the duty
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'emp_id');
+    }
 
+    /**
+     * Get the duty status dynamically based on the current time.
+     *
+     * @param string $value
+     * @return string
+     */
+    public function getDutyStatusAttribute($value)
+    {
+        // If duty_status is 'cancelled' or 'completed' in the database, return it as is
+        if (in_array($value, ['cancelled', 'completed'])) {
+            return $value;
+        }
+
+        $currentTime = Carbon::now();
+        $startTime = Carbon::parse($this->date . ' ' . $this->start_time);
+        $endTime = Carbon::parse($this->date . ' ' . $this->end_time);
+
+        if ($currentTime->greaterThanOrEqualTo($endTime)) {
+            return 'completed';
+        } elseif ($currentTime->between($startTime, $endTime)) {
+            return 'ongoing';
+        } elseif ($currentTime->greaterThanOrEqualTo($startTime)) {
+            return 'active';
+        } else {
+            return 'pending';
+        }
+    }
 }

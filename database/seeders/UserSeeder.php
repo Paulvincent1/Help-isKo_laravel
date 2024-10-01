@@ -13,16 +13,16 @@ class UserSeeder extends Seeder
     {
         User::factory()->create([
             'name' => 'matt',
-            'email' => 'profmatt@example.com',
-            'password' => 'professor1',
-            'role' => 'professor',
+            'email' => 'matt@example.com',
+            'password' => 'employee1',
+            'role' => 'employee',
         ]);
 
         User::factory()->create([
-            'name' => 'prof2',
-            'email' => 'prof2@example.com',
-            'password' => 'professor2',
-            'role' => 'professor',
+            'name' => 'kris',
+            'email' => 'kris@example.com',
+            'password' => 'employee2',
+            'role' => 'employee',
         ]);
 
         User::factory()->create([
