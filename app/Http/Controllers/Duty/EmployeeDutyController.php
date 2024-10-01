@@ -64,54 +64,57 @@ class EmployeeDutyController extends Controller
 
 
     public function index()
-    {
-        // Get the authenticated employee
-        $employee = Auth::user();
+{
+    // Get the authenticated employee
+    $employee = Auth::user();
 
-        // Ensure the authenticated user is an employee
-        if (!$employee || $employee->role !== 'employee') {
-            return response()->json(['message' => 'Unauthorized or invalid user role'], 403);
-        }
-
-        // Get the duties for the authenticated employee
-        $duties = Duty::where('emp_id', $employee->id)->get();
-
-        // Prepare the response data
-        $response = [];
-
-        foreach ($duties as $duty) {
-            // Update duty_status if is_locked is true
-            if ($duty->is_locked) {
-                $duty->duty_status = 'active';
-            }
-
-            // Get the accepted students for this duty
-            $acceptedStudents = StudentDutyRecord::where('duty_id', $duty->id)
-                ->where('request_status', 'accepted')
-                ->with('student.studentProfile')
-                ->get()
-                ->map(function ($record) {
-                    return [
-                        'student_id' => $record->student->id,
-                        'name' => $record->student->name,
-                        'email' => $record->student->email,
-                        'student_number' => $record->student->studentProfile->student_number,
-                        'contact_number' => $record->student->studentProfile->contact_number,
-                        'semester' => $record->student->studentProfile->semester,
-                        'course' => $record->student->studentProfile->course,
-                        'request_status' => $record->request_status,
-                    ];
-                });
-
-            // Add the raw duty and accepted students to the response
-            $response[] = [
-                'duty' => $duty, // Return the entire duty object
-                'accepted_students' => $acceptedStudents,
-            ];
-        }
-
-        return response()->json($response);
+    // Ensure the authenticated user is an employee
+    if (!$employee || $employee->role !== 'employee') {
+        return response()->json(['message' => 'Unauthorized or invalid user role'], 403);
     }
+
+    // Fetch only the pending, active, or ongoing duties for the authenticated employee
+    $duties = Duty::where('emp_id', $employee->id)
+        ->whereIn('duty_status', ['pending', 'active', 'ongoing']) // Filter only pending, active, and ongoing duties
+        ->get();
+
+    // Prepare the response data
+    $response = [];
+
+    foreach ($duties as $duty) {
+        // Dynamically update duty status if is_locked is true (if needed)
+        if ($duty->is_locked && $duty->duty_status == 'pending') {
+            $duty->duty_status = 'active';
+        }
+
+        // Get the accepted students for this duty
+        $acceptedStudents = StudentDutyRecord::where('duty_id', $duty->id)
+            ->where('request_status', 'accepted')
+            ->with('student.studentProfile')
+            ->get()
+            ->map(function ($record) {
+                return [
+                    'student_id' => $record->student->id,
+                    'name' => $record->student->name,
+                    'email' => $record->student->email,
+                    'student_number' => $record->student->studentProfile->student_number,
+                    'contact_number' => $record->student->studentProfile->contact_number,
+                    'semester' => $record->student->studentProfile->semester,
+                    'course' => $record->student->studentProfile->course,
+                    'request_status' => $record->request_status,
+                ];
+            });
+
+        // Add the duty and accepted students to the response
+        $response[] = [
+            'duty' => $duty, // Return the entire duty object
+            'accepted_students' => $acceptedStudents,
+        ];
+    }
+
+    return response()->json($response);
+}
+
 
     public function show($dutyId)
 {
