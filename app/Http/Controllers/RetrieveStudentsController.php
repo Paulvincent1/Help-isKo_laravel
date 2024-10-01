@@ -48,6 +48,7 @@ class RetrieveStudentsController extends Controller
 
             // Prepare student data
             $response[] = [
+                'id' => $student->id,
                 'name' => $student->name,
                 'student_number' => $student->studentProfile->student_number ?? 'Unknown',
                 'course' => $student->studentProfile->course ?? 'Unknown',
