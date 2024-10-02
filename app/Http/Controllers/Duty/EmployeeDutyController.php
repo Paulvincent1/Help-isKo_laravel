@@ -7,7 +7,7 @@ use App\Notifications\DutyNotifications\UnfinishedDutyNotification;
 use App\Notifications\DutyNotifications\CompletedDutyNotification;
 use App\Notifications\DutyNotifications\OngoingDutyNotification;
 use App\Notifications\DutyNotifications\ActiveDutyNotification;
-use App\Notifications\AcceptedDutyNotification;
+use App\Notifications\DutyNotifications\AcceptedDutyNotification;
 use App\Notifications\DutyRecentActivities\DutyPostedNotification;
 use App\Notifications\DutyRecentActivities\DutyEditedNotification;
 use App\Notifications\DutyRecentActivities\DutyRemovedNotification;
