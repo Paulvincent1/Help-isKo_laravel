@@ -1,11 +1,12 @@
 <?php
-namespace App\Notifications;
+
+namespace App\Notifications\DutyNotifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 
-class CancelledDutyNotification extends Notification
+class OngoingDutyNotification extends Notification
 {
     use Queueable;
 
@@ -24,8 +25,8 @@ class CancelledDutyNotification extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'title' => 'Duty Cancelled!',
-            'message' => 'The duty at ' . $this->duty->building . ' on ' . $this->duty->date . ' has been cancelled.',
+            'title' => 'Duty Ongoing!',
+            'message' => 'The duty at ' . $this->duty->building . ' is currently ongoing.',
             'duty_id' => $this->duty->id,
             'time' => now(),
         ];
@@ -34,11 +35,10 @@ class CancelledDutyNotification extends Notification
     public function toBroadcast($notifiable)
     {
         return new BroadcastMessage([
-            'title' => 'Duty Cancelled!',
-            'message' => 'The duty at ' . $this->duty->building . ' on ' . $this->duty->date . ' has been cancelled.',
+            'title' => 'Duty Ongoing!',
+            'message' => 'The duty at ' . $this->duty->building . ' is currently ongoing.',
             'duty_id' => $this->duty->id,
             'time' => now(),
         ]);
     }
 }
-

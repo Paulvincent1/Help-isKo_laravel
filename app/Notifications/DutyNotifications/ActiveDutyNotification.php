@@ -1,5 +1,6 @@
 <?php
-namespace App\Notifications;
+
+namespace App\Notifications\DutyNotifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
@@ -10,12 +11,12 @@ class ActiveDutyNotification extends Notification
     use Queueable;
 
     protected $duty;
-    protected $user; // Include this to store the user receiving the notification
+    protected $user;
 
     public function __construct($duty, $user)
     {
         $this->duty = $duty;
-        $this->user = $user; // Store the user in the constructor
+        $this->user = $user;
     }
 
     public function via($notifiable)
@@ -29,7 +30,6 @@ class ActiveDutyNotification extends Notification
             'title' => 'Duty Active!',
             'message' => 'The duty at ' . $this->duty->building . ' is now active.',
             'duty_id' => $this->duty->id,
-            'user' => $this->user->name, // Include user info if needed
             'time' => now(),
         ];
     }
@@ -40,7 +40,6 @@ class ActiveDutyNotification extends Notification
             'title' => 'Duty Active!',
             'message' => 'The duty at ' . $this->duty->building . ' is now active.',
             'duty_id' => $this->duty->id,
-            'user' => $this->user->name,
             'time' => now(),
         ]);
     }

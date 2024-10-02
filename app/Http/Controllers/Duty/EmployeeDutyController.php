@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Duty;
 
 use App\Http\Controllers\Controller;
-use App\Notifications\CancelledDutyNotification;
+use App\Notifications\DutyNotifications\UnfinishedDutyNotification;
+use App\Notifications\DutyNotifications\CompletedDutyNotification;
+use App\Notifications\DutyNotifications\OngoingDutyNotification;
+use App\Notifications\DutyNotifications\ActiveDutyNotification;
 use App\Notifications\AcceptedDutyNotification;
-use App\Notifications\DutyCreatedNotification;
-use App\Notifications\CompletedDutyNotification;
+use App\Notifications\DutyRecentActivities\DutyPostedNotification;
+use App\Notifications\DutyRecentActivities\DutyEditedNotification;
+use App\Notifications\DutyRecentActivities\DutyRemovedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Duty;
@@ -53,7 +57,7 @@ class EmployeeDutyController extends Controller
         ]);
 
         // Trigger notification for the employee
-        $employee->notify(new DutyCreatedNotification($duty));
+        $employee->notify(new DutyPostedNotification($duty));
 
         return response()->json(['message' => 'Duty created successfully', 'duty' => $duty], 201);
     }
@@ -69,11 +73,46 @@ class EmployeeDutyController extends Controller
             return response()->json(['message' => 'Unauthorized or invalid user role'], 403);
         }
 
-        // Retrieve all duties created by the authenticated employee
+        // Get the duties for the authenticated employee
         $duties = Duty::where('emp_id', $employee->id)->get();
 
-        return response()->json($duties);
+        // Prepare the response data
+        $response = [];
+
+        foreach ($duties as $duty) {
+            // Update duty_status if is_locked is true
+            if ($duty->is_locked) {
+                $duty->duty_status = 'active';
+            }
+
+            // Get the accepted students for this duty
+            $acceptedStudents = StudentDutyRecord::where('duty_id', $duty->id)
+                ->where('request_status', 'accepted')
+                ->with('student.studentProfile')
+                ->get()
+                ->map(function ($record) {
+                    return [
+                        'student_id' => $record->student->id,
+                        'name' => $record->student->name,
+                        'email' => $record->student->email,
+                        'student_number' => $record->student->studentProfile->student_number,
+                        'contact_number' => $record->student->studentProfile->contact_number,
+                        'semester' => $record->student->studentProfile->semester,
+                        'course' => $record->student->studentProfile->course,
+                        'request_status' => $record->request_status,
+                    ];
+                });
+
+            // Add the raw duty and accepted students to the response
+            $response[] = [
+                'duty' => $duty, // Return the entire duty object
+                'accepted_students' => $acceptedStudents,
+            ];
+        }
+
+        return response()->json($response);
     }
+
     public function show($dutyId)
 {
     $employee = Auth::user();
@@ -122,6 +161,7 @@ class EmployeeDutyController extends Controller
                 // Compile student data for each request
                 foreach ($requests as $request) {
                     $student = \App\Models\User::find($request->stud_id);
+                    $studentProfile = $student ? $student->studentProfile : null;
                     $dutyDetails[] = [
                         'duty_id' => $duty->id,
                         'building' => $duty->building,
@@ -134,8 +174,13 @@ class EmployeeDutyController extends Controller
                         'request_count' => $requests->count(), // Total requests count
                         'student_data' => [
                             'student_id' => $request->stud_id,
-                            'profile_img' => $request->profile_img,
-                            'name' => $student ? $student->name : 'Unknown'
+                            'email' => $student->email,
+                            'name' => $student ? $student->name : 'Unknown',
+                            'last_name' => $studentProfile ? $studentProfile->last_name : null,
+                            'contact_number' => $studentProfile ? $studentProfile->contact_number : null,
+                            'student_number' => $studentProfile ? $studentProfile->student_number : null,
+                            'course' => $studentProfile ? $studentProfile->course : null,
+                            'semester' => $studentProfile ? $studentProfile->semester : null,
                         ]
                     ];
                 }
@@ -145,7 +190,7 @@ class EmployeeDutyController extends Controller
         return response()->json($dutyDetails);
     }
 
-    // Update a specific duty
+    // Update a specific duty, 
     public function update($dutyId, Request $request)
     {
         $employee = Auth::user();
@@ -189,86 +234,96 @@ class EmployeeDutyController extends Controller
             'max_scholars' => $validatedData['max_scholars'],
         ]);
 
+       // Triggers the notification for the recent activitiy
+        $employee->notify(new DutyEditedNotification($duty));
         return response()->json(['message' => 'Duty updated successfully', 'duty' => $duty], 200);
     }
 
-    // Delete a specific duty
+    // Delete a specific duty 
     public function delete($dutyId)
     {
         $employee = Auth::user();
-
+    
         // Get the specific duty created by the employee
         $duty = Duty::where('id', $dutyId)
             ->where('emp_id', $employee->id)
             ->first();
-
+    
+        // If the duty is not found, return a 404 response
         if (!$duty) {
             return response()->json(['message' => 'Duty not found or you do not have permission to delete it'], 404);
         }
-
+    
         // Check if any requests have been accepted for this duty
         $hasAcceptedRequests = StudentDutyRecord::where('duty_id', $dutyId)
             ->where('request_status', 'accepted')
             ->exists();
-
+    
         if ($hasAcceptedRequests) {
             return response()->json(['message' => 'Cannot delete duty as student requests have already been accepted'], 400);
         }
+    
         // Delete the duty
         $duty->delete();
-
-        return response()->json(['message' => 'Duty deleted successfully']);
+    
+        $employee->notify(new DutyRemovedNotification($duty));
+    
+        return response()->json(['message' => 'Duty deleted successfully'], 200);
     }
+    
 
     public function acceptStudent(Request $request)
-    {
-        // Validate the incoming request
-        $data = $request->validate([
-            'duty_id' => 'required|integer',
-            'stud_id' => 'required|integer',
-        ]);
+{
+    // Validate the incoming request
+    $data = $request->validate([
+        'duty_id' => 'required|integer',
+        'stud_id' => 'required|integer',
+    ]);
 
-        // Get the authenticated employee
-        $employee = Auth::user();
+    // Get the authenticated employee
+    $employee = Auth::user();
 
-        // Find the duty created by the employee
-        $duty = Duty::where('id', $data['duty_id'])
-            ->where('emp_id', $employee->id)
-            ->first();
+    // Find the duty created by the employee
+    $duty = Duty::where('id', $data['duty_id'])
+        ->where('emp_id', $employee->id)
+        ->first();
 
-        if (!$duty) {
-            return response()->json(['message' => 'Duty not found or you do not have permission to handle student requests for it'], 404);
-        }
-
-        // Find the student's duty request
-        $studentDutyRecord = StudentDutyRecord::where('duty_id', $duty->id)
-            ->where('stud_id', $data['stud_id'])
-            ->where('request_status', 'undecided')
-            ->first();
-
-        if (!$studentDutyRecord) {
-            return response()->json(['message' => 'Student request not found or already decided'], 404);
-        }
-
-        // Ensure the duty is not over its max scholars limit
-        if ($duty->current_scholars >= $duty->max_scholars) {
-            return response()->json(['message' => 'Cannot accept more students, max scholars limit reached'], 400);
-        }
-
-        // Accept the student's request
-        $studentDutyRecord->update(['request_status' => 'accepted']);
-        $duty->increment('current_scholars');
-
-        // Notify the student (optional)
-         \App\Models\User::find($data['stud_id'])->notify(new AcceptedDutyNotification($duty));
-
-        // Lock the duty if max scholars limit is reached
-        if ($duty->current_scholars >= $duty->max_scholars) {
-            $duty->update(['is_locked' => true]);
-        }
-
-        return response()->json(['message' => 'Student accepted successfully', 'duty' => $duty], 200);
+    if (!$duty) {
+        return response()->json(['message' => 'Duty not found or you do not have permission to handle student requests for it'], 404);
     }
+
+    // Find the student's duty request
+    $studentDutyRecord = StudentDutyRecord::where('duty_id', $duty->id)
+        ->where('stud_id', $data['stud_id'])
+        ->where('request_status', 'undecided')
+        ->first();
+
+    if (!$studentDutyRecord) {
+        return response()->json(['message' => 'Student request not found or already decided'], 404);
+    }
+
+    // Ensure the duty is not over its max scholars limit
+    if ($duty->current_scholars >= $duty->max_scholars) {
+        return response()->json(['message' => 'Cannot accept more students, max scholars limit reached'], 400);
+    }
+
+    // Accept the student's request
+    $studentDutyRecord->update(['request_status' => 'accepted']);
+    $duty->increment('current_scholars');
+
+    // Notify the student
+    \App\Models\User::find($data['stud_id'])->notify(new AcceptedDutyNotification($duty));
+
+    // Lock the duty if max scholars limit is reached and notify the employee
+    if ($duty->current_scholars >= $duty->max_scholars) {
+        $duty->update(['is_locked' => true]);
+
+        // Notify the employee that the duty is now active
+        $employee->notify(new ActiveDutyNotification($duty, $employee));
+    }
+
+    return response()->json(['message' => 'Student accepted successfully', 'duty' => $duty], 200);
+}
 
 
 
@@ -333,12 +388,13 @@ class EmployeeDutyController extends Controller
      // Get the students who have been accepted for this duty
      $acceptedStudents = StudentDutyRecord::where('duty_id', $dutyId)
          ->where('request_status', 'accepted')
-         ->with('student')
+         ->with('student.studentProfile')
          ->get()
          ->map(function ($record) {
              return [
                  'student_id' => $record->student->id,
                  'name' => $record->student->name,
+                 'course' => $record->student->studentProfile->course,
                  'request_status' => $record->request_status,
              ];
          });
@@ -379,97 +435,80 @@ class EmployeeDutyController extends Controller
 }
 
 
- public function updateStatus($dutyId, Request $request)
- {
-     $employee = Auth::user();
- 
-     // Find the duty created by the employee
-     $duty = Duty::where('id', $dutyId)->where('emp_id', $employee->id)->first();
- 
-     if (!$duty) {
-         return response()->json(['message' => 'Duty not found or unauthorized'], 404);
-     }
- 
-     // Validate the incoming request
-     $data = $request->validate([
-         'duty_status' => 'required|in:active,ongoing,completed,cancelled', // Only these statuses are allowed
-     ]);
- 
-     // Ensure that completed duties cannot be reverted to other statuses
-     if ($duty->duty_status === 'completed') {
-         return response()->json(['message' => 'Cannot update status of a completed duty'], 400);
-     }
- 
-     // Use Carbon to compare current time with duty start and end times
-     $currentTime = Carbon::now();
-     $startTime = Carbon::parse($duty->date . ' ' . $duty->start_time);
-     $endTime = Carbon::parse($duty->date . ' ' . $duty->end_time);
- 
-     // Automatically set status to 'ongoing' if current time is during duty time
-     if ($currentTime->between($startTime, $endTime)) {
-         $data['duty_status'] = 'ongoing';
-     }
- 
-     // Automatically set status to 'completed' if the duty time has passed
-     if ($currentTime->greaterThan($endTime)) {
-         $data['duty_status'] = 'completed';
- 
-         // Notify all accepted students that the duty has been completed
-         $acceptedStudents = StudentDutyRecord::where('duty_id', $duty->id)
-             ->where('request_status', 'accepted')
-             ->get();
- 
-         foreach ($acceptedStudents as $studentRecord) {
-             $student = \App\Models\User::find($studentRecord->stud_id);
-             if ($student) {
-                 // Notify student about duty completion
-                 $student->notify(new CompletedDutyNotification($duty, $student));
-             }
-         }
- 
-         // Notify the employee that the duty has been completed
-         $employee->notify(new CompletedDutyNotification($duty, $employee));
-     }
- 
-     // Check if the duty has accepted students or is already active
-     $hasAcceptedStudents = StudentDutyRecord::where('duty_id', $dutyId)
-         ->where('request_status', 'accepted')
-         ->exists();
- 
-     // Ensure that status cannot be reverted to 'pending' or undone
-     if ($hasAcceptedStudents || $duty->duty_status === 'active') {
-         if ($data['duty_status'] === 'pending') {
-             return response()->json(['message' => 'Cannot revert duty back to pending once students have been accepted or duty is active'], 400);
-         }
-     }
- 
-     // Handle cancellation specifically
-     if ($data['duty_status'] === 'cancelled') {
-         // Check if the duty is already cancelled
-         if ($duty->duty_status === 'cancelled') {
-             return response()->json(['message' => 'Duty is already cancelled'], 400);
-         }
- 
-         // Notify accepted students that the duty has been cancelled
-         $acceptedStudents = StudentDutyRecord::where('duty_id', $dutyId)
-             ->where('request_status', 'accepted')
-             ->get();
- 
-         foreach ($acceptedStudents as $studentRecord) {
-             $student = \App\Models\User::find($studentRecord->stud_id);
-             if ($student) {
-                 $student->notify(new CancelledDutyNotification($duty));
-             }
-         }
-     }
- 
-     // Update the duty status
-     $duty->update(['duty_status' => $data['duty_status']]);
- 
-     // Broadcast the real-time update to others (e.g., students)
-     broadcast(new \App\Events\DutyStatusUpdated($duty))->toOthers();
- 
-     return response()->json(['message' => 'Duty status updated successfully', 'duty' => $duty]);
- }
- 
+public function updateStatus($dutyId, Request $request)
+{
+    $employee = Auth::user();
+
+    // Find the duty created by the employee
+    $duty = Duty::where('id', $dutyId)->where('emp_id', $employee->id)->first();
+
+    if (!$duty) {
+        return response()->json(['message' => 'Duty not found or unauthorized'], 404);
+    }
+
+    // Validate the incoming request
+    $data = $request->validate([
+        'duty_status' => 'required|in:cancelled', // Only cancellation is manually handled
+    ]);
+
+    // Handle cancellation specifically
+    if ($data['duty_status'] === 'cancelled') {
+        // Check if the duty is already cancelled
+        if ($duty->duty_status === 'cancelled') {
+            return response()->json(['message' => 'Duty is already cancelled'], 400);
+        }
+
+        // Notify accepted students that the duty has been cancelled
+        $acceptedStudents = StudentDutyRecord::where('duty_id', $dutyId)
+            ->where('request_status', 'accepted')
+            ->get();
+
+        foreach ($acceptedStudents as $studentRecord) {
+            $student = \App\Models\User::find($studentRecord->stud_id);
+            if ($student) {
+                $student->notify(new UnfinishedDutyNotification($duty));
+            }
+        }
+    }
+
+    // Let the model handle dynamic updates for 'ongoing', 'active', and 'completed' statuses
+    $currentDutyStatus = $duty->duty_status;
+
+    // If the current status is "ongoing", notify users about the ongoing duty
+    if ($currentDutyStatus === 'ongoing') {
+        $acceptedStudents = StudentDutyRecord::where('duty_id', $duty->id)
+            ->where('request_status', 'accepted')
+            ->get();
+
+        foreach ($acceptedStudents as $studentRecord) {
+            $student = \App\Models\User::find($studentRecord->stud_id);
+            if ($student) {
+                $student->notify(new OngoingDutyNotification($duty));
+            }
+        }
+    }
+
+    // Automatically notify if the duty is completed
+    if ($currentDutyStatus === 'completed') {
+        $acceptedStudents = StudentDutyRecord::where('duty_id', $duty->id)
+            ->where('request_status', 'accepted')
+            ->get();
+
+        foreach ($acceptedStudents as $studentRecord) {
+            $student = \App\Models\User::find($studentRecord->stud_id);
+            if ($student) {
+                $student->notify(new CompletedDutyNotification($duty, $student));
+            }
+        }
+
+        $employee->notify(new CompletedDutyNotification($duty, $employee));
+    }
+
+    // Update the duty status only for cancellation
+    if ($data['duty_status'] === 'cancelled') {
+        $duty->update(['duty_status' => 'cancelled']);
+    }
+
+    return response()->json(['message' => 'Duty status updated successfully', 'duty' => $duty]);
+}
 }
