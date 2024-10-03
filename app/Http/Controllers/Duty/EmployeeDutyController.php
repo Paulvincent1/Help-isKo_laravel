@@ -156,7 +156,6 @@ class EmployeeDutyController extends Controller
             $requests = StudentDutyRecord::where('duty_id', $duty->id)
                 ->where('request_status', 'undecided')
                 ->get();
-
             // Only add the duty details if there are requests
             if (!$requests->isEmpty()) {
                 // Compile student data for each request
