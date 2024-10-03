@@ -50,7 +50,7 @@ class AnnouncementController extends Controller
         $announcements = Announcement::all();
         return response()->json([
             'announcement' => $announcements
-        ]);
+        ], 200);
     }
 
     public function update(Request $request, Announcement $id){
