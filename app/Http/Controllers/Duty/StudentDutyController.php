@@ -115,7 +115,7 @@ public function viewRequestedDutyDetails($dutyId)
         'id' => $duty->id,
         'employee_name' => $duty->employee ? $duty->employee->name : 'Unknown',
         'message' => $duty->message,
-        'date' => Carbon::parse($duty->date)->format('F j, Y'), // Format: August 10, 2024
+        'date' => Carbon::parse($duty->date)->format('F j, Y'), 
         'building' => $duty->building,
         'time' => Carbon::createFromFormat('H:i:s', $duty->start_time)->format('g:i A') . ' - ' . Carbon::createFromFormat('H:i:s', $duty->end_time)->format('g:i A'),
         'duration' => $duty->duration,
