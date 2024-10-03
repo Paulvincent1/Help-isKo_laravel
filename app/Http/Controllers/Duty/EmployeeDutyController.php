@@ -74,7 +74,8 @@ class EmployeeDutyController extends Controller
         }
 
         // Get the duties for the authenticated employee
-        $duties = Duty::where('emp_id', $employee->id)->get();
+        $duties = Duty::where('emp_id', $employee->id)
+        ->get();
 
         // Prepare the response data
         $response = [];
@@ -106,6 +107,7 @@ class EmployeeDutyController extends Controller
             // Add the raw duty and accepted students to the response
             $response[] = [
                 'duty' => $duty, // Return the entire duty object
+                'profile_img' => $employee->employeeProfile->profile_img,
                 'accepted_students' => $acceptedStudents,
             ];
         }

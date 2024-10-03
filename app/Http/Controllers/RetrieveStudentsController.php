@@ -51,7 +51,7 @@ class RetrieveStudentsController extends Controller
                 'student_id' => $student->id,
                 'email' => $student->email,
                 'name' => $student->name,
-                'profile_image' => $student->studentProfile->profile_image ?? '',
+                'profile_image' => $student->studentProfile->profile_img ?? 'Unknown',
                 'student_number' => $student->studentProfile->student_number ?? 'Unknown',
                 'course' => $student->studentProfile->course ?? 'Unknown',
                 'department' => $student->studentProfile->department ?? 'Unknown',

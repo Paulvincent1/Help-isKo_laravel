@@ -62,8 +62,6 @@ class Duty extends Model
             return 'completed';
         } elseif ($currentTime->between($startTime, $endTime)) {
             return 'ongoing';
-        } elseif ($currentTime->greaterThanOrEqualTo($startTime)) {
-            return 'active';
         } else {
             return 'pending';
         }
