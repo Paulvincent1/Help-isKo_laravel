@@ -47,58 +47,39 @@ class StudentDutyController extends Controller
         return response()->json($response, 200);
     }
 
-
     // Request to join a specific duty
-    public function requestDuty($dutyId)
-    {
-        $student = Auth::user();
-        $duty = Duty::find($dutyId);
+public function requestDuty($dutyId)
+{
+    $student = Auth::user();
+    $duty = Duty::find($dutyId);
 
-        if (!$duty || $duty->duty_status !== 'Pending' || $duty->is_locked) {
-    
-            $existingRequest = StudentDutyRecord::where('duty_id', $dutyId)
-                ->where('stud_id', $student->id)
-                ->first();
-        
-            if ($existingRequest) {
-                return response()->json(['message' => 'You have already requested this duty'], 400);
-            }
-        
-            $studentDutyRecord = StudentDutyRecord::create([
-                'duty_id' => $dutyId,
-                'stud_id' => $student->id,
-                'emp_id' => $duty->emp_id,
-                'request_status' => 'undecided',
-            ]);
-        
-            return response()->json([
-                'message' => 'Request submitted successfully',
-                'request' => $studentDutyRecord,
-                'duty' => $duty
-            ], 201);
-        }
-    
-        $existingRequest = StudentDutyRecord::where('duty_id', $dutyId)
-            ->where('stud_id', $student->id)
-            ->first();
-    
-        if ($existingRequest) {
-            return response()->json(['message' => 'You have already requested this duty'], 400);
-        }
-    
-        $studentDutyRecord = StudentDutyRecord::create([
-            'duty_id' => $dutyId,
-            'stud_id' => $student->id,
-            'emp_id' => $duty->emp_id,
-            'request_status' => 'undecided',
-        ]);
-    
-        return response()->json([
-            'message' => 'Request submitted successfully',
-            'request' => $studentDutyRecord,
-            'duty' => $duty
-        ], 201);
+    if (!$duty || $duty->duty_status !== 'Pending' || $duty->is_locked) {
+        return response()->json(['message' => 'This duty is not available for requests'], 400);
     }
+
+    // Check if the student has already requested this duty
+    $existingRequest = StudentDutyRecord::where('duty_id', $dutyId)
+        ->where('stud_id', $student->id)
+        ->first();
+
+    if ($existingRequest) {
+        return response()->json(['message' => 'You have already requested this duty'], 400);
+    }
+
+    // Create a new student duty record
+    $studentDutyRecord = StudentDutyRecord::create([
+        'duty_id' => $dutyId,
+        'stud_id' => $student->id,
+        'emp_id' => $duty->emp_id,
+        'request_status' => 'undecided',
+    ]);
+
+    return response()->json([
+        'message' => 'Request submitted successfully',
+        'request' => $studentDutyRecord,
+        'duty' => $duty
+    ], 201);
+}
 
     // View all duties the student has requested
     public function viewRequestedDuties()
@@ -262,5 +243,4 @@ public function viewRequestedDutyDetails($dutyId)
 
         return response()->json($completedDuties);
     }
-
 }
