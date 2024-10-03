@@ -50,6 +50,10 @@ class Duty extends Model
             return $value;
         }
 
+        if ($this->is_locked) {
+            return 'active';
+        }
+
         $currentTime = Carbon::now();
         $startTime = Carbon::parse($this->date . ' ' . $this->start_time);
         $endTime = Carbon::parse($this->date . ' ' . $this->end_time);
@@ -58,8 +62,6 @@ class Duty extends Model
             return 'completed';
         } elseif ($currentTime->between($startTime, $endTime)) {
             return 'ongoing';
-        } elseif ($currentTime->greaterThanOrEqualTo($startTime)) {
-            return 'active';
         } else {
             return 'pending';
         }

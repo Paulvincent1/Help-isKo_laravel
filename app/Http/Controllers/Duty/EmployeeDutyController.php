@@ -7,7 +7,7 @@ use App\Notifications\DutyNotifications\UnfinishedDutyNotification;
 use App\Notifications\DutyNotifications\CompletedDutyNotification;
 use App\Notifications\DutyNotifications\OngoingDutyNotification;
 use App\Notifications\DutyNotifications\ActiveDutyNotification;
-use App\Notifications\AcceptedDutyNotification;
+use App\Notifications\DutyNotifications\AcceptedDutyNotification;
 use App\Notifications\DutyRecentActivities\DutyPostedNotification;
 use App\Notifications\DutyRecentActivities\DutyEditedNotification;
 use App\Notifications\DutyRecentActivities\DutyRemovedNotification;
@@ -74,7 +74,8 @@ class EmployeeDutyController extends Controller
         }
 
         // Get the duties for the authenticated employee
-        $duties = Duty::where('emp_id', $employee->id)->get();
+        $duties = Duty::where('emp_id', $employee->id)
+        ->get();
 
         // Prepare the response data
         $response = [];
@@ -106,6 +107,7 @@ class EmployeeDutyController extends Controller
             // Add the raw duty and accepted students to the response
             $response[] = [
                 'duty' => $duty, // Return the entire duty object
+                'profile_img' => $employee->employeeProfile->profile_img,
                 'accepted_students' => $acceptedStudents,
             ];
         }

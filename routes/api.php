@@ -55,7 +55,7 @@ Route::middleware(['auth:sanctum', isStudent::class])->group(function () {
 });
 
 // Feedback routes
-Route::get('/feedback/{id}', [StudentFeedbackController::class, 'show']);
+// Route::get('/feedback/{id}', [StudentFeedbackController::class, 'show']);
 Route::get('/feedback/index/{student_id}', [StudentFeedbackController::class, 'index']);
 
 // Professor routes

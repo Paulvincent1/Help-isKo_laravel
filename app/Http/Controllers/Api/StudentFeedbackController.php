@@ -18,7 +18,16 @@ class StudentFeedbackController extends Controller
         // Return feedback details
         return response()->json([
             'student_id' => $student_id,
-            'feedbacks' => $feedbacks
+            'feedbacks' => $feedbacks->map(function ($feedback) {
+                return [
+                    'rating' => $feedback->rating,
+                    'comment' => $feedback->comment,
+                    'created_at' => $feedback->created_at,
+                    'commenter_first_name' => $feedback->employee->first_name,
+                    'commenter_last_name' => $feedback->employee->last_name,
+                    'commenter_profile_img' => $feedback->employee->profile_img,
+                ];
+            })
         ], 200);
     }
    
@@ -66,7 +75,7 @@ class StudentFeedbackController extends Controller
     
         // Validate the request data
         $data = $request->validate([
-            'rating' => 'required|integer|min:1|max:5',
+            'rating' => 'nullable|integer|min:1|max:5',
             'comment' => 'required|string|max:500'
         ]);
 
@@ -75,14 +84,14 @@ class StudentFeedbackController extends Controller
         $feedback = StudentFeedback::create([
             'stud_id' => $student_id,
             'prof_id' => $user->id,
-            'rating' => $data['rating'], // Fixed the typo here
+            'rating' => $data['rating'] ?? null, // Fixed the typo here
             'comment' => $data['comment'],
         ]);
 
 
     
-        // Return the feedback as JSON with a 201 status
-        return response()->json($feedback, 201);
+        // Return the feedback as JSON with a 200 status
+        return response()->json($feedback, 200);
     }
     
 };
