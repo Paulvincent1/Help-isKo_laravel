@@ -128,6 +128,7 @@ class EmployeeDutyController extends Controller
                         'semester' => $record->student->studentProfile->semester,
                         'course' => $record->student->studentProfile->course,
                         'request_status' => $record->request_status,
+                        'profile_image' => $record->student->studentProfile->profile_img
                     ];
                 });
 
@@ -158,15 +159,11 @@ class EmployeeDutyController extends Controller
     return response()->json($duty);
 }
 
-
-    // Retrieve all pending requests for duties created by the employee
    // Retrieve all pending requests for duties created by the employee
 public function getRequestsForAllDuties()
 {
-    // Get the authenticated employee
     $employee = Auth::user();
 
-    // Check if the user is an employee
     if (!$employee || $employee->role !== 'employee') {
         return response()->json(['message' => 'Unauthorized access'], 403);
     }

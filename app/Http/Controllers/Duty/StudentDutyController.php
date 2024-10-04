@@ -5,10 +5,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\DutyRecentActivities\Student\StudentDutyRequestedNotification;
-use App\Notifications\DutyNotifications\Student\StudentActiveDutyNotification;
-use App\Notifications\DutyNotifications\Student\StudentOngoingDutyNotification;
-use App\Notifications\DutyNotifications\Student\StudentCompletedDutyNotification;
-use App\Notifications\DutyNotifications\Student\StudentCancelledDutyNotification;
 use App\Models\Duty;
 use App\Models\User;
 use App\Models\StudentDutyRecord;
@@ -59,7 +55,7 @@ class StudentDutyController extends Controller
         $student = Auth::user();
         $duty = Duty::find($dutyId);
 
-        // Check if the duty exists, is pending, and is not locked
+        // Check duty state
         if (!$duty || $duty->duty_status !== 'pending' || $duty->is_locked) {
             return response()->json(['message' => 'This duty is not available for requests'], 400);
         }
