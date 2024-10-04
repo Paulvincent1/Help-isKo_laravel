@@ -49,18 +49,20 @@ class Duty extends Model
         if (in_array($value, ['cancelled', 'completed'])) {
             return $value;
         }
+        
+        $currentTime = Carbon::now();
+        $startTime = Carbon::parse($this->date . ' ' . $this->start_time);
+        $endTime = Carbon::parse($this->date . ' ' . $this->end_time);
 
         if ($this->is_locked) {
             return 'active';
         }
 
-        $currentTime = Carbon::now();
-        $startTime = Carbon::parse($this->date . ' ' . $this->start_time);
-        $endTime = Carbon::parse($this->date . ' ' . $this->end_time);
-
-        if ($currentTime->greaterThanOrEqualTo($endTime)) {
+        if ($this->is_locked && $currentTime->greaterThanOrEqualTo($endTime)) {
             return 'completed';
-        } elseif ($currentTime->between($startTime, $endTime)) {
+        }elseif (!$this->is_locked && $currentTime->diffInSeconds($startTime) <= 60) {
+            return 'cancelled';
+        }elseif ($currentTime->between($startTime, $endTime)) {
             return 'ongoing';
         } else {
             return 'pending';
