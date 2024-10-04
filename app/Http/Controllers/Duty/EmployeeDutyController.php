@@ -101,6 +101,7 @@ class EmployeeDutyController extends Controller
                         'semester' => $record->student->studentProfile->semester,
                         'course' => $record->student->studentProfile->course,
                         'request_status' => $record->request_status,
+                        'profile_image' => $record->student->studentProfile->profile_img
                     ];
                 });
 
@@ -183,6 +184,7 @@ class EmployeeDutyController extends Controller
                             'student_number' => $studentProfile ? $studentProfile->student_number : null,
                             'course' => $studentProfile ? $studentProfile->course : null,
                             'semester' => $studentProfile ? $studentProfile->semester : null,
+                            'profile_image' => $studentProfile ? $studentProfile->profile_img : null
                         ]
                     ];
                 }
