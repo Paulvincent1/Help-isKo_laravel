@@ -13,6 +13,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Duty\DutyNotificationsController;
 use App\Http\Controllers\Duty\DutyRecentActivitiesController;
+use App\Http\Controllers\Api\StudentRenewalFormController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\isAdmin;
@@ -52,6 +53,9 @@ Route::middleware(['auth:sanctum', isStudent::class])->group(function () {
     Route::delete('/students/duties/{dutyId}/cancel', [StudentDutyController::class, 'cancelRequest']);
     Route::get('/students/duties/accepted', [StudentDutyController::class, 'viewAcceptedDuties']);
     Route::get('/students/duties/completed', [StudentDutyController::class, 'viewCompletedDuties']);
+
+    Route::post('student/renewal-form', [StudentRenewalFormController::class, 'store']);
+    Route::get('student/renewal-form/{id}', [StudentRenewalFormController::class, 'show']);
 });
 
 // Feedback routes
@@ -98,6 +102,9 @@ Route::middleware(['auth:sanctum', isAdmin::class])->group(function () {
     Route::post('/create-announcement', [AnnouncementController::class, 'store']);
     Route::put('/update-announcement/{id}', [AnnouncementController::class, 'update']);
     Route::put('/delete-announcement/{id}', [AnnouncementController::class, 'delete']);
+
+    //Renewal Form Fields
+
 });
 
 // General duty routes accessible to students and employees
@@ -119,4 +126,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('duty/recent-activities', [DutyRecentActivitiesController::class, 'index']);
     // Duty notifications
     Route::get('duty/notifications', [DutyNotificationsController::class, 'index']);
+
+
+
 });
