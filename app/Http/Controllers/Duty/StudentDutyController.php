@@ -114,9 +114,9 @@ class StudentDutyController extends Controller
         });
 
         // If no duties are found, return a message
-        if ($requestedDuties->isEmpty()) {
-            return response()->json(['message' => 'You have no requested duties at the moment.'], 200);
-        }
+        // if ($requestedDuties->isEmpty()) {
+        //     return response()->json(['message' => 'You have no requested duties at the moment.'], 200);
+        // }
 
         // Format the duties for the response
         $formattedDuties = $requestedDuties->map(function ($record) {
