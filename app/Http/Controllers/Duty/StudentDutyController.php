@@ -28,13 +28,13 @@ class StudentDutyController extends Controller
             ->whereDoesntHave('studentDutyRecords', function ($query) use ($student) {
                 // Exclude duties that the student has already been accepted to
                 $query->where('stud_id', $student->id)
-                    ->where('request_status', 'accepted');
+                ->whereIn('request_status', ['accepted', 'undecided']);
             })
             ->get();
 
-        if ($duties->isEmpty()) {
-            return response()->json(['message' => 'No available duties at the moment.'], 200);
-        }
+        // if ($duties->isEmpty()) {
+        //     return response()->json(['message' => 'No available duties at the moment.'], 200);
+        // }
 
         $response = $duties->map(function ($duty) {
             return [
@@ -47,7 +47,9 @@ class StudentDutyController extends Controller
                 'message' => $duty->message,
                 'max_scholars' => $duty->max_scholars,
                 'current_scholars' => $duty->current_scholars,
+                'duty_status' => $duty->duty_status,
                 'employee_name' => $duty->employee->name,
+                'employe_profile' => $duty->employee->employeeProfile->profile_img
             ];
         });
         return response()->json($response, 200);
