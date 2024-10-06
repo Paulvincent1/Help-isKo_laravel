@@ -13,7 +13,7 @@ class StudentFeedbackController extends Controller
     public function index($student_id)
     {
         // Retrieve all feedback for the student
-        $feedbacks = StudentFeedback::where('stud_id', $student_id)->get();
+        $feedbacks = StudentFeedback::with('employee')->where('stud_id', $student_id)->get();
 
         // Return feedback details
         return response()->json([
@@ -23,9 +23,9 @@ class StudentFeedbackController extends Controller
                     'rating' => $feedback->rating,
                     'comment' => $feedback->comment,
                     'created_at' => $feedback->created_at,
-                    'commenter_first_name' => $feedback->employee->first_name,
-                    'commenter_last_name' => $feedback->employee->last_name,
-                    'commenter_profile_img' => $feedback->employee->profile_img,
+                    'commenter_first_name' => $feedback->employee ? $feedback->employee->first_name : null,
+                    'commenter_last_name' => $feedback->employee ? $feedback->employee->last_name : null,
+                    'commenter_profile_img' => $feedback->employee ? $feedback->employee->profile_img : null,
                 ];
             })
         ], 200);
