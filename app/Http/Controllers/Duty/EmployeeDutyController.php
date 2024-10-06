@@ -238,6 +238,7 @@ public function getRequestsForAllDuties()
                         'student_number' => $studentProfile ? $studentProfile->student_number : null,
                         'course' => $studentProfile ? $studentProfile->course : null,
                         'semester' => $studentProfile ? $studentProfile->semester : null,
+                        'profile_image' => $studentProfile ? $studentProfile->profile_img : null,
                     ]
                 ];
             }
