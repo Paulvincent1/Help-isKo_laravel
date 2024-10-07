@@ -351,7 +351,6 @@ class EmployeeDutyController extends Controller
         return response()->json(['message' => 'Duty deleted successfully'], 200);
     }
     
-
     public function acceptStudent(Request $request)
     {
         // Validate the incoming request
@@ -392,23 +391,38 @@ class EmployeeDutyController extends Controller
         $duty->increment('current_scholars');
     
         // Notify the student
-        User::find($data['stud_id'])->notify(new AcceptedDutyNotification($duty));
+        $student = User::find($data['stud_id']);
+        if ($student) {
+            $student->notify(new AcceptedDutyNotification($duty));
+        }
     
-        // Lock the duty and update the status if max scholars limit is reached
+        // **New Logic: Automatically reject all undecided requests when max_scholars is reached**
         if ($duty->current_scholars >= $duty->max_scholars) {
+            // Lock the duty and update the status if max scholars limit is reached
             $duty->update([
                 'is_locked' => true,
                 'duty_status' => 'active',  // Set the duty as active
             ]);
     
-            // Notify the employee that the duty is now active
-            $employee->notify(new ActiveDutyNotification($duty, $employee));
+            // Find and reject all undecided student requests
+            $undecidedRequests = StudentDutyRecord::where('duty_id', $duty->id)
+                ->where('request_status', 'undecided')
+                ->get();
+    
+            foreach ($undecidedRequests as $undecidedRequest) {
+                // Update the request status to 'rejected'
+                $undecidedRequest->update(['request_status' => 'rejected']);
+    
+                // Notify the student
+                $student = User::find($undecidedRequest->stud_id);
+                if ($student) {
+                    $student->notify(new RejectedRequestNotification($duty));
+                }
+            }
         }
     
         return response()->json(['message' => 'Student accepted successfully', 'duty' => $duty], 200);
     }
-    
-
 
     public function rejectStudent(Request $request)
     {

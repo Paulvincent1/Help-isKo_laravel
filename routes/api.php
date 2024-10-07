@@ -14,6 +14,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Duty\DutyNotificationsController;
 use App\Http\Controllers\Duty\DutyRecentActivitiesController;
 use App\Http\Controllers\Api\StudentRenewalFormController;
+use App\Http\Controllers\Duty\StudentDutyNotificationsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\isAdmin;
@@ -111,10 +112,6 @@ Route::middleware(['auth:sanctum', isAdmin::class])->group(function () {
 Route::middleware(['auth:sanctum'])->group(function () {
     // Duties
     Route::get('/announcements', [AnnouncementController::class, 'index']);
-    Route::get('/duties', [DutyController::class, 'index']);
-    Route::get('/duties/{dutyId}', [DutyController::class, 'show']);
-    Route::get('/duties/status/{dutyId}', [DutyController::class, 'checkStatus']);
-
     // Chat routes
     Route::get('/existing-chat-users', [MessageController::class, 'existingChats']);
     Route::get('/view-messages/{id}', [MessageController::class, 'viewMessages']);
@@ -126,6 +123,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('duty/recent-activities', [DutyRecentActivitiesController::class, 'index']);
     // Duty notifications
     Route::get('duty/notifications', [DutyNotificationsController::class, 'index']);
+    // Route::get('/student/duty/notifications', [StudentDutyNotificationsController::class, 'index']);
 
 
 
