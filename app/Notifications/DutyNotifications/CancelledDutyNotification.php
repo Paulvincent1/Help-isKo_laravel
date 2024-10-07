@@ -1,19 +1,22 @@
 <?php
+
 namespace App\Notifications\DutyNotifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Notifications\Messages\BroadcastMessage; // Add this import
+use Illuminate\Notifications\Messages\BroadcastMessage;
 
-class AcceptedDutyNotification extends Notification
+class CancelledDutyNotification extends Notification
 {
     use Queueable;
 
-    protected $duty; 
+    protected $duty;
+    protected $user;
 
-    public function __construct($duty)
+    public function __construct($duty, $user)
     {
         $this->duty = $duty;
+        $this->user = $user;
     }
 
     public function via($notifiable)
@@ -24,8 +27,8 @@ class AcceptedDutyNotification extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'title' => 'Duty Accepted!',
-            'message' => 'Your request for duty at ' . $this->duty->building . ' has been accepted.',
+            'title' => 'Duty Cancelled!',
+            'message' => 'The duty at ' . $this->duty->building . ' has been cancelled by you.',
             'duty_id' => $this->duty->id,
             'time' => now(),
         ];
@@ -34,8 +37,8 @@ class AcceptedDutyNotification extends Notification
     public function toBroadcast($notifiable)
     {
         return new BroadcastMessage([
-            'title' => 'Duty Accepted!',
-            'message' => 'Your request for duty at ' . $this->duty->building . ' has been accepted.',
+            'title' => 'Duty Cancelled!',
+            'message' => 'The duty at ' . $this->duty->building . ' has been cancelled by you.',
             'duty_id' => $this->duty->id,
             'time' => now(),
         ]);
