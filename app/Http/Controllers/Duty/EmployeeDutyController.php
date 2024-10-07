@@ -162,92 +162,92 @@ class EmployeeDutyController extends Controller
 
     // Retrieve all pending requests for duties created by the employee
    // Retrieve all pending requests for duties created by the employee
-public function getRequestsForAllDuties()
-{
-    // Get the authenticated employee
-    $employee = Auth::user();
-
-    // Check if the user is an employee
-    if (!$employee || $employee->role !== 'employee') {
-        return response()->json(['message' => 'Unauthorized access'], 403);
-    }
-
-    // Retrieve all duties created by the authenticated employee
-    $duties = Duty::where('emp_id', $employee->id)
-        ->where('duty_status', 'pending')
-        ->where('is_locked', false)
-        ->get();
-
-    // Prepare an array to store duty details
-    $dutyDetails = [];
-
-    // Process each duty to get details and associated undecided or accepted requests
-    foreach ($duties as $duty) {
-        // Get all requests that are not rejected
-        $requests = StudentDutyRecord::where('duty_id', $duty->id)
-            ->whereIn('request_status', ['undecided', 'accepted']) // Only fetch undecided and accepted requests
-            ->get();
-
-        // Check if the duty reached the max scholars limit
-        if ($duty->current_scholars >= $duty->max_scholars) {
-            // Lock the duty and mark as active
-            $duty->update([
-                'is_locked' => true,
-                'duty_status' => 'active'
-            ]);
-
-            // Notify and transform unaccepted student requests to 'rejected'
-            foreach ($requests as $request) {
-                if ($request->request_status === 'undecided') {
-                    $student = User::find($request->stud_id);
-
-                    // Send notification to the student that their request has been rejected
-                    if ($student) {
-                        $student->notify(new RejectedRequestNotification($duty));
-                    }
-
-                    // Update the request status to 'rejected'
-                    $request->update(['request_status' => 'rejected']);
-                }
-            }
-        }
-
-        // Add duty details if there are requests
-        if (!$requests->isEmpty()) {
-            foreach ($requests as $request) {
-                $student = User::find($request->stud_id);
-                $studentProfile = $student ? $student->studentProfile : null;
-
-                // Compile the request details
-                $dutyDetails[] = [
-                    'duty_id' => $duty->id,
-                    'building' => $duty->building,
-                    'start_time' => $duty->start_time,
-                    'end_time' => $duty->end_time,
-                    'date' => $duty->date,
-                    'message' => $duty->message,
-                    'current_scholars' => $duty->current_scholars,
-                    'max_scholars' => $duty->max_scholars,
-                    'request_count' => $requests->count(),
-                    'student_data' => [
-                        'student_id' => $request->stud_id,
-                        'email' => $student->email,
-                        'name' => $student ? $student->name : 'Unknown',
-                        'last_name' => $studentProfile ? $studentProfile->last_name : null,
-                        'contact_number' => $studentProfile ? $studentProfile->contact_number : null,
-                        'student_number' => $studentProfile ? $studentProfile->student_number : null,
-                        'course' => $studentProfile ? $studentProfile->course : null,
-                        'semester' => $studentProfile ? $studentProfile->semester : null,
-                        'profile_image' => $studentProfile ? $studentProfile->profile_img : null,
-                    ]
-                ];
-            }
-        }
-    }
-
-    return response()->json($dutyDetails);
-}    
-
+   public function getRequestsForAllDuties()
+   {
+       // Get the authenticated employee
+       $employee = Auth::user();
+   
+       // Check if the user is an employee
+       if (!$employee || $employee->role !== 'employee') {
+           return response()->json(['message' => 'Unauthorized access'], 403);
+       }
+   
+       // Retrieve all duties created by the authenticated employee
+       $duties = Duty::where('emp_id', $employee->id)
+           ->where('duty_status', 'pending')
+           ->where('is_locked', false)
+           ->get();
+   
+       // Prepare an array to store duty details
+       $dutyDetails = [];
+   
+       // Process each duty to get details and associated undecided requests
+       foreach ($duties as $duty) {
+           // Get all requests that are still undecided (exclude accepted requests)
+           $requests = StudentDutyRecord::where('duty_id', $duty->id)
+               ->where('request_status', 'undecided') // Fetch only undecided requests
+               ->get();
+   
+           // Check if the duty reached the max scholars limit
+           if ($duty->current_scholars >= $duty->max_scholars) {
+               // Lock the duty and mark as active
+               $duty->update([
+                   'is_locked' => true,
+                   'duty_status' => 'active'
+               ]);
+   
+               // Notify and transform unaccepted student requests to 'rejected'
+               foreach ($requests as $request) {
+                   if ($request->request_status === 'undecided') {
+                       $student = User::find($request->stud_id);
+   
+                       // Send notification to the student that their request has been rejected
+                       if ($student) {
+                           $student->notify(new RejectedRequestNotification($duty));
+                       }
+   
+                       // Update the request status to 'rejected'
+                       $request->update(['request_status' => 'rejected']);
+                   }
+               }
+           }
+   
+           // Add duty details if there are undecided requests
+           if (!$requests->isEmpty()) {
+               foreach ($requests as $request) {
+                   $student = User::find($request->stud_id);
+                   $studentProfile = $student ? $student->studentProfile : null;
+   
+                   // Compile the request details
+                   $dutyDetails[] = [
+                       'duty_id' => $duty->id,
+                       'building' => $duty->building,
+                       'start_time' => $duty->start_time,
+                       'end_time' => $duty->end_time,
+                       'date' => $duty->date,
+                       'message' => $duty->message,
+                       'current_scholars' => $duty->current_scholars,
+                       'max_scholars' => $duty->max_scholars,
+                       'request_count' => $requests->count(),
+                       'student_data' => [
+                           'student_id' => $request->stud_id,
+                           'email' => $student->email,
+                           'name' => $student ? $student->name : 'Unknown',
+                           'last_name' => $studentProfile ? $studentProfile->last_name : null,
+                           'contact_number' => $studentProfile ? $studentProfile->contact_number : null,
+                           'student_number' => $studentProfile ? $studentProfile->student_number : null,
+                           'course' => $studentProfile ? $studentProfile->course : null,
+                           'semester' => $studentProfile ? $studentProfile->semester : null,
+                           'profile_image' => $studentProfile ? $studentProfile->profile_img : null,
+                       ]
+                   ];
+               }
+           }
+       }
+   
+       return response()->json($dutyDetails);
+   }
+   
     // Update a specific duty, 
     public function update($dutyId, Request $request)
 {
