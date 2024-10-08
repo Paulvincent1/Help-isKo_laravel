@@ -49,23 +49,34 @@ class Duty extends Model
         if (in_array($value, ['cancelled', 'completed'])) {
             return $value;
         }
-        
+    
         $currentTime = Carbon::now();
         $startTime = Carbon::parse($this->date . ' ' . $this->start_time);
         $endTime = Carbon::parse($this->date . ' ' . $this->end_time);
-
+    
+        // Initialize a variable to hold the new status
+        $newStatus = $value; // Start with the existing value
+    
         if ($this->is_locked) {
-            return 'active';
+            $newStatus = 'active';
         }
-
+    
         if ($this->is_locked && $currentTime->greaterThanOrEqualTo($endTime)) {
-            return 'completed';
-        }elseif (!$this->is_locked && $currentTime->diffInSeconds($startTime) <= 60) {
-            return 'cancelled';
-        }elseif ($currentTime->between($startTime, $endTime)) {
-            return 'ongoing';
+            $newStatus = 'completed';
+        } elseif (!$this->is_locked && $currentTime->diffInSeconds($startTime) <= 60) {
+            $newStatus = 'cancelled';
+        } elseif ($currentTime->between($startTime, $endTime)) {
+            $newStatus = 'ongoing';
         } else {
-            return 'pending';
+            $newStatus = 'pending';
         }
+    
+        // Update the database if the status has changed
+        if ($newStatus !== $value) {
+            $this->update(['duty_status' => $newStatus]); // Update the duty status in the database
+        }
+    
+        return $newStatus; // Return the computed status
     }
+    
 }
