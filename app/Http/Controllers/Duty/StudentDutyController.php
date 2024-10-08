@@ -65,7 +65,7 @@ class StudentDutyController extends Controller
         // Check if the student has already requested this duty
         $existingRequest = StudentDutyRecord::where('duty_id', $dutyId)
             ->where('stud_id', $student->id)
-            ->whereIn('request_status', ['undecided', 'accepted', 'rejected']) // Prevent duplicate requests regardless of status
+            ->whereIn('request_status', ['undecided', 'accepted',]) // Prevent duplicate requests regardless of status
             ->first();
 
         // If a request already exists, do not allow a new one
