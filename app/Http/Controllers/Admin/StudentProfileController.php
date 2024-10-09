@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Auth;
 class StudentProfileController extends Controller
 {
     public function studentsTable(){
-        return view('students.student');
+        $students = User::with('employeeProfile')->where('role', 'student')->get();
+        return view('students.student', ['students' => $students]);
     }
     public function index(){
         return view('students.student_add');
@@ -39,27 +40,37 @@ class StudentProfileController extends Controller
 
     }
 
+    public function show(User $id){
+        $userProfile = $id->studentProfile;
+
+        return view('students.student_profile', ['user' => $userProfile]);
+
+    }
+
 
     public function hkQuotaIndex(){
         return view('students.hkDutyQuota');
     }
 
     public function hkQuotaStore(Request $request){
+        $id = session('student_id');
+        $user = User::where('id', $id)->first();
+
+        if($user == null){
+            return redirect()->route('student');
+        }
         $fields = $request->validate([
             'duty_hours' => 'required|numeric|max_digits:80'
         ]);
-        $id = session('student_id');
-        $auth = User::where('id', $id)->first();
-
         
-        if($auth->hkStatus() != null){
-            $auth->hkStatus()->create([
+        if($user->hkStatus() != null){
+            $user->hkStatus()->create([
                 'remaining_hours' => $fields['duty_hours'],
                 'duty_hours' => $fields['duty_hours'],
             ]);
             
         }else{
-            $auth->hkStatus()->update([
+            $user->hkStatus()->update([
                 'remaining_hours' => $fields['duty_hours'],
                 'duty_hours' => $fields['duty_hours'],
             ]);
@@ -77,6 +88,11 @@ class StudentProfileController extends Controller
     {
         $id = session('student_id');
         $user = User::where('id', $id)->first();
+
+        if($user == null){
+            session()->forget('student_id');
+            return redirect()->route('student');
+        }
       
         if($user->studentProfile == null){
 
@@ -135,10 +151,13 @@ class StudentProfileController extends Controller
 
             }
 
-           $user->studentProfile()->create($fields);
+            $user->studentProfile()->create($fields);
+
+            session()->forget('student_id');
 
             return redirect()->route('student');
         }
+
         return redirect()->back();
 
     }
