@@ -5,8 +5,10 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\EmployeeProfileController;
 use App\Http\Controllers\Admin\EmployeeProfileController as AdminEmployeeProfileController;
 use App\Http\Controllers\Admin\StudentProfileController;
+use App\Http\Controllers\Admin\AdminRenewalFormController;
 use App\Http\Middleware\Admin\isAdmin;
 use Illuminate\Support\Facades\Route;
+
 
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AdminAuthController::class, 'index'])->name('login');
@@ -50,6 +52,11 @@ Route::middleware([isAdmin::class, 'auth'])->group(function () {
 
     Route::get('/student/hk_duty_quota', [StudentProfileController::class, 'hkQuotaIndex'])->name('students.hkDutyQuota');
 
+    //renewal form
+        Route::get('/admin/renewal-forms', [AdminRenewalFormController::class, 'index'])->name('admin.renewal_forms.index');
+        Route::get('/admin/renewal-form/{id}', [AdminRenewalFormController::class, 'show'])->name('admin.renewal_forms.show');
+        Route::put('/admin/renewal-form/{id}/status', [AdminRenewalFormController::class, 'updateStatus'])->name('admin.renewal_forms.updateStatus');
+        Route::delete('/admin/renewal-form/{id}', [AdminRenewalFormController::class, 'destroy'])->name('admin.renewal_forms.destroy');
 
 
 

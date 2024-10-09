@@ -1,133 +1,130 @@
 <?php
 
 use App\Http\Controllers\Api\AnnouncementController;
+use App\Http\Controllers\RetrieveStudentsController;
 use App\Http\Controllers\Api\StudentFeedbackController;
-use App\Models\HkStatus;
-use Illuminate\Http\Request;
-use App\Http\Middleware\isAdmin;
-use App\Http\Middleware\isStudent;
-use App\Http\Middleware\isProfessor;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HkStatusController;
 use App\Http\Controllers\StudentProfileController;
 use App\Http\Controllers\Duty\DutyController;
 use App\Http\Controllers\Duty\StudentDutyController;
-use App\Http\Controllers\Duty\DutyProfController;
+use App\Http\Controllers\Duty\EmployeeDutyController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\MessageController;
-use App\Http\Controllers\ProfessorProfileController;
-use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Duty\DutyNotificationsController;
+use App\Http\Controllers\Duty\DutyRecentActivitiesController;
+use App\Http\Controllers\Api\StudentRenewalFormController;
+use App\Http\Controllers\Duty\StudentDutyNotificationsController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\isAdmin;
+use App\Http\Middleware\isStudent;
 use App\Http\Middleware\isEmployee;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+// Auth routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login-employee', [AuthController::class, 'loginEmployee']);
 Route::post('/login-stud', [AuthController::class, 'loginStud']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
-//reset password
+
+// Password reset routes
 Route::post('/forgot', [AuthController::class, 'forgot']);
 Route::put('/reset', [AuthController::class, 'resetpassword']);
 
-
-//student
-
+// Student routes
 Route::middleware(['auth:sanctum', isStudent::class])->group(function () {
+    // Profile
     Route::get('/stud-profile', [StudentProfileController::class, 'show']);
     Route::post('/stud-profile/create', [StudentProfileController::class, 'store']);
     Route::post('/stud-profile/update', [StudentProfileController::class, 'update']);
 
-
+    // HK Status
     Route::get('/hk-status', [HkStatusController::class, 'show']);
 
-//duties record of students
-Route::get('/students/duties/available', [StudentDutyController::class, 'viewAvailableDuties']);
-Route::post('/students/duties/{dutyId}/request', [StudentDutyController::class, 'requestDuty']);
-Route::get('/students/duties/requested', [StudentDutyController::class, 'viewRequestedDuties']);
-Route::get('/students/duties/{dutyId}/details', [StudentDutyController::class, 'viewRequestedDutyDetails']);
-Route::delete('/students/duties/{dutyId}/cancel', [StudentDutyController::class, 'cancelRequest']);
-Route::get('/students/duties/accepted', [StudentDutyController::class, 'viewAcceptedDuties']);
-Route::get('/students/duties/completed', [StudentDutyController::class, 'viewCompletedDuties']);
-    });
+    // Duties record of students
+    Route::get('/students/duties/available', [StudentDutyController::class, 'viewAvailableDuties']);
+    Route::post('/students/duties/{dutyId}/request', [StudentDutyController::class, 'requestDuty']);
+    Route::get('/students/duties/requested', [StudentDutyController::class, 'viewRequestedDuties']);
+    Route::get('/students/duties/{dutyId}/details', [StudentDutyController::class, 'viewRequestedDutyDetails']);
+    Route::delete('/students/duties/{dutyId}/cancel', [StudentDutyController::class, 'cancelRequest']);
+    Route::get('/students/duties/accepted', [StudentDutyController::class, 'viewAcceptedDuties']);
+    Route::get('/students/duties/completed', [StudentDutyController::class, 'viewCompletedDuties']);
 
-//Feedback show
-Route::get('/feedback/{id}', [StudentFeedbackController::class, 'show']);
+    Route::post('student/renewal-form', [StudentRenewalFormController::class, 'store']);
+    Route::get('student/renewal-form/{id}', [StudentRenewalFormController::class, 'show']);
+});
 
-//show specific student feedbacks
+// Feedback routes
+// Route::get('/feedback/{id}', [StudentFeedbackController::class, 'show']);
 Route::get('/feedback/index/{student_id}', [StudentFeedbackController::class, 'index']);
 
+// Professor routes
+Route::middleware(['auth:sanctum', isEmployee::class])->group(function () {
+    // Professor rates student feedback
+    Route::post('/feedback/{student_id}', [StudentFeedbackController::class, 'store']);
 
-//PROFESSOR
-
-Route::middleware(['auth:sanctum', isEmployee::class])->group(function (){
-
-//Prof nirerate si Student.
-Route::post('/feedback/{student_id}', [StudentFeedbackController::class, 'store']);
-
-//PROFESSOR DUTY APIS
-//creation and listing info regarding request
-Route::post('/professors/duties/create', [DutyProfController::class, 'create']);
-Route::get('/professors/duties', [DutyProfController::class, 'index']);
-Route::get('/professors/duties/{dutyId}', [DutyProfController::class, 'show']);
-Route::get('/professors/{profId}/duties/requests', [DutyProfController::class, 'getRequestsForAllDuties']);
-
-//Executable as long as prof has no accepted request
-Route::put('/professors/updateInfo/{dutyId}', [DutyProfController::class, 'update']);
-Route::delete('/professors/duties/{dutyId}', [DutyProfController::class, 'delete']);
-
-// For accepting and rejecting a request for a duty from students
-Route::post('/professors/requests/{recordId}/accept', [DutyProfController::class, 'acceptStudent']);
-Route::delete('/professors/requests/{recordId}/reject', [DutyProfController::class, 'rejectStudent']);
-
-//Show status of duties with accepted students
-Route::get('/professors/duties/{dutyId}/accepted-students', [DutyProfController::class, 'getAcceptedStudents']);
-//Can update the duty_status
-Route::patch('/duties/{dutyId}/status', [DutyProfController::class, 'updateStatus']);
-// Cancel a duty regardless
-Route::delete('/duties/{dutyId}/cancel', [DutyProfController::class, 'cancelDuty']);
-//Good alternative for locking a duty regardless of current_scholars
-Route::post('/professors/duties/{dutyId}/lock', [DutyProfController::class, 'lockDuty']);
-
-
-
-    //employee profile
+    // Employee profile
     Route::get('/employee-profile', [EmployeeProfileController::class, 'index']);
     Route::get('/employee-profile/{id}', [EmployeeProfileController::class, 'show']);
     Route::post('/employee-profile/create', [EmployeeProfileController::class, 'create']);
     Route::put('/employee-profile/update', [EmployeeProfileController::class, 'update']);
 
+    // Employee duties APIs
+    Route::post('/employees/duties/create', [EmployeeDutyController::class, 'create']);
+    Route::get('/employees/duty', [EmployeeDutyController::class, 'index']);
+    Route::get('/employees/duties/{dutyId}', [EmployeeDutyController::class, 'show']);
+    Route::get('/employees/duties/requests/student', [EmployeeDutyController::class, 'getRequestsForAllDuties']);
+
+    // Duty management
+    Route::put('/employees/updateInfo/{dutyId}', [EmployeeDutyController::class, 'update']);
+    Route::delete('/employees/duties/{dutyId}', [EmployeeDutyController::class, 'delete']);
+    Route::post('/employees/requests/accept', [EmployeeDutyController::class, 'acceptStudent']);
+    Route::delete('/employees/requests/reject', [EmployeeDutyController::class, 'rejectStudent']);
+    Route::get('/employees/duties/{dutyId}/accepted-students', [EmployeeDutyController::class, 'getAcceptedStudents']);
+    Route::get('/employee/accepted-student-names', [EmployeeDutyController::class, 'getAcceptedStudentNames']);
+    Route::patch('/duties/{dutyId}/status', [EmployeeDutyController::class, 'updateStatus']);
+    Route::delete('/duties/{dutyId}/cancel', [EmployeeDutyController::class, 'cancelDuty']);
 });
 
 
-//admin
+// Admin routes
 Route::middleware(['auth:sanctum', isAdmin::class])->group(function () {
-    Route::post('/login-admin', [AdminAuthController::class, 'login']);
+    // HK Status
     Route::post('/create-hk-status', [HkStatusController::class, 'store']);
 
+    // Announcements
+    // Route::get('/announcements', [AnnouncementController::class, 'index']);
+    Route::get('/announcement/{id}', [AnnouncementController::class, 'show']);
+    Route::post('/create-announcement', [AnnouncementController::class, 'store']);
+    Route::put('/update-announcement/{id}', [AnnouncementController::class, 'update']);
+    Route::put('/delete-announcement/{id}', [AnnouncementController::class, 'delete']);
 
-    // Announcement
-    // Route::get('/announcement',[AnnouncementController::class, 'index']);
-    Route::get('/announcement/{id}',[AnnouncementController::class, 'show']);
-    Route::post('/create-announcement',[AnnouncementController::class, 'store']);
-    Route::put('/update-announcement/{id}',[AnnouncementController::class, 'update']);
-    Route::put('/delete-announcement/{id}',[AnnouncementController::class, 'delete']);
+    //Renewal Form Fields
+
 });
 
-
-  // General duty routes accessible to students and professors
+// General duty routes accessible to students and employees
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/announcements',[AnnouncementController::class, 'index']);
-    Route::get('/duties', [DutyController::class, 'index']);
-    Route::get('/duties/{dutyId}', [DutyController::class, 'show']);
-    Route::get('/duties/status/{dutyId}', [DutyController::class, 'checkStatus']);
+    // Duties
+    Route::get('/announcements', [AnnouncementController::class, 'index']);
+    // Chat routes
+    Route::get('/existing-chat-users', [MessageController::class, 'existingChats']);
+    Route::get('/view-messages/{id}', [MessageController::class, 'viewMessages']);
+    Route::post('/send-message/{id}', [MessageController::class, 'sendMessage']);
+
+    // Get All Students
+    Route::get('/retrieve/students', [RetrieveStudentsController::class, 'index']);
+    // Recent Duty Activities 
+    Route::get('duty/recent-activities', [DutyRecentActivitiesController::class, 'index']);
+    // Duty notifications
+    Route::get('duty/notifications', [DutyNotificationsController::class, 'index']);
+    // Route::get('/student/duty/notifications', [StudentDutyNotificationsController::class, 'index']);
 
 
-    // chat routes
-    Route::get('/existing-chat-users',[MessageController::class, 'existingChats']);
-    Route::get('/view-messages/{id}',[MessageController::class,'viewMessages']);
-    Route::post('/send-message/{id}', [MessageController::class,'sendMessage']);
+
 });

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('prof_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('stud_id')->constrained('users')->cascadeOnDelete();
-            $table->integer('rating'); // E.g., 1 to 5
+            $table->integer('rating')->nullable(); // E.g., 1 to 5
             $table->text('comment')->nullable(true);
             $table->timestamps();
         });

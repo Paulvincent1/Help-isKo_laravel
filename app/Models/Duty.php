@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
 
 class Duty extends Model
 {
@@ -11,6 +12,7 @@ class Duty extends Model
 
     protected $fillable = [
         'building',
+        'emp_id',
         'date',
         'start_time',
         'end_time',
@@ -21,7 +23,6 @@ class Duty extends Model
         'is_locked',
         'duty_status',
         'is_completed',
-        'prof_id',
     ];
 
     // Relationship with the intermediate model (StudentDutyRecord)
@@ -30,9 +31,45 @@ class Duty extends Model
         return $this->hasMany(StudentDutyRecord::class, 'duty_id');
     }
 
-    public function professor()
-{
-    return $this->belongsTo(User::class, 'prof_id');
-}
+    // Relationship to fetch the employee who created the duty
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'emp_id');
+    }
 
+    /**
+     * Get the duty status dynamically based on the current time.
+     *
+     * @param string $value
+     * @return string
+     */
+    public function updateDutyStatus()
+    {
+        $currentTime = Carbon::now();
+        $startTime = Carbon::parse($this->date . ' ' . $this->start_time);
+        $endTime = Carbon::parse($this->date . ' ' . $this->end_time);
+
+        // Determine the new status based on current time
+        $newStatus = $this->duty_status; // Start with existing status
+
+        if ($this->is_locked) {
+            if ($currentTime->greaterThanOrEqualTo($endTime)) {
+                $newStatus = 'completed';
+            }elseif ($currentTime->between($startTime, $endTime)) {
+                $newStatus = 'ongoing';
+            } else {
+                $newStatus = 'active';
+            }
+        } elseif ($currentTime->diffInSeconds($startTime) <= 60) {
+            $newStatus = 'cancelled';
+        } else {
+            $newStatus = 'pending';
+        }
+
+        // Update the database if the status has changed
+        if ($newStatus !== $this->duty_status) {
+            $this->update(['duty_status' => $newStatus]); // Update the duty status in the database
+            \Log::info("Duty ID {$this->id} updated to status: {$newStatus}"); // Log the update
+        }
+    }
 }

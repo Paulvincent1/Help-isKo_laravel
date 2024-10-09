@@ -14,14 +14,14 @@ class CreateDutiesTable extends Migration
             $table->date('date');
             $table->time('start_time');
             $table->time('end_time');
-            $table->integer('duration'); //added start_time + end_time
+            $table->integer('duration'); 
             $table->text('message')->nullable();
             $table->integer('max_scholars');
             $table->integer('current_scholars')->default(0);
             $table->boolean('is_locked')->default(false);
-            $table->enum('duty_status', ['Pending', 'Active', 'Completed', 'Cancelled'])->default('Pending');
+            $table->enum('duty_status', ['pending', 'active','ongoing', 'completed', 'cancelled'])->default('pending');
             $table->boolean('is_completed')->default(false);
-            $table->foreignId('prof_id')->constrained('users')->cascadeOnDelete(); // Foreign key to users (professors)
+            $table->foreignId('emp_id')->constrained('users')->cascadeOnDelete(); //foreign key
             $table->timestamps();
         });
     }
