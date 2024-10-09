@@ -11,15 +11,23 @@ class EmployeeProfileController extends Controller
 
     public function employeeTable()
     {
-        return view('employee.employee');
+        $employees = User::with('employeeProfile')->where('role', 'employee')->get();
+        return view('employee.employee', ['employees' => $employees]);
     }
     public function index()
     {
         return view('employee.employee_add');
     }
 
+    public function show(User $id)
+    {
+        $userProfile = $id->employeeProfile;
+        return view('employee.employee_profile', ['user' => $userProfile]);
+    }
+
     public function register(Request $request)
     {
+
         $fields = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users,email',
@@ -46,7 +54,12 @@ class EmployeeProfileController extends Controller
     public function employeeAddProfileStore(Request $request)
     {
         $id = session('emp_id');
+
         $user = User::where('id', $id)->first();
+
+        if($user == null){
+            return redirect()->route('employee');
+        }
 
         if ($user->employeeProfile == null) {
             $fields = $request->validate([
@@ -66,8 +79,12 @@ class EmployeeProfileController extends Controller
                 $fields['profile_img'] = 'storage/' . $path;
             }
             $user->employeeProfile()->create($fields);
+
+            session()->forget('emp_id');
+
             return redirect()->route('employee');
         }
+      
         return redirect()->back();
     }
 }

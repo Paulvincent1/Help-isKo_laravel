@@ -11,7 +11,7 @@ class AdminRenewalFormController extends Controller
     public function index()
     {
         $renewalForms = RenewalForm::all();
-        return view('admin.renewal_forms.index', compact('renewalForms'));
+        return view('renewal.renewal', compact('renewalForms'));
     }
 
     public function show($id)

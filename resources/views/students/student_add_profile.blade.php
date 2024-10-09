@@ -1,289 +1,458 @@
 <x-layout>
-  <div class="main_content_nav">
-    <ul>
-      <a href="{{Route('student')}}"><li>Student table</li></a>
-      <a href="{{Route('students.student_add')}}" class="selected_main"><li>Manage Students</li></a>
-    </ul>
-  </div>
-  <div class="add_form-student">
-    <div class="guide_tab">
-      <div class="guide_tab-content">
-        <div class="guide_tab-register">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="currentColor"
-            class="bi bi-1-circle"
-            viewBox="0 0 16 16"
-          >
-            <path
-              d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M9.283 4.002V12H7.971V5.338h-.065L6.072 6.656V5.385l1.899-1.383z"
-            />
-          </svg>
-
-          <p>Register</p>
-        </div>
-        <div class="hr"><hr /></div>
-        <div class="guide_tab-register">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="currentColor"
-            class="bi bi-2-circle"
-            viewBox="0 0 16 16"
-          >
-            <path
-              d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.646 6.24v.07H5.375v-.064c0-1.213.879-2.402 2.637-2.402 1.582 0 2.613.949 2.613 2.215 0 1.002-.6 1.667-1.287 2.43l-.096.107-1.974 2.22v.077h3.498V12H5.422v-.832l2.97-3.293c.434-.475.903-1.008.903-1.705 0-.744-.557-1.236-1.313-1.236-.843 0-1.336.615-1.336 1.306"
-            />
-          </svg>
-          <p>Assigning HK Duty Hours</p>
-        </div>
-        <div class="hr"><hr /></div>
-        <div class="guide_tab-register current-tab">
-          
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            fill="currentColor"
-            class="bi bi-3-circle"
-            viewBox="0 0 16 16"
-          >
-            <path
-              d="M7.918 8.414h-.879V7.342h.838c.78 0 1.348-.522 1.342-1.237 0-.709-.563-1.195-1.348-1.195-.79 0-1.312.498-1.348 1.055H5.275c.036-1.137.95-2.115 2.625-2.121 1.594-.012 2.608.885 2.637 2.062.023 1.137-.885 1.776-1.482 1.875v.07c.703.07 1.71.64 1.734 1.917.024 1.459-1.277 2.396-2.93 2.396-1.705 0-2.707-.967-2.754-2.144H6.33c.059.597.68 1.06 1.541 1.066.973.006 1.6-.563 1.588-1.354-.006-.779-.621-1.318-1.541-1.318"
-            />
-            <path
-              d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8"
-            />
-          </svg>
-          <p>Student Profile</p>
+  <section class="main_content-employee-student">
+    <header>
+      <p>Student / Register</p>
+      <img
+        src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg"
+        alt=""
+      />
+    </header>
+    <div class="employee-student__main-register">
+      <div class="employee-student__main-register-header">
+        <div class="employee-student__main-register-header-content">
+          <div>
+            <span class="material-symbols-outlined"> check_circle </span>
+            <p>Personal Details</p>
+          </div>
+          <div>
+            <span class="material-symbols-outlined"> check_circle </span>
+            <p>Duty Hours</p>
+          </div>
+          <div class="current_active-page-indicator">
+            <span class="material-symbols-outlined current_active-page">
+              check_circle
+            </span>
+            <p>Student Profile</p>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <form action="{{ route('students.student_add_profile_post')}}" method="POST" enctype="multipart/form-data">
-    @csrf
-    <div class="form_layout">
-      <div>
-        <p>Student Information</p>
-        <div class="form_layout-information">
+      <form
+        class="registration-layout"
+        action="{{ route('students.student_add_profile_post') }}"
+        enctype="multipart/form-data"
+        method="POST"
+      >
+      @csrf
+        <p class="registration-layout-header">Basic Detials</p>
+        <div class="registration-layout-input">
           <div>
-            <label for="">First Name</label>
+            <label for="">First name</label>
             <input
               type="text"
-              id="student_number"
-              placeholder="First Name"
               name="first_name"
+              class="employee-input"
+              placeholder="ex. John Doe"
+              value="{{ old('first_name') }}"
             />
+            @if ($errors->any())
+                @foreach ($errors->get('first_name') as $error)
+                    <p style="color: red">{{ $error }}</p>
+                @endforeach
+            @endif
           </div>
           <div>
-            <label for="">Last Name</label>
+            <label for="">Last name</label>
             <input
               type="text"
-              id="student_number"
-              placeholder="Last Name"
               name="last_name"
+              class="employee-input"
+              placeholder="ex. john@gmail.com"
+                 value="{{ old('last_name') }}"
             />
-          </div>
-          <div>
-            <label for="">Student Number</label>
-            <input
-              type="text"
-              id="student_number"
-              placeholder="Student Number"
-              name="student_number"
-            />
-          </div>
-          <div>
-            <label for="">College</label>
-            <input type="text" placeholder="College" 
-            name="college"/>
-          </div>
-          <div>
-            <label for="">Course</label>
-            <input type="text" placeholder="Course" name="course"/>
-          </div>
-
-          <div>
-            <label for="">Department</label>
-            <input
-              type="text"
-              id="student_number"
-              placeholder="Department" name="department"
-            />
-          </div>
-          <div>
-            <label for="">Semester</label>
-            <input type="text" placeholder="Semester" name="semester" />
-          </div>
-          <div>
-            <label for="">Learning Modality</label>
-            <input type="text" placeholder="Learning Modality" name="learning_modality" />
+            @if ($errors->any())
+            @foreach ($errors->get('last_name') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
           </div>
           <div>
             <label for="">Birthday</label>
-            <input type="text" placeholder="Birthday" name="birthday" />
-          </div>
-          <div>
-            <label for="">Contact Number</label>
-            <input type="text" placeholder="Birthday" name="contact_number" />
-          </div>
-          <div>
-            <label for="">Profile Picture</label>
-            <input type="file" placeholder="Profile Picture" name="profile_img" />
-          </div>
-        </div>
-      </div>
-      <div>
-        <p>Family Background</p>
-        <div class="form_layout-information">
-          <div>
-            <label for="">Father name</label>
             <input
               type="text"
-              id="student_number"
-              placeholder="Father name"
+              name="birthday"
+              class="employee-input"
+              placeholder="ex. August 5, 2004"
+              value="{{ old('birthday') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('birthday') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="">Contact number</label>
+            <input
+              type="text"
+              name="contact_number"
+              class="employee-input"
+              placeholder="ex. 09xxxxxxxxx"
+              value="{{ old('contact_number') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('contact_number') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="student_profile-img">Profile image</label>
+            <input
+              type="file"
+              name="profile_img"
+              id="student_profile-img"
+              class="employee-input"
+              value="{{ old('profile_img') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('profile_img') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+        </div>
+        <p class="registration-layout-header">Education</p>
+        <div class="registration-layout-input">
+          <div>
+            <label for="">Student ID</label>
+            <input
+              type="text"
+              name="student_number"
+              class="employee-input"
+              placeholder="ex. 03-2323-xxxxxx"
+              value="{{ old('student_number') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('student_number') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="">College</label>
+            <input
+              type="text"
+              name="college"
+              class="employee-input"
+              placeholder="ex. UPANG"
+              value="{{ old('college') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('college') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="">Course</label>
+            <input
+              type="text"
+              name="course"
+              class="employee-input"
+              placeholder="ex. BSIT"
+              value="{{ old('course') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('college') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="">Department</label>
+            <input type="text" name="department" class="employee-input" placeholder="CITE" />
+            @if ($errors->any())
+            @foreach ($errors->get('first_name') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="">Semester</label>
+            <input
+              type="text"
+              name="semester"
+              class="employee-input"
+              placeholder="ex. Y3S1"
+              value="{{ old('semster') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('semester') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="">Learning modality</label>
+            <input
+              type="text"
+              name="learning_modality"
+              class="employee-input"
+              placeholder="ex. Flex"
+              value="{{ old('learning_modality') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('learning_modality') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+        </div>
+        <p class="registration-layout-header">Parents</p>
+        <div class="registration-layout-input">
+          <div>
+            <label for="">Father's name</label>
+            <input
+              type="text"
               name="father_name"
+              class="employee-input"
+              placeholder="ex. John Doe"
+              value="{{ old('father_name') }}"
             />
+            @if ($errors->any())
+            @foreach ($errors->get('father_name') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
           </div>
           <div>
-            <label for="">Father Contact Number</label>
-            <input type="text" placeholder="Father Contact Number" name="father_contact_number"/>
-          </div>
-          <div>
-            <label for="">Mother Name</label>
-            <input type="text" placeholder="Mother Name" name="mother_name" />
-          </div>
-
-          <div>
-            <label for="">Mother Contact Number</label>
+            <label for="">Father's contact number</label>
             <input
               type="text"
-              id="student_number"
-              placeholder="Department"
-
+              name="father_contact_number"
+              class="employee-input"
+              placeholder="ex. 09xxxxxxxxx"
+              value="{{ old('father_contact_number') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('father_contact_number') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="">Mother's name</label>
+            <input
+              type="text"
+              name="mother_name"
+              class="employee-input"
+              placeholder="ex. Angel Doe"
+              value="{{ old('mother_name') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('mother_name') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="">Mother's contact number</label>
+            <input
+              type="text"
               name="mother_contact_number"
+              class="employee-input"
+              placeholder="ex. 09xxxxxxxxx"
+              value="{{ old('mother_contact_number') }}"
             />
+            @if ($errors->any())
+            @foreach ($errors->get('mother_contact_number') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
           </div>
         </div>
-      </div>
-      <div>
-        <p>Current and Permanent Address</p>
-        <div class="form_layout-information">
+        <p class="registration-layout-header">Address</p>
+        <div class="registration-layout-input">
           <div>
-            <label for="">Current Address</label>
+            <label for="">Current address</label>
             <input
               type="text"
-              id="student_number"
-              placeholder="Current Address"
-
               name="current_address"
+              class="employee-input"
+              placeholder="ex. 1xx Amansabina Mangaldan"
+              value="{{ old('current_address') }}"
             />
+            @if ($errors->any())
+            @foreach ($errors->get('current_address') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
           </div>
           <div>
-            <label for="">Current Province</label>
-            <input type="text" placeholder="Current Province"
-            name="current_province" />
-          </div>
-          <div>
-            <label for="">Current Country</label>
-            <input type="text" placeholder="Current Country" name="current_country" />
-          </div>
-
-          <div>
-            <label for="">Current City</label>
+            <label for="">Current province</label>
             <input
               type="text"
-              id="student_number"
-              placeholder="Current City"
-
+              name="current_province"
+              class="employee-input"
+              placeholder="ex. Pangasinan"
+              value="{{ old('current_province') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('current_province') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="">Current country</label>
+            <input
+              type="text"
+              name="current_country"
+              class="employee-input"
+              placeholder="ex. Philippines"
+              value="{{ old('current_country') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('current_country') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="">Current city</label>
+            <input
+              type="text"
               name="current_city"
+              class="employee-input"
+              placeholder="ex. Dagupan"
+              value="{{ old('current_city') }}"
             />
+            @if ($errors->any())
+            @foreach ($errors->get('current_city') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
           </div>
           <div>
-            <label for="">Permanent Address</label>
+            <label for="">Permanent address</label>
             <input
               type="text"
-              id="student_number"
-              placeholder="Permanent Address"
               name="permanent_address"
+              class="employee-input"
+              placeholder="ex. 1xx Amansabina Mangaldan"
+              value="{{ old('permanent_address') }}"
             />
+            @if ($errors->any())
+            @foreach ($errors->get('permanent_address') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
           </div>
           <div>
-            <label for="">Permanent Province</label>
-            <input type="text" placeholder="Permanent Province"
-            name="permanent_province"
-            />
-          </div>
-          <div>
-            <label for="">Permanent Country</label>
-            <input type="text" placeholder="Permanent Country" name="permanent_country" />
-          </div>
-
-          <div>
-            <label for="">Permanent City</label>
+            <label for="">Permanent province</label>
             <input
               type="text"
-              id="student_number"
-              placeholder="Permanent City"
-              name="permanent_city"
+              name="permanent_province"
+              class="employee-input"
+              placeholder="ex. Pangasinan"
+              value="{{ old('permanent_province') }}"
             />
+            @if ($errors->any())
+            @foreach ($errors->get('permanent_province') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="">Permanent country</label>
+            <input
+              type="text"
+              name="permanent_country"
+              class="employee-input"
+              placeholder="ex. Philippines"
+              value="{{ old('permanent_country') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('permanent_country') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="">Permanent city</label>
+            <input
+              type="text"
+              name="permanent_city"
+              class="employee-input"
+              placeholder="ex. Dagupan"
+              value="{{ old('permanent_city') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('permanent_city') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
           </div>
         </div>
-      </div>
-      <div>
-        <p>Emergency Contact Details</p>
-        <div class="form_layout-information">
+        <p class="registration-layout-header">Emergency</p>
+        <div class="registration-layout-input">
           <div>
-            <label for="">Emergency Person Name</label>
+            <label for="">Emergency person's contact name</label>
             <input
               type="text"
-              id="student_number"
-              placeholder="Father name"
               name="emergency_person_name"
+              class="employee-input"
+              placeholder="Retype your password"
+              value="{{ old('emergency_person_name') }}"
             />
+            @if ($errors->any())
+            @foreach ($errors->get('emergency_person_name') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
           </div>
           <div>
-            <label for="">Emergency Address</label>
-            <input type="text" placeholder="Emergency Address" name="emergency_address" />
+            <label for="">Emergency person's address</label>
+            <input
+              type="text"
+              name="emergency_address"
+              class="employee-input"
+              placeholder="ex. 1xx Amansabina Mangaldan"
+              value="{{ old('emergency_address') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('emergency_address') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
           </div>
           <div>
             <label for="">Relation</label>
-            <input type="text" placeholder="Relation" name="relation" />
-          </div>
-
-          <div>
-            <label for="">Emergency Contact Number</label>
             <input
               type="text"
-              id="student_number"
-              placeholder="Emergency Contact Number"
-              name="emergency_contact_number"
+              name="relation"
+              class="employee-input"
+              placeholder="ex. Guardian"
+              value="{{ old('relation') }}"
             />
+            @if ($errors->any())
+            @foreach ($errors->get('relation') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="">Emergency contact number</label>
+            <input
+              type="text"
+              name="emergency_contact_number"
+              class="employee-input"
+              placeholder="ex. 09xxxxxxxxx"
+              value="{{ old('emergency_contact_number') }}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('emergency_contact_number') as $error)
+                <p style="color: red">{{ $error }}</p>
+            @endforeach
+        @endif
           </div>
         </div>
-      </div>
-      <div class="button-container">
-        <button class="back-button" type="button" onclick="goBack()">
-          Back
-        </button>
-        <input
-          class="submit-button-add"
-          type="submit"
-          value="Submit"
-          onclick="submitForm()"
-        />
-      </div>
-  </form>
-  @if ($errors->any())
-  <ul>
-    @foreach ($errors->all() as $error)
-        <li>{{ $error }}</li>
-    @endforeach
-  </ul>
-      
-  @endif
+
+        <div class="registration-layout-button">
+          <input type="submit" value="Create Profile" />
+        </div>
+      </form>
+    </div>
+    <!-- <div class="employee__main-duty-posted">Duty posted</div> -->
+  </section>
 </x-layout>
