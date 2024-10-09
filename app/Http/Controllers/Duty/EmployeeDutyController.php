@@ -109,9 +109,9 @@ class EmployeeDutyController extends Controller
 
         foreach ($duties as $duty) {
             // Update duty_status if is_locked is true
-            if ($duty->is_locked) {
-                $duty->duty_status = 'active';
-            }
+            // if ($duty->is_locked) {
+            //     $duty->duty_status = 'active';
+            // }
 
             // Get the accepted students for this duty
             $acceptedStudents = StudentDutyRecord::where('duty_id', $duty->id)
