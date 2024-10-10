@@ -9,7 +9,7 @@ class UpdateDutyStatuses extends Command
 {
     /**
      * The name and signature of the console command.
-     *
+     *  
      * @var string
      */
     protected $signature = 'duty:update-duty-statuses';
