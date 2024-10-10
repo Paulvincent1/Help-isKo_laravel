@@ -64,7 +64,7 @@ class AuthController extends Controller
            
            
         }else {
-            return response()->json(['message' => 'Log in failed'], 500);
+            return response()->json(['message' => 'Log in failed'], 401);
         }
    
         
@@ -95,7 +95,7 @@ class AuthController extends Controller
 
 
         }else {
-            return response()->json(['message' => 'Log in failed'], 500);
+            return response()->json(['message' => 'Log in failed'], 401);
         }
 
 
