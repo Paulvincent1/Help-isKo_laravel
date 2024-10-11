@@ -43,29 +43,33 @@ class Duty extends Model
      * @param string $value
      * @return string
      */
-    public function getDutyStatusAttribute($value)
+    public function updateDutyStatus()
     {
-        // If duty_status is 'cancelled' or 'completed' in the database, return it as is
-        if (in_array($value, ['cancelled', 'completed'])) {
-            return $value;
-        }
-        
         $currentTime = Carbon::now();
         $startTime = Carbon::parse($this->date . ' ' . $this->start_time);
         $endTime = Carbon::parse($this->date . ' ' . $this->end_time);
 
+        // Determine the new status based on current time
+        $newStatus = $this->duty_status; // Start with existing status
+
         if ($this->is_locked) {
-            return 'active';
+            if ($currentTime->greaterThanOrEqualTo($endTime)) {
+                $newStatus = 'completed';
+            }elseif ($currentTime->between($startTime, $endTime)) {
+                $newStatus = 'ongoing';
+            } else {
+                $newStatus = 'active';
+            }
+        } elseif ($currentTime->diffInSeconds($startTime) <= 60) {
+            $newStatus = 'cancelled';
+        } else {
+            $newStatus = 'pending';
         }
 
-        if ($this->is_locked && $currentTime->greaterThanOrEqualTo($endTime)) {
-            return 'completed';
-        }elseif (!$this->is_locked && $currentTime->diffInSeconds($startTime) <= 60) {
-            return 'cancelled';
-        }elseif ($currentTime->between($startTime, $endTime)) {
-            return 'ongoing';
-        } else {
-            return 'pending';
+        // Update the database if the status has changed
+        if ($newStatus !== $this->duty_status) {
+            $this->update(['duty_status' => $newStatus]); // Update the duty status in the database
+            \Log::info("Duty ID {$this->id} updated to status: {$newStatus}"); // Log the update
         }
     }
 }

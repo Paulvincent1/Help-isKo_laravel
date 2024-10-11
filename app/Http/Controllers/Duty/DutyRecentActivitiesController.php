@@ -23,7 +23,7 @@ class DutyRecentActivitiesController extends Controller
                                      'App\Notifications\DutyRecentActivities\Student\StudentDutyRequestedNotification'  
                                  ])
                                  ->latest()
-                                 ->limit(10)
+                                 ->limit(20)
                                  ->get();
 
         $formattedActivities = [];
