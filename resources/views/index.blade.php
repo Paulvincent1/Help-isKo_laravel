@@ -93,7 +93,7 @@
           <p class="title">Total Employee</p>
           <div class="row-count">
             <p class="count">{{$employees->count()}}</p>
-            <a href="employee/employee.html">view all</a>
+            <a href="{{route('employee')}}">view all</a>
           </div>
         </div>
         <div class="student-data">
@@ -103,7 +103,7 @@
           <p class="title">Total Student</p>
           <div class="row-count">
             <p class="count">{{$students->count()}}</p>
-            <a href="student/student.html">view all</a>
+            <a href="{{route('student')}}">view all</a>
           </div>
         </div>
         <div class="renewal-data">
@@ -113,7 +113,7 @@
           <p class="title">Renewal Requests</p>
           <div class="row-count">
             <p class="count">400</p>
-            <a href="renewal/renewal.html">view all</a>
+            <a href="{{route('renewal')}}">view all</a>
           </div>
         </div>
       </div>
