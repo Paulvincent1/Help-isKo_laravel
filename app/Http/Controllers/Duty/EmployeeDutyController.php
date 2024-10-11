@@ -108,17 +108,23 @@ class EmployeeDutyController extends Controller
         $response = [];
 
         foreach ($duties as $duty) {
-            // Update duty_status if is_locked is true
-            // if ($duty->is_locked) {
-            //     $duty->duty_status = 'active';
-            // }
-
-            // Get the accepted students for this duty
             $acceptedStudents = StudentDutyRecord::where('duty_id', $duty->id)
                 ->where('request_status', 'accepted')
                 ->with('student.studentProfile')
                 ->get()
                 ->map(function ($record) {
+                    $activeDutiesCount = StudentDutyRecord::where('stud_id', $record->student->id)
+                    ->whereHas('duty', function ($query) {
+                        $query->where('is_locked', true)
+                              ->where('duty_status', 'active');
+                    })
+                    ->count();
+                    $complettedDutiesCount = StudentDutyRecord::where('stud_id', $record->student->id)
+                    ->whereHas('duty', function ($query) {
+                        $query->where('is_locked', true)
+                              ->where('duty_status', 'completted');
+                    })
+                    ->count();
                     return [
                         'student_id' => $record->student->id,
                         'name' => $record->student->name,
@@ -128,7 +134,9 @@ class EmployeeDutyController extends Controller
                         'semester' => $record->student->studentProfile->semester,
                         'course' => $record->student->studentProfile->course,
                         'request_status' => $record->request_status,
-                        'profile_image' => $record->student->studentProfile->profile_img
+                        'profile_image' => $record->student->studentProfile->profile_img,
+                        'active_duty_count' => $activeDutiesCount,
+                        'completed_duty_count' => $complettedDutiesCount,
                     ];
                 });
 
