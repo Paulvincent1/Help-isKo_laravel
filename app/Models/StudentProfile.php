@@ -83,4 +83,12 @@ class StudentProfile extends Model
             })
             ->count();
     }
+
+    // Accessor for total duties count
+    public function getTotalDutiesCountAttribute()
+    {
+        return StudentDutyRecord::where('stud_id', $this->user->id)
+            ->where('request_status', 'accepted')
+            ->count();
+    }
 }

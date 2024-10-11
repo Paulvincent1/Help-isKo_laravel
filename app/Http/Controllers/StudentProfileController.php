@@ -7,44 +7,55 @@ use App\Models\StudentDutyRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use App\Events\DutyStatusCountUpdated;
 
 class StudentProfileController extends Controller
 {
     public function show()
-{
-    $user = Auth::user();
-    $profile = $user->studentProfile;
-
-    // Get the count of active, ongoing, and completed duties where the student is accepted
-    $activeDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
-        ->where('request_status', 'accepted') // Ensure only accepted duties are counted
-        ->whereHas('duty', function ($query) {
-            $query->where('duty_status', 'active');
-        })
-        ->count();
-
-    $ongoingDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
-        ->where('request_status', 'accepted') // Ensure only accepted duties are counted
-        ->whereHas('duty', function ($query) {
-            $query->where('duty_status', 'ongoing');
-        })
-        ->count();
-
-    $completedDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
-        ->where('request_status', 'accepted') // Ensure only accepted duties are counted
-        ->whereHas('duty', function ($query) {
-            $query->where('duty_status', 'completed');
-        })
-        ->count();
-
-    return response()->json([
-        'name' => $user->name,
-        'profile' => $profile,
-        'active_duties' => $activeDutiesCount ?? 0,
-        'ongoing_duties' => $ongoingDutiesCount ?? 0,
-        'completed_duties' => $completedDutiesCount ?? 0,
-    ]);
-}
+    {
+        $user = Auth::user();
+        $profile = $user->studentProfile;
+    
+        // Get the count of active, ongoing, completed, and total duties where the student is accepted
+        $activeDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
+            ->where('request_status', 'accepted')
+            ->whereHas('duty', function ($query) {
+                $query->where('duty_status', 'active');
+            })
+            ->count();
+    
+        $ongoingDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
+            ->where('request_status', 'accepted') 
+            ->whereHas('duty', function ($query) {
+                $query->where('duty_status', 'ongoing');
+            })
+            ->count();
+    
+        $completedDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
+            ->where('request_status', 'accepted') 
+            ->whereHas('duty', function ($query) {
+                $query->where('duty_status', 'completed');
+            })
+            ->count();
+    
+        // Total count of duties (regardless of status)
+        $totalDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
+            ->where('request_status', 'accepted') 
+            ->count();
+    
+        // Fire the event to notify of updated duty status counts
+        event(new DutyStatusCountUpdated($user->id, $activeDutiesCount, $ongoingDutiesCount, $completedDutiesCount, $totalDutiesCount));
+    
+        return response()->json([
+            'name' => $user->name,
+            'profile' => $profile,
+            'active_duties' => $activeDutiesCount ?? 0,
+            'ongoing_duties' => $ongoingDutiesCount ?? 0,
+            'completed_duties' => $completedDutiesCount ?? 0,
+            'total_duties' => $totalDutiesCount ?? 0,
+        ]);
+    }
+    
 
     public function store(Request $request)
     {

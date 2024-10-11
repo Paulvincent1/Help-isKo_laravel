@@ -9,6 +9,7 @@ use App\Notifications\ForgotPassword;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Events\DutyStatusCountUpdated; 
 
 class AuthController extends Controller
 {
@@ -71,54 +72,62 @@ class AuthController extends Controller
         
     }
     public function loginStud(Request $request)
-{
-    $creds = $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|string',
-    ]);
-
-    if (Auth::attempt($creds)) {
-        $user = Auth::user();
-
-        if ($user->role == 'student') {
-            // Get the counts of active, ongoing, and completed duties where the student is accepted
-            $activeDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
-                ->where('request_status', 'accepted') // Ensure only accepted duties are counted
-                ->whereHas('duty', function ($query) {
-                    $query->where('duty_status', 'active');
-                })
-                ->count();
-
-            $ongoingDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
-                ->where('request_status', 'accepted') // Ensure only accepted duties are counted
-                ->whereHas('duty', function ($query) {
-                    $query->where('duty_status', 'ongoing');
-                })
-                ->count();
-
-            $completedDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
-                ->where('request_status', 'accepted') // Ensure only accepted duties are counted
-                ->whereHas('duty', function ($query) {
-                    $query->where('duty_status', 'completed');
-                })
-                ->count();
-
-            return response()->json([
-                "token" => $user->createToken($request->email)->plainTextToken,
-                'name' => $user->name,
-                'user' => $user->studentProfile,
-                'active_duties' => $activeDutiesCount,
-                'ongoing_duties' => $ongoingDutiesCount,
-                'completed_duties' => $completedDutiesCount
-            ], 200);
+    {
+        $creds = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+    
+        if (Auth::attempt($creds)) {
+            $user = Auth::user();
+    
+            if ($user->role == 'student') {
+                $activeDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
+                    ->where('request_status', 'accepted')
+                    ->whereHas('duty', function ($query) {
+                        $query->where('duty_status', 'active');
+                    })
+                    ->count();
+    
+                $ongoingDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
+                    ->where('request_status', 'accepted')
+                    ->whereHas('duty', function ($query) {
+                        $query->where('duty_status', 'ongoing');
+                    })
+                    ->count();
+    
+                $completedDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
+                    ->where('request_status', 'accepted')
+                    ->whereHas('duty', function ($query) {
+                        $query->where('duty_status', 'completed');
+                    })
+                    ->count();
+    
+                // Total count of duties (regardless of status)
+                $totalDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
+                    ->where('request_status', 'accepted')
+                    ->count();
+    
+                // Broadcast the DutyStatusCountUpdated event
+                event(new DutyStatusCountUpdated($user->id, $activeDutiesCount, $ongoingDutiesCount, $completedDutiesCount, $totalDutiesCount));
+    
+                return response()->json([
+                    "token" => $user->createToken($request->email)->plainTextToken,
+                    'name' => $user->name,
+                    'user' => $user->studentProfile,
+                    'active_duties' => $activeDutiesCount,
+                    'ongoing_duties' => $ongoingDutiesCount,
+                    'completed_duties' => $completedDutiesCount,
+                    'total_duties' => $totalDutiesCount,
+                ], 200);
+            } else {
+                return response()->json(["message" => "not a student"], 403);
+            }
+    
         } else {
-            return response()->json(["message" => "not a student"], 403);
+            return response()->json(['message' => 'Log in failed'], 500);
         }
-
-    } else {
-        return response()->json(['message' => 'Log in failed'], 500);
     }
-}
 
     public function logout(Request $request)
     {
