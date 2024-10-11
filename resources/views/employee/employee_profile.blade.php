@@ -12,9 +12,12 @@
           <div class="display_profile-info">
             <div class="profile_info-personal-details">
               <p>Personal Details</p>
-              <p class="profile_info-personal-details-empid">
-                Employee ID: {{$user->employee_number}}
-              </p>
+              <div class="profile_info-personal-details-header">
+                <a href="{{ route('employee.edit',['id' => $user->id]) }}">Edit Profile</a>
+                <p class="profile_info-personal-details-empid">
+                  Employee ID: {{$user->employee_number}}
+                </p>
+              </div>
             </div>
             <div>
               <p>Basic Details</p>

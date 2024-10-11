@@ -33,9 +33,9 @@
 
         <nav>
           <ul>
-            <li class="{{ request()->is('/') ? 'active' : ''}}">
+            <li class="{{ request()->is('/') ? 'active' : ''}} {{  request()->is('duty*') ? 'active' : ''}}">
               <span class="material-symbols-outlined"> dashboard </span
-              ><a href="{{ route('index') }}" class="{{ request()->is('/') ? 'active-link' : ''}}">Dashboard </a>
+              ><a href="{{ route('index') }}" class="{{ request()->is('/') ? 'active-link' : ''}} {{ request()->is('duty*') ? 'active-link' : ''}}">Dashboard </a>
             </li>
             <li class="{{ request()->is('employee*') ? 'active' : ''}}">
               <span class="material-symbols-outlined"> badge </span
@@ -69,7 +69,7 @@
     ></script>
 
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
-
+    
     <script src="{{ asset('js/index.js')}}"></script>
   </body>
 </html>

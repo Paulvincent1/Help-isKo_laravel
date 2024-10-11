@@ -118,8 +118,44 @@
         </div>
       </div>
 
-      <div class="chart-1"></div>
+      <div class="chart-1">
+        <div class="chart">
+          <div class="chart-header">
+            <a href="{{route('duty')}}">See Duty Table</a>
+          </div>
+          <canvas id="myChart"></canvas>
+        </div>
+      </div>
       <!-- <div class="chart-2"></div> -->
     </div>
   </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx = document.getElementById("myChart");
+    let totalDutiesPerWeek = {!! json_encode($totalDutiesPerWeek) !!}
+    console.log(totalDutiesPerWeek);
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        datasets: [
+          {
+            label: "# of Duty requests this week",
+            data: totalDutiesPerWeek,
+            borderWidth: 1,
+            backgroundColor: '#002855',
+          },
+        ],
+      },
+      options: {
+        // responsive: true
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  </script>
 </x-layout>

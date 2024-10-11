@@ -67,6 +67,7 @@
             <label for="">Password</label>
             <input
               type="password"
+              minlength="8"
               class="employee-input"
               name="password"
               placeholder="Type your password"
@@ -82,6 +83,7 @@
             <label for="">Confirm Password</label>
             <input
               type="password"
+              minlength="8"
               class="employee-input"
               name="password_confirmation"
               placeholder="Retype your password"

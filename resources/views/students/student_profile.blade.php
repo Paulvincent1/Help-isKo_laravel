@@ -12,9 +12,12 @@
           <div class="display_profile-info">
             <div class="profile_info-personal-details">
               <p>Personal Details</p>
-              <p class="profile_info-personal-details-studid">
-                Student ID: {{ $user->student_number }}
-              </p>
+              <div class="profile_info-personal-details-header">
+                <a href="">Edit Profile</a>
+                <p class="profile_info-personal-details-studid">
+                  Student ID: {{ $user->student_number }}
+                </p>
+              </div>
             </div>
             <div>
               <p>Basic Details</p>

@@ -28,7 +28,7 @@
       </div>
       <form
         class="registration-layout"
-        action="{{ route('students.student_add_profile_post') }}"
+        action="{{ request()->route('id') ? route('students.exisitng_student_add_profile_post_store', ['id' => request()->route('id')]) : route('students.student_add_profile_post') }}"
         enctype="multipart/form-data"
         method="POST"
       >
@@ -392,7 +392,7 @@
               type="text"
               name="emergency_person_name"
               class="employee-input"
-              placeholder="Retype your password"
+              placeholder="ex. Angel Doe"
               value="{{ old('emergency_person_name') }}"
             />
             @if ($errors->any())

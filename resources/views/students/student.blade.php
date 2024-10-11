@@ -32,8 +32,12 @@
                 />
               </td>
               <td>{{ $student->name }}</td>
-              <td>{{ $student->studentProfile->student_number}}</td>
+              <td>{{ $student->studentProfile->student_number ?? 'No student profile'}}</td>
+              @if ($student->studentProfile == null)
+              <td><a href="{{ route('students.existing_student_add_profile', ['id' => $student->id])}}">Add Profile</a></td>
+              @else   
               <td><a href="{{ route('student.viewProfile', ['id' => $student->id])}}">View</a></td>
+              @endif
             </tr>
             @endforeach
           </tbody>

@@ -22,7 +22,7 @@
           </div>
         </div>
       </div>
-      <form class="registration-layout" action="{{route('employee.employee_add_profile_store')}}" enctype="multipart/form-data" method="POST">
+      <form class="registration-layout" action="{{ request()->route('id') ? route('employee.existing_employee_add_profile_store',['id' => request()->route('id')]) : route('employee.employee_add_profile_store') }}" enctype="multipart/form-data" method="POST">
         @csrf
         <div class="registration-layout-input">
           <div>
@@ -126,7 +126,6 @@
           @endif
           </div>
         </div>
-
         <div class="registration-layout-button">
           <input type="submit" value="Create Profile" />
         </div>

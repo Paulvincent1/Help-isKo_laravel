@@ -32,8 +32,12 @@
                 />
               </td>
               <td>{{$employee->name}}</td>
-              <td>{{$employee->employeeProfile->employee_number}}</td>
+              <td>{{$employee->employeeProfile->employee_number ?? 'No employee profile'}}</td>
+              @if ($employee->employeeProfile === null)
+              <td><a href="{{ route('employee.existing_employee_add_profile', ['id' => $employee->id] )}}">Add Profile</a></td>
+              @else
               <td><a href="{{ route('employee.viewProfile', ['id' => $employee->id] )}}">View</a></td>
+              @endif
             </tr>
             @endforeach
           </tbody>
