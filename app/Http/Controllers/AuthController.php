@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PasswordResetToken;
 use App\Models\User;
+use App\Models\StudentDutyRecord; 
 use App\Notifications\ForgotPassword;
 use Exception;
 use Illuminate\Http\Request;
@@ -69,37 +70,55 @@ class AuthController extends Controller
    
         
     }
-    public function loginStud(Request $request){
+    public function loginStud(Request $request)
+{
+    $creds = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required|string',
+    ]);
 
-        $creds = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
+    if (Auth::attempt($creds)) {
+        $user = Auth::user();
 
-        if(Auth::attempt($creds)){
+        if ($user->role == 'student') {
+            // Get the counts of active, ongoing, and completed duties where the student is accepted
+            $activeDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
+                ->where('request_status', 'accepted') // Ensure only accepted duties are counted
+                ->whereHas('duty', function ($query) {
+                    $query->where('duty_status', 'active');
+                })
+                ->count();
 
-            $user = Auth::user();
+            $ongoingDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
+                ->where('request_status', 'accepted') // Ensure only accepted duties are counted
+                ->whereHas('duty', function ($query) {
+                    $query->where('duty_status', 'ongoing');
+                })
+                ->count();
 
-            if($user->role == 'student'){
+            $completedDutiesCount = StudentDutyRecord::where('stud_id', $user->id)
+                ->where('request_status', 'accepted') // Ensure only accepted duties are counted
+                ->whereHas('duty', function ($query) {
+                    $query->where('duty_status', 'completed');
+                })
+                ->count();
 
-                return response()->json([
-                    "token" =>  $user->createToken($request->email)->plainTextToken,
-                    'name' => $user->name,
-                    'user' => $user->studentProfile
-                ], 200);
-
-            }else{
-
-                return response()->json(["message" => "not a student"]);
-            }
-
-
-        }else {
-            return response()->json(['message' => 'Log in failed'], 500);
+            return response()->json([
+                "token" => $user->createToken($request->email)->plainTextToken,
+                'name' => $user->name,
+                'user' => $user->studentProfile,
+                'active_duties' => $activeDutiesCount,
+                'ongoing_duties' => $ongoingDutiesCount,
+                'completed_duties' => $completedDutiesCount
+            ], 200);
+        } else {
+            return response()->json(["message" => "not a student"], 403);
         }
 
-
+    } else {
+        return response()->json(['message' => 'Log in failed'], 500);
     }
+}
 
     public function logout(Request $request)
     {

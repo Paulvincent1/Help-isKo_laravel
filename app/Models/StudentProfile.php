@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\StudentDutyRecord;
 
 class StudentProfile extends Model
 {
@@ -39,17 +40,47 @@ class StudentProfile extends Model
         'permanent_country',
         'permanent_city',
 
-         // emergency person contact details
+        // emergency person contact details
         'emergency_person_name',
         'emergency_address',
         'relation',
         'emergency_contact_number',
 
-
         'profile_img'
     ];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
+    }
+
+    // Accessor for active duties count
+    public function getActiveDutiesCountAttribute()
+    {
+        return StudentDutyRecord::where('stud_id', $this->user->id)
+            ->whereHas('duty', function ($query) {
+                $query->where('duty_status', 'active');
+            })
+            ->count();
+    }
+
+    // Accessor for ongoing duties count
+    public function getOngoingDutiesCountAttribute()
+    {
+        return StudentDutyRecord::where('stud_id', $this->user->id)
+            ->whereHas('duty', function ($query) {
+                $query->where('duty_status', 'ongoing');
+            })
+            ->count();
+    }
+
+    // Accessor for completed duties count
+    public function getCompletedDutiesCountAttribute()
+    {
+        return StudentDutyRecord::where('stud_id', $this->user->id)
+            ->whereHas('duty', function ($query) {
+                $query->where('duty_status', 'completed');
+            })
+            ->count();
     }
 }
