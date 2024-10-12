@@ -83,7 +83,7 @@
           <div>
             <label for="">Contact number</label>
             <input
-              type="text"
+              type="number"
               name="contact_number"
               class="employee-input"
               placeholder="ex. 09xxxxxxxxx"
@@ -116,7 +116,7 @@
           <div>
             <label for="">Student ID</label>
             <input
-              type="text"
+              type="number"
               name="student_number"
               class="employee-input"
               placeholder="ex. 03-2323-xxxxxx"
@@ -160,7 +160,7 @@
           </div>
           <div>
             <label for="">Department</label>
-            <input type="text" name="department" class="employee-input" placeholder="CITE" />
+            <input type="text" name="department" class="employee-input" placeholder="CITE" value="{{ old('department')}}" />
             @if ($errors->any())
             @foreach ($errors->get('first_name') as $error)
                 <p style="color: red">{{ $error }}</p>
@@ -218,7 +218,7 @@
           <div>
             <label for="">Father's contact number</label>
             <input
-              type="text"
+              type="number"
               name="father_contact_number"
               class="employee-input"
               placeholder="ex. 09xxxxxxxxx"
@@ -248,7 +248,7 @@
           <div>
             <label for="">Mother's contact number</label>
             <input
-              type="text"
+              type="number"
               name="mother_contact_number"
               class="employee-input"
               placeholder="ex. 09xxxxxxxxx"
@@ -434,7 +434,7 @@
           <div>
             <label for="">Emergency contact number</label>
             <input
-              type="text"
+              type="number"
               name="emergency_contact_number"
               class="employee-input"
               placeholder="ex. 09xxxxxxxxx"

@@ -79,7 +79,7 @@
           <div>
             <label for="">Contact number</label>
             <input
-              type="text"
+              type="number"
               name="contact_number"
               class="employee-input"
               placeholder="09516773935"
@@ -96,7 +96,7 @@
           <div>
             <label for="">Employee number</label>
             <input
-              type="text"
+              type="number"
               name="employee_number"
               class="employee-input"
               placeholder="03-2324-035763"
