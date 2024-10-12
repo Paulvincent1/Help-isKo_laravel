@@ -21,11 +21,11 @@
             </div>
             <div>
               <p>Basic Details</p>
-              <p>First name: {{ $user->first_name }}</p>
-              <p>Last name: {{ $user->last_name }}</p>
-              <p>Birthday: {{ $user->birthday }}</p>
-              <p>Contact Number: {{ $user->contact_number }}</p>
-              <p>Employee ID: {{ $user->employee_number }}</p>
+              <p>First name: {{ $user->employeeProfile->first_name }}</p>
+              <p>Last name: {{ $user->employeeProfile->last_name }}</p>
+              <p>Birthday: {{ $user->employeeProfile->birthday }}</p>
+              <p>Contact Number: {{ $user->employeeProfile->contact_number }}</p>
+              <p>Employee ID: {{ $user->employeeProfile->employee_number }}</p>
             </div>
           </div>
         </div>

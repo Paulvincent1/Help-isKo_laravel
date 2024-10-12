@@ -25,13 +25,13 @@ class EmployeeProfileController extends Controller
         if($id->employeeProfile == null){
             return redirect()->back();
         }
-        $userProfile = $id->employeeProfile;
+        $userProfile = $id;
         return view('employee.employee_profile', ['user' => $userProfile]);
     }
 
     public function edit(User $id)
     {
-        $employee = $id->employeeProfile;
+        $employee = $id;
     
         return view('employee.edit_employee', ['employee' => $employee]);  
     }

@@ -33,6 +33,8 @@ Route::middleware([isAdmin::class, 'auth'])->group(function () {
 
     Route::get('/student', [StudentProfileController::class, 'studentsTable'])->name('student');
     Route::get('/student/profile/{id}',[StudentProfileController::class, 'show'])->name('student.viewProfile');
+    Route::get('/student/profile/{id}/edit', [StudentProfileController::class, 'edit'])->name('student.edit');
+    Route::put('/student/profile/{id}/update', [StudentProfileController::class, 'update'])->name('student.update');
 
     Route::get('/student/add/profile', [StudentProfileController::class, 'studentAddProfile'])->name('students.student_add_profile');
     Route::post('/student/add/profile', [StudentProfileController::class, 'store'])->name('students.student_add_profile_post');
@@ -73,7 +75,7 @@ Route::middleware([isAdmin::class, 'auth'])->group(function () {
     Route::get('/employee', [EmployeeProfileController::class, 'index'])->name('employee');
     Route::get('/employee/profile/{id}', [EmployeeProfileController::class, 'show'])->name('employee.viewProfile');
     Route::get('/employee/profile/{id}/edit', [EmployeeProfileController::class, 'edit'])->name('employee.edit');
-    Route::post('/employee/profile/{id}/update', [EmployeeProfileController::class, 'update'])->name('employee.update');
+    Route::put('/employee/profile/{id}/update', [EmployeeProfileController::class, 'update'])->name('employee.update');
 
     Route::get('/employee/add', [EmployeeProfileController::class, 'index'])->name('employee.employee_add');
     Route::post('/employee/add', [EmployeeProfileController::class, 'register'])->name('employee.employee_add_post');
