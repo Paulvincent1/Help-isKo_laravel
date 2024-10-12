@@ -119,10 +119,10 @@ class EmployeeDutyController extends Controller
                               ->where('duty_status', 'active');
                     })
                     ->count();
-                    $complettedDutiesCount = StudentDutyRecord::where('stud_id', $record->student->id)
+                    $completedDutiesCount = StudentDutyRecord::where('stud_id', $record->student->id)
                     ->whereHas('duty', function ($query) {
                         $query->where('is_locked', true)
-                              ->where('duty_status', 'completted');
+                              ->where('duty_status', 'completed');
                     })
                     ->count();
                     return [
@@ -136,7 +136,7 @@ class EmployeeDutyController extends Controller
                         'request_status' => $record->request_status,
                         'profile_image' => $record->student->studentProfile->profile_img,
                         'active_duty_count' => $activeDutiesCount,
-                        'completed_duty_count' => $complettedDutiesCount,
+                        'completed_duty_count' => $completedDutiesCount,
                     ];
                 });
 
@@ -225,17 +225,17 @@ class EmployeeDutyController extends Controller
                    $studentProfile = $student ? $student->studentProfile : null;
 
                    $activeDutiesCount = StudentDutyRecord::where('stud_id', $student->id)
-                    ->whereHas('duty', function ($query) {
-                        $query->where('is_locked', true)
-                              ->where('duty_status', 'active');
-                    })
-                    ->count();
-                    $complettedDutiesCount = StudentDutyRecord::where('stud_id', $student->id)
-                    ->whereHas('duty', function ($query) {
-                        $query->where('is_locked', true)
-                              ->where('duty_status', 'completted');
-                    })
-                    ->count();
+                        ->whereHas('duty', function ($query) {
+                            $query->where('is_locked', true)
+                                ->where('duty_status', 'active');
+                        })
+                        ->count();
+                    $completedDutiesCount = StudentDutyRecord::where('stud_id', $student->id)
+                        ->whereHas('duty', function ($query) {
+                            $query->where('is_locked', true)
+                                ->where('duty_status', 'completed');
+                        })
+                        ->count();
    
                    // Compile the request details
                    $dutyDetails[] = [
@@ -259,7 +259,7 @@ class EmployeeDutyController extends Controller
                             'semester' => $studentProfile ? $studentProfile->semester : null,
                             'profile_image' => $studentProfile ? $studentProfile->profile_img : null,
                             'active_duty_count' => $activeDutiesCount,
-                            'completed_duty_count' => $complettedDutiesCount,
+                            'completed_duty_count' => $completedDutiesCount,
                        ]
                    ];
                }
