@@ -45,7 +45,8 @@ class StudentDutyController extends Controller
                 'current_scholars' => $duty->current_scholars,
                 'duty_status' => $duty->duty_status,
                 'employee_name' => $duty->employee->name,
-                'employe_profile' => $duty->employee->employeeProfile->profile_img
+                'employe_profile' => $duty->employee->employeeProfile->profile_img,
+                'employee_number' => $duty->employee->employeeProfile->employee_number
             ];
         });
         return response()->json($response, 200);
@@ -129,11 +130,13 @@ class StudentDutyController extends Controller
                 'date' => Carbon::parse($duty->date)->format('F j, Y'),
                 'building' => $duty->building,
                 'time' => Carbon::createFromFormat('H:i:s', $duty->start_time)->format('g:i A') . ' - ' . Carbon::createFromFormat('H:i:s', $duty->end_time)->format('g:i A'),
+                'max_scholars' => $duty->max_scholars,
                 'duty_status' => $duty->duty_status,
                 'request_status' => $record->request_status,
                 'employee_profile' => $employeeProfile ? [
+                    'employee_id' => $employeeProfile->id,
                     'profile_img' => $employeeProfile->profile_img,
-                    'position' => $employeeProfile->position,
+                    'employee_number' => $employeeProfile->employee_number
                 ] : null
             ];
         });
