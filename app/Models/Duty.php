@@ -71,5 +71,20 @@ class Duty extends Model
             $this->update(['duty_status' => $newStatus]); // Update the duty status in the database
             \Log::info("Duty ID {$this->id} updated to status: {$newStatus}"); // Log the update
         }
+
+        if($newStatus == 'completed'){
+            $duties = $this->studentDutyRecords()->where('request_status','accepted')->with('student')->get();
+            foreach($duties as $duty){  
+                $dutyHours = ($this->duration / 60);
+                $rounded = round($dutyHours , 2);
+                \Log::info("nag complete {$rounded}"); 
+                    $remainingHours = $duty->student->hkStatus->remaining_hours;
+                    if(($remainingHours - $rounded) >= 0) {
+                        $duty->student->hkStatus->update([
+                            'remaining_hours' => ($remainingHours - $rounded)
+                        ]);
+                    }
+            }
+        }
     }
 }

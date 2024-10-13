@@ -119,6 +119,8 @@ class AuthController extends Controller
                     'ongoing_duties' => $ongoingDutiesCount,
                     'completed_duties' => $completedDutiesCount,
                     'total_duties' => $totalDutiesCount,
+                    'hours_to_complete' => $user->hkStatus->duty_hours,
+                    'remaining_hours' => $user->hkStatus->remaining_hours
                 ], 200);
             } else {
                 return response()->json(["message" => "not a student"], 403);
