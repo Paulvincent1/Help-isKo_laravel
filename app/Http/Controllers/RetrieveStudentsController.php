@@ -39,6 +39,13 @@ class RetrieveStudentsController extends Controller
                 })
                 ->count();
 
+            $completedDutiesCount = StudentDutyRecord::where('stud_id', $student->id)
+                ->whereHas('duty', function ($query) {
+                    $query->where('is_locked', true)
+                          ->where('duty_status', 'completed');
+                })
+                ->count();
+
             // Get the average rating for the student from feedback
             $averageRating = StudentFeedback::where('stud_id', $student->id)
                 ->whereNotNull('rating')
@@ -60,6 +67,7 @@ class RetrieveStudentsController extends Controller
                 'birthday' => $student->studentProfile->birthday ?? 'Unknown',
                 'contact_number' => $student->studentProfile->contact_number ?? 'Unknown',
                 'active_duty_count' => $activeDutiesCount,
+                'completed_duty_count' => $completedDutiesCount,
                 'average_rating' => $formattedAverageRating,
             ];
         }
