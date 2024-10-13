@@ -21,6 +21,12 @@
 
     <link rel="stylesheet" href="{{ asset('styles/css/employee-student.css')}}" />
     <link rel="stylesheet" href="{{ asset('styles/css/styles.css')}}" />
+    <link rel="stylesheet" href="{{ asset('styles/css/dashboard.css')}}" />
+    @if(request()->is('renewal*'))
+    <link rel="stylesheet" href="{{ asset('styles/css/renewal.css') }}">
+    
+@endif
+
     <title>Document</title>
   </head>
   <body>

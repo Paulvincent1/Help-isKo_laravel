@@ -56,15 +56,17 @@ Route::middleware([isAdmin::class, 'auth'])->group(function () {
     Route::get('/student/hk_duty_quota', [StudentProfileController::class, 'hkQuotaIndex'])->name('students.hkDutyQuota');
 
     //renewal form
-        // temporary route 
-        Route::get('/renewal', [AdminRenewalFormController::class, 'index'])->name('renewal');
+    Route::get('/renewal', [AdminRenewalFormController::class, 'index'])->name('renewal');
 
-        Route::get('/admin/renewal-forms', [AdminRenewalFormController::class, 'index'])->name('admin.renewal_forms.index');
-        Route::get('/admin/renewal-form/{id}', [AdminRenewalFormController::class, 'show'])->name('admin.renewal_forms.show');
-        Route::put('/admin/renewal-form/{id}/status', [AdminRenewalFormController::class, 'updateStatus'])->name('admin.renewal_forms.updateStatus');
-        Route::delete('/admin/renewal-form/{id}', [AdminRenewalFormController::class, 'destroy'])->name('admin.renewal_forms.destroy');
-
-
+    // Show a specific renewal request's details
+    Route::get('/renewal/{id}', [AdminRenewalFormController::class, 'show'])->name('renewal.show');
+    
+    // Update status of a renewal request
+    Route::put('/renewal/{id}/update', [AdminRenewalFormController::class, 'updateRenewal'])->name('renewal.updateRenewal');
+    
+    // Delete a renewal request
+    Route::delete('/renewal/{id}/delete', [AdminRenewalFormController::class, 'deleteRenewal'])->name('renewal.deleteRenewal');
+    
 
     // duty route
     Route::get('/duty', [DutyController::class, 'index'])->name('duty');
