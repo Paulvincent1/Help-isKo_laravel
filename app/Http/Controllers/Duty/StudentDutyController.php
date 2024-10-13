@@ -112,11 +112,6 @@ class StudentDutyController extends Controller
             return $record->duty !== null;
         });
 
-        // If no duties are found, return a message
-        // if ($requestedDuties->isEmpty()) {
-        //     return response()->json(['message' => 'You have no requested duties at the moment.'], 200);
-        // }
-
         // Format the duties for the response
         $formattedDuties = $requestedDuties->map(function ($record) {
             $duty = $record->duty;
@@ -139,10 +134,12 @@ class StudentDutyController extends Controller
                     'employee_number' => $employeeProfile->employee_number
                 ] : null
             ];
-        });
+        })->values(); // Ensure keys are numeric and sequential (returns an array)
 
+        // Return the formatted duties as a JSON response
         return response()->json($formattedDuties);
     }
+
 
     // View details of a specific requested duty
     public function viewRequestedDutyDetails($dutyId)
