@@ -33,7 +33,7 @@
         method="POST"
       >
       @csrf
-        <p class="registration-layout-header">Basic Detials</p>
+        <p class="registration-layout-header">Basic Details</p>
         <div class="registration-layout-input">
           <div>
             <label for="">First name</label>
@@ -116,7 +116,7 @@
           <div>
             <label for="">Student ID</label>
             <input
-              type="number"
+              type="tel"
               name="student_number"
               class="employee-input"
               placeholder="ex. 03-2323-xxxxxx"
