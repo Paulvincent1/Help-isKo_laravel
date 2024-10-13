@@ -53,6 +53,19 @@ class RetrieveStudentsController extends Controller
 
             $formattedAverageRating = $averageRating ? number_format($averageRating, 2) : 'No Rating';
 
+            $hkStatus = $student->hkStatus;
+            $percentage = 0;
+
+            if ($hkStatus) {
+                $dutyHours = (float) $hkStatus->duty_hours;
+                $remainingHours = (float) $hkStatus->remaining_hours;
+
+                if ($dutyHours > 0) {
+                    $completedHours = $dutyHours - $remainingHours;
+                    $percentage = ($completedHours / $dutyHours) * 100;
+                }
+            }
+
             // Prepare student data
             $response[] = [
                 'student_id' => $student->id,
@@ -69,6 +82,7 @@ class RetrieveStudentsController extends Controller
                 'active_duty_count' => $activeDutiesCount,
                 'completed_duty_count' => $completedDutiesCount,
                 'average_rating' => $formattedAverageRating,
+                'percentage' => round($percentage, 2)
             ];
         }
 
