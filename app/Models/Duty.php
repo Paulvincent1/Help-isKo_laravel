@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\Admin\StudentCompletedDutyNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
@@ -83,6 +84,7 @@ class Duty extends Model
                     \Log::info("nag complete {$rounded}"); 
                         $remainingHours = $duty->student->hkStatus->remaining_hours;
                         if(($remainingHours - $rounded) >= 0) {
+                            $duty->student->notify(new StudentCompletedDutyNotification($this));
                             $duty->student->hkStatus->update([
                                 'remaining_hours' => ($remainingHours - $rounded)
                             ]);

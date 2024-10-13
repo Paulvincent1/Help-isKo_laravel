@@ -65,6 +65,28 @@
             </div>
           </div>
         </div>
-        <div class="recent_activities"><p>Recent Activities</p></div>
+        <div class="recent_activities">
+          <div class="recent_activities-header">
+            <p class="recent_activities-remaining-duty-header">Remaing Duty Hours</p>
+            <p>{{ $hkStatus->remaining_hours}} hours</p>
+          </div>
+          <div class="completed-duty">
+            <p class="completed-duty-header">Completed Duties:</p>
+            <div class="completed-duty-content">
+              @foreach ($dutyCompleted as $duty)
+                  
+              <div class="completed-duty-card">
+                <div class="completed-duty-card-header">
+                  <p>{{ $duty->data['building']}}</p>
+                </div>
+                <p>Start time: {{ $duty->data['start_time']}}</p>
+                <p>End time: {{ $duty->data['end_time']}}</p>
+                <p>Date: {{ $duty->data['date']}}</p>
+                <p>Duration: {{ $duty->data['duration']}} mins</p>
+              </div>
+              @endforeach
+            </div>
+          </div>
+        </div>
       </section>
 </x-layout>

@@ -16,7 +16,7 @@
     <!-- for data tables -->
     <link
       rel="stylesheet"
-      href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css"
+      href="{{ asset('styles/css/dataTable.css')}}"
     />
 
     <link rel="stylesheet" href="{{ asset('styles/css/employee-student.css')}}" />
@@ -69,12 +69,10 @@
 
     </div>
     <script
-      src="https://code.jquery.com/jquery-3.7.1.min.js"
-      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
-      crossorigin="anonymous"
+      src="{{ asset('js/jquery.js') }}"
     ></script>
 
-    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+    <script src="{{ asset('js/dataTable.js') }}"></script>
     
     <script src="{{ asset('js/index.js')}}"></script>
   </body>

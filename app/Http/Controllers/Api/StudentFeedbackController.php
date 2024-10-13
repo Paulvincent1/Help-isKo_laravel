@@ -30,6 +30,47 @@ class StudentFeedbackController extends Controller
             })
         ], 200);
     }
+
+    public function showRating(User $id)
+    {
+        $user = $id;
+        $feedbackReceives = $user->feedbackReceived; 
+        $count = $user->feedbackReceived->count();
+
+        $ratings = [];
+        $totalRating = 0;
+
+        foreach($feedbackReceives as $feedbackReceived){
+            $ratings[] = $feedbackReceived->rating;
+        }
+
+        foreach($ratings as $rating){
+            $totalRating+=$rating;
+        }
+
+        $ave = ($totalRating / $count);
+        $averageRating = round($ave, 1);
+
+        $ratingCounts = array_count_values($ratings);
+
+        $percentages = [];
+
+        for($i = 1; $i <= 5; $i++){
+            $percent = isset($ratingCounts[$i]) ? (($ratingCounts[$i] / $count) * 100) : 0;
+            $percentages[$i] = round($percent, 2);
+        }
+
+
+        return response()->json([
+            'average_rating' => $averageRating,
+            'excellent'=> $percentages[5],
+            'good' => $percentages[4],
+            'average' =>$percentages[3],
+            'below_average' => $percentages[2],
+            'poor' => $percentages[1]
+        ]);
+        
+    }
    
    
     public function show($id)
