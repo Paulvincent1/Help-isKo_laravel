@@ -1,97 +1,136 @@
 <x-layout>
-  <div class="main_content_nav">
-    <ul>
-      <a href="{{route('employee')}}"><li>Employee table</li></a>
-      <a href="{{route('employee.employee_add')}}" class="selected_main"
-        ><li>Manage Employee</li></a
-      >
-    </ul>
-  </div>
-  <div class="add_form-student">
-    <div class="guide_tab">
-      <div class="guide_tab-content">
-        <div class="guide_tab-register">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="currentColor"
-            class="bi bi-1-circle"
-            viewBox="0 0 16 16"
-          >
-            <path
-              d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M9.283 4.002V12H7.971V5.338h-.065L6.072 6.656V5.385l1.899-1.383z"
-            />
-          </svg>
-
-          <p>Register</p>
-        </div>
-        <div class="hr"><hr /></div>
-        <div class="guide_tab-register current-tab">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="currentColor"
-            class="bi bi-2-circle"
-            viewBox="0 0 16 16"
-          >
-            <path
-              d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.646 6.24v.07H5.375v-.064c0-1.213.879-2.402 2.637-2.402 1.582 0 2.613.949 2.613 2.215 0 1.002-.6 1.667-1.287 2.43l-.096.107-1.974 2.22v.077h3.498V12H5.422v-.832l2.97-3.293c.434-.475.903-1.008.903-1.705 0-.744-.557-1.236-1.313-1.236-.843 0-1.336.615-1.336 1.306"
-            />
-          </svg>
-          <p>Employee Profile</p>
+  <section class="main_content-employee-student">
+    <header>
+      <p>Employee / Register</p>
+      <img
+        src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg"
+        alt=""
+      />
+    </header>
+    <div class="employee-student__main-register">
+      <div class="employee-student__main-register-header">
+        <div class="employee-student__main-register-header-content">
+          <div>
+            <span class="material-symbols-outlined"> check_circle </span>
+            <p>Personal Details</p>
+          </div>
+          <div class="current_active-page-indicator">
+            <span class="material-symbols-outlined current_active-page">
+              check_circle
+            </span>
+            <p>Employee Profile</p>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <form action="{{route('employee.employee_add_profile')}}" method="POST" enctype="multipart/form-data">
-    @csrf
-    <div class="form_layout">
-      <div>
-        <p>Employee Information</p>
-        <div class="form_layout-information">
+      <form class="registration-layout" action="{{ request()->route('id') ? route('employee.existing_employee_add_profile_store',['id' => request()->route('id')]) : route('employee.employee_add_profile_store') }}" enctype="multipart/form-data" method="POST">
+        @csrf
+        <div class="registration-layout-input">
           <div>
-            <label for="">First Name</label>
-            <input type="text" placeholder="First Name" name="first_name"/>
+            <label for="">First name</label>
+            <input
+              type="text"
+              name="first_name"
+              class="employee-input"
+              placeholder="ex. John Doe"
+              value="{{ old('first_name')}}"
+            />
+            @if ($errors->any())
+
+              @foreach ($errors->get('first_name') as $error)
+                  <p style="color: red">{{$error}}</p>
+              @endforeach
+                
+            @endif
           </div>
           <div>
-            <label for="">Last Name</label>
-            <input type="text" placeholder="Last Name" 
-            name="last_name"/>
+            <label for="">Last name</label>
+            <input
+              type="text"
+              name="last_name"
+              class="employee-input"
+              placeholder="ex. john@gmail.com"
+              value="{{ old('last_name')}}"
+            />
+            @if ($errors->any())
+
+            @foreach ($errors->get('last_name') as $error)
+            <p style="color: red">{{$error}}</p>
+            @endforeach
+              
+          @endif
           </div>
           <div>
             <label for="">Birthday</label>
-            <input type="text" placeholder="Birthday" name="birthday"/>
-          </div>
+            <input
+              type="text"
+              name="birthday"
+              class="employee-input"
+              placeholder="ex. August 5, 2004"
+              value="{{old('birthday')}}"
+            />
+            @if ($errors->any())
 
-          <div>
-            <label for="">Contact Number</label>
-            <input type="text" placeholder="Contact Number" name="contact_number"/>
+            @foreach ($errors->get('birthday') as $error)
+            <p style="color: red">{{$error}}</p>
+            @endforeach
+              
+          @endif
           </div>
           <div>
-            <label for="">Employee Number</label>
-            <input type="text" placeholder="Employee Number" name="employee_number"/>
+            <label for="">Contact number</label>
+            <input
+              type="number"
+              name="contact_number"
+              class="employee-input"
+              placeholder="09516773935"
+               value="{{old('contact_number')}}"
+            />
+            @if ($errors->any())
+
+            @foreach ($errors->get('contact_number') as $error)
+            <p style="color: red">{{$error}}</p>
+            @endforeach
+              
+          @endif
           </div>
           <div>
-            <label for="">Profile Picture</label>
-            <input type="file" name="profile_img"/>
+            <label for="">Employee number</label>
+            <input
+              type="number"
+              name="employee_number"
+              class="employee-input"
+              placeholder="03-2324-035763"
+               value="{{old('employee_number')}}"
+            />
+            @if ($errors->any())
+
+            @foreach ($errors->get('employee_number') as $error)
+            <p style="color: red">{{$error}}</p>
+            @endforeach
+              
+          @endif
+          </div>
+          <div>
+            <label for="">Profile image</label>
+            <input
+              type="file"
+              name="profile_img"
+              class="employee-input"
+            />
+            @if ($errors->any())
+
+            @foreach ($errors->get('profile_img') as $error)
+            <p style="color: red">{{$error}}</p>
+            @endforeach
+              
+          @endif
           </div>
         </div>
-      </div>
-
-      <div class="submit-button">
-        <input type="submit" value="Next" />
-      </div>
+        <div class="registration-layout-button">
+          <input type="submit" value="Create Profile" />
+        </div>
+      </form>
     </div>
-  </form>
-  @if ($errors->any())
-  <ul>
-    @foreach ($errors->all() as $error)
-        <li>{{ $error }}</li>
-    @endforeach
-  </ul>
-      
-  @endif
+    <!-- <div class="employee__main-duty-posted">Duty posted</div> -->
+  </section>
 </x-layout>

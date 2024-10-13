@@ -26,6 +26,10 @@ class EmployeeProfile extends Model
 public function user(){
     $this->belongsTo(User::class);
 }
+
+public function studentFeedback(){
+    $this->hasMany(StudentFeedback::class);
+}
 };
 
 

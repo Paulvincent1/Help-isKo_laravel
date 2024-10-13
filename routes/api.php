@@ -13,6 +13,8 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Duty\DutyNotificationsController;
 use App\Http\Controllers\Duty\DutyRecentActivitiesController;
+use App\Http\Controllers\Api\StudentRenewalFormController;
+use App\Http\Controllers\Duty\StudentDutyNotificationsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\isAdmin;
@@ -28,7 +30,6 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login-employee', [AuthController::class, 'loginEmployee']);
 Route::post('/login-stud', [AuthController::class, 'loginStud']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-
 
 
 // Password reset routes
@@ -53,11 +54,15 @@ Route::middleware(['auth:sanctum', isStudent::class])->group(function () {
     Route::delete('/students/duties/{dutyId}/cancel', [StudentDutyController::class, 'cancelRequest']);
     Route::get('/students/duties/accepted', [StudentDutyController::class, 'viewAcceptedDuties']);
     Route::get('/students/duties/completed', [StudentDutyController::class, 'viewCompletedDuties']);
+
+    Route::post('student/renewal-form', [StudentRenewalFormController::class, 'store']);
+    Route::get('student/renewal-form/{id}', [StudentRenewalFormController::class, 'show']);
 });
 
 // Feedback routes
-Route::get('/feedback/{id}', [StudentFeedbackController::class, 'show']);
+// Route::get('/feedback/{id}', [StudentFeedbackController::class, 'show']);
 Route::get('/feedback/index/{student_id}', [StudentFeedbackController::class, 'index']);
+Route::get('/feedback/show-rating/{id}', [StudentFeedbackController::class, 'showRating']);
 
 // Professor routes
 Route::middleware(['auth:sanctum', isEmployee::class])->group(function () {
@@ -99,16 +104,15 @@ Route::middleware(['auth:sanctum', isAdmin::class])->group(function () {
     Route::post('/create-announcement', [AnnouncementController::class, 'store']);
     Route::put('/update-announcement/{id}', [AnnouncementController::class, 'update']);
     Route::put('/delete-announcement/{id}', [AnnouncementController::class, 'delete']);
+
+    //Renewal Form Fields
+
 });
 
 // General duty routes accessible to students and employees
 Route::middleware(['auth:sanctum'])->group(function () {
     // Duties
     Route::get('/announcements', [AnnouncementController::class, 'index']);
-    Route::get('/duties', [DutyController::class, 'index']);
-    Route::get('/duties/{dutyId}', [DutyController::class, 'show']);
-    Route::get('/duties/status/{dutyId}', [DutyController::class, 'checkStatus']);
-
     // Chat routes
     Route::get('/existing-chat-users', [MessageController::class, 'existingChats']);
     Route::get('/view-messages/{id}', [MessageController::class, 'viewMessages']);
@@ -120,4 +124,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('duty/recent-activities', [DutyRecentActivitiesController::class, 'index']);
     // Duty notifications
     Route::get('duty/notifications', [DutyNotificationsController::class, 'index']);
+    // Route::get('/student/duty/notifications', [StudentDutyNotificationsController::class, 'index']);
+
+
+
 });

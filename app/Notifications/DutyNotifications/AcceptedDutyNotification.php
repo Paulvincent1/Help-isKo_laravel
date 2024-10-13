@@ -1,5 +1,5 @@
 <?php
-namespace App\Notifications;
+namespace App\Notifications\DutyNotifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
@@ -24,7 +24,8 @@ class AcceptedDutyNotification extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'message' => 'Your request for duty ' . $this->duty->building . ' has been accepted.',
+            'title' => 'Duty Accepted!',
+            'message' => 'Your request for duty at ' . $this->duty->building . ' has been accepted.',
             'duty_id' => $this->duty->id,
             'time' => now(),
         ];
@@ -33,7 +34,8 @@ class AcceptedDutyNotification extends Notification
     public function toBroadcast($notifiable)
     {
         return new BroadcastMessage([
-            'message' => 'Your request for duty ' . $this->duty->building . ' has been accepted.',
+            'title' => 'Duty Accepted!',
+            'message' => 'Your request for duty at ' . $this->duty->building . ' has been accepted.',
             'duty_id' => $this->duty->id,
             'time' => now(),
         ]);

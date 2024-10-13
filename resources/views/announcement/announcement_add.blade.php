@@ -1,58 +1,82 @@
 <x-layout>
-  <div class="main_content_nav">
-    <ul>
-      <a href="{{route('announcement')}}"><li>List of Announcement</li></a>
-      <a href="{{route('announcement.announcement_add')}}" class="selected_main"
-        ><li>Manage Announcement</li></a
-      >
-    </ul>
-  </div>
-  <div class="add_form-student">
-    <div class="guide_tab">
-      <div class="guide_tab-content">
-        <div class="guide_tab-register current-tab">
-          <p>Create Announcement</p>
+  <section class="main_content-employee-student">
+    <header>
+      <p>Announcement / Add</p>
+      <img
+        src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg"
+        alt=""
+      />
+    </header>
+    <div class="employee-student__main-register">
+      <div class="employee-student__main-register-header">
+        <div
+          class="employee-student__main-register-header-content annoucement-header"
+        >
+          <div class="current_active-page-indicator">
+            <span class="material-symbols-outlined current_active-page">
+              campaign
+            </span>
+            <p>Post an annoucement</p>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+      <form
+        class="registration-layout"
+        action="{{ route('announcement.post')}}"
+        enctype="multipart/form-data"
+        method="POST"
+      >
+      @csrf
+        <div class="registration-layout-input">
+          <div>
+            <label for="">Heading</label>
+            <input
+              type="text"
+              name="heading"
+              class="employee-input"
+              placeholder="Add a heading"
+              value="{{ old('heading') }}"
+            />
+            @if ($errors->any())
+                @foreach ($errors->get('heading') as $error)
+                    <p style="color: red">{{$error}}</p>
+                @endforeach
+            @endif
+          </div>
+          <div>
+            <label for="">Description</label>
+            <input
+              type="text"
+              name="description"
+              class="employee-input"
+              placeholder="Add a description"
+              value="{{old('description')}}"
+            />
+            @if ($errors->any())
+            @foreach ($errors->get('description') as $error)
+                <p style="color: red">{{$error}}</p>
+            @endforeach
+        @endif
+          </div>
+          <div>
+            <label for="">Announcement Image</label>
+            <input 
+            type="file"
+            name="announcement_image"
+            class="employee-input" />
+          </div>
+          @if ($errors->any())
+          @foreach ($errors->get('announcement_image') as $error)
+              <p style="color: red">{{$error}}</p>
+          @endforeach
+      @endif
+        </div>
 
-  <form action="announcement" class="create_account">
-    <div class="form-header">
-      <div class="target-selection">
-        <label for="target">Target:</label>
-        <select id="target" name="target">
-          <option value="student">Student</option>
-          <option value="professor">Professor</option>
-        </select>
-      </div>
-      <div class="date-selection">
-        <label for="announcement-date">Date:</label>
-        <input
-          type="date"
-          id="announcement-date"
-          name="announcement-date"
-        />
-      </div>
+        <div class="registration-layout-button">
+          <input type="submit" value="Post annoucement" />
+        </div>
+      </form>
     </div>
-    <div>
-      <label class="label_layout" for="announcement">Announcement:</label
-      ><br />
-      <textarea
-        id="announcement"
-        class="announcement"
-        name="announcement"
-        rows="30"
-        cols="100"
-        placeholder="Write your announcement here..."
-      ></textarea
-      ><br /><br />
-      <div class="footer">
-        <p>From: Admin</p>
-      </div>
-      <div class="submit-button">
-        <input type="submit" value="Create" />
-      </div>
-    </div>
-  </form>
+    <!-- <div class="employee__main-duty-posted">Duty posted</div> -->
+  </section>
 </x-layout>

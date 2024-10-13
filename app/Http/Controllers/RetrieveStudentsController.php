@@ -39,6 +39,13 @@ class RetrieveStudentsController extends Controller
                 })
                 ->count();
 
+            $completedDutiesCount = StudentDutyRecord::where('stud_id', $student->id)
+                ->whereHas('duty', function ($query) {
+                    $query->where('is_locked', true)
+                          ->where('duty_status', 'completed');
+                })
+                ->count();
+
             // Get the average rating for the student from feedback
             $averageRating = StudentFeedback::where('stud_id', $student->id)
                 ->whereNotNull('rating')
@@ -46,9 +53,25 @@ class RetrieveStudentsController extends Controller
 
             $formattedAverageRating = $averageRating ? number_format($averageRating, 2) : 'No Rating';
 
+            $hkStatus = $student->hkStatus;
+            $percentage = 0;
+
+            if ($hkStatus) {
+                $dutyHours = (float) $hkStatus->duty_hours;
+                $remainingHours = (float) $hkStatus->remaining_hours;
+
+                if ($dutyHours > 0) {
+                    $completedHours = $dutyHours - $remainingHours;
+                    $percentage = ($completedHours / $dutyHours) * 100;
+                }
+            }
+
             // Prepare student data
             $response[] = [
+                'student_id' => $student->id,
+                'email' => $student->email,
                 'name' => $student->name,
+                'profile_image' => $student->studentProfile->profile_img ?? 'Unknown',
                 'student_number' => $student->studentProfile->student_number ?? 'Unknown',
                 'course' => $student->studentProfile->course ?? 'Unknown',
                 'department' => $student->studentProfile->department ?? 'Unknown',
@@ -57,7 +80,11 @@ class RetrieveStudentsController extends Controller
                 'birthday' => $student->studentProfile->birthday ?? 'Unknown',
                 'contact_number' => $student->studentProfile->contact_number ?? 'Unknown',
                 'active_duty_count' => $activeDutiesCount,
+                'completed_duty_count' => $completedDutiesCount,
                 'average_rating' => $formattedAverageRating,
+                'hours_to_complete' => $student->hkStatus->duty_hours,
+                'remaining_hours' => $student->hkStatus->remaining_hours,
+                'percentage' => round($percentage, 2)
             ];
         }
 

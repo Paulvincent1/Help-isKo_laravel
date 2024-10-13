@@ -13,13 +13,63 @@ class StudentFeedbackController extends Controller
     public function index($student_id)
     {
         // Retrieve all feedback for the student
-        $feedbacks = StudentFeedback::where('stud_id', $student_id)->get();
+        $feedbacks = StudentFeedback::with('employee')->where('stud_id', $student_id)->get();
 
         // Return feedback details
         return response()->json([
             'student_id' => $student_id,
-            'feedbacks' => $feedbacks
+            'feedbacks' => $feedbacks->map(function ($feedback) {
+                return [
+                    'rating' => $feedback->rating,
+                    'comment' => $feedback->comment,
+                    'created_at' => $feedback->created_at,
+                    'commenter_first_name' => $feedback->employee ? $feedback->employee->first_name : null,
+                    'commenter_last_name' => $feedback->employee ? $feedback->employee->last_name : null,
+                    'commenter_profile_img' => $feedback->employee ? $feedback->employee->profile_img : null,
+                ];
+            })
         ], 200);
+    }
+
+    public function showRating(User $id)
+    {
+        $user = $id;
+        $feedbackReceives = $user->feedbackReceived; 
+        $count = $user->feedbackReceived->count();
+
+        $ratings = [];
+        $totalRating = 0;
+
+        foreach($feedbackReceives as $feedbackReceived){
+            $ratings[] = $feedbackReceived->rating;
+        }
+
+        foreach($ratings as $rating){
+            $totalRating+=$rating;
+        }
+
+        $ave = ($totalRating / $count);
+        $averageRating = round($ave, 1);
+
+        $ratingCounts = array_count_values($ratings);
+
+        $percentages = [];
+
+        for($i = 1; $i <= 5; $i++){
+            $percent = isset($ratingCounts[$i]) ? (($ratingCounts[$i] / $count) * 100) : 0;
+            $percentages[$i] = round($percent, 2);
+        }
+
+
+        return response()->json([
+            'average_rating' => $averageRating,
+            'excellent'=> $percentages[5],
+            'good' => $percentages[4],
+            'average' =>$percentages[3],
+            'below_average' => $percentages[2],
+            'poor' => $percentages[1]
+        ]);
+        
     }
    
    
@@ -66,7 +116,7 @@ class StudentFeedbackController extends Controller
     
         // Validate the request data
         $data = $request->validate([
-            'rating' => 'required|integer|min:1|max:5',
+            'rating' => 'nullable|integer|min:1|max:5',
             'comment' => 'required|string|max:500'
         ]);
 
@@ -75,14 +125,14 @@ class StudentFeedbackController extends Controller
         $feedback = StudentFeedback::create([
             'stud_id' => $student_id,
             'prof_id' => $user->id,
-            'rating' => $data['rating'], // Fixed the typo here
+            'rating' => $data['rating'] ?? null, // Fixed the typo here
             'comment' => $data['comment'],
         ]);
 
 
     
-        // Return the feedback as JSON with a 201 status
-        return response()->json($feedback, 201);
+        // Return the feedback as JSON with a 200 status
+        return response()->json($feedback, 200);
     }
     
 };

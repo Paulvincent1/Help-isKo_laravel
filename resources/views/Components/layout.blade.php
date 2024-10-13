@@ -3,79 +3,77 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="{{ asset('styles/css/student.css') }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
     />
-    <script src="{{ asset('js/custom.js') }}"></script>
+    <!-- for data tables -->
+    <link
+      rel="stylesheet"
+      href="{{ asset('styles/css/dataTable.css')}}"
+    />
+
+    <link rel="stylesheet" href="{{ asset('styles/css/employee-student.css')}}" />
+    <link rel="stylesheet" href="{{ asset('styles/css/styles.css')}}" />
+    <link rel="stylesheet" href="{{ asset('styles/css/dashboard.css')}}" />
+    @if(request()->is('renewal*'))
+    <link rel="stylesheet" href="{{ asset('styles/css/renewal.css') }}">
+    
+@endif
+
+    <title>Document</title>
   </head>
   <body>
     <div class="layout_admin">
-      <div class="sidebar">
-        <div>
-          <div class="sidebar_header">
-            <p>Help, isKo</p>
-          </div>
-
-          <div class="sidebar_content">
-            <div>
-              <img
-                src="https://scontent.fbag1-2.fna.fbcdn.net/v/t1.15752-9/456197328_2663990113779847_7195666657576319816_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=9f807c&_nc_eui2=AeGtilhY5HzqSuG-WCHfXC448mkTGv_HHYfyaRMa_8cdhyw3p1kVqWfBh0pLD6oplBAdLnAhgQ__O6PP07BldOwr&_nc_ohc=YP-o142jCxMQ7kNvgFQ1iUb&_nc_ht=scontent.fbag1-2.fna&oh=03_Q7cD1QHeOwO420L_Gwzh3w-xreSZj2lzg0RlSCBoaFB0g0hufw&oe=66F37392"
-                alt=""
-              />
-            </div>
-            <p>Hannah Laurice De Villena</p>
-          </div>
-          <nav>
-            <ul>
-              <a href="{{route('index')}}" class="{{Request::is('/') ? 'selected' : ''}}"
-                ><li><i class="fa-solid fa-chart-line"></i> Dashboard</li></a
-              >
-              <a href="{{route('student')}}"  class="{{Request::is('student') ? 'selected' : ''}}"
-                ><li><i class="fa-solid fa-graduation-cap"></i> Student</li></a
-              >
-          <a href="{{route('employee')}}" class="{{Request::is('employee') ? 'selected' : ''}}"
-                ><li>
-                  <i class="fa-solid fa-chalkboard-user"></i> Employee
-                </li></a
-              >
-              <a href="{{route('announcement')}}" class="{{Request::is('announcement') ? 'selected' : ''}}"
-                ><li><i class="fa-solid fa-scroll"></i> Announcement</li></a
-              >
-            </ul>
-          </nav>
+      <section class="sidebar">
+        <div class="logo">
+          <img src="{{asset('asset/logo-removebg-preview.png')}}" alt="">
+          <p>Boaf</p>
         </div>
-        <div class="sidebar_logout">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            fill="currentColor"
-            class="bi bi-box-arrow-left"
-            viewBox="0 0 16 16"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0z"
-            />
-            <path
-              fill-rule="evenodd"
-              d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708z"
-            />
-          </svg>
-          <p>Logout</p>
-        </div>
-      </div>
 
-      <div class="main_content">
-        {{$slot}}
-      </div>
-      
+        <nav>
+          <ul>
+            <li class="{{ request()->is('/') ? 'active' : ''}} {{  request()->is('duty*') ? 'active' : ''}}">
+              <span class="material-symbols-outlined"> dashboard </span
+              ><a href="{{ route('index') }}" class="{{ request()->is('/') ? 'active-link' : ''}} {{ request()->is('duty*') ? 'active-link' : ''}}">Dashboard </a>
+            </li>
+            <li class="{{ request()->is('employee*') ? 'active' : ''}}">
+              <span class="material-symbols-outlined"> badge </span
+              ><a href="{{ route('employee')}}" class="{{ request()->is('employee*') ? 'active-link' : ''}}">Employee </a>
+            </li>
+            <li class="{{ request()->is('student*') ? 'active' : ''}}">
+              <span class="material-symbols-outlined"> groups </span>
+              <a href="{{ route('student')}}" class="{{ request()->is('student*') ? 'active-link' : ''}}">Student </a>
+            </li>
+            <li class="{{ request()->is('announcement*') ? 'active' : ''}}">
+              <span class="material-symbols-outlined"> campaign </span>
+              <a href="{{ route('announcement') }}" class="{{ request()->is('announcement*') ? 'active-link' : ''}}">Announcement </a>
+            </li>
+            <li class="{{ request()->is('renewal*') ? 'active' : ''}}">
+              <span class="material-symbols-outlined"> view_list </span>
+              <a href="{{ route('renewal') }}"  class="{{ request()->is('renewal*') ? 'active-link' : ''}}">Renewal Requests </a>
+            </li>
+          </ul>
+        </nav>
+      </section>
+
+
+      {{ $slot }}
+
+
     </div>
+    <script
+      src="{{ asset('js/jquery.js') }}"
+    ></script>
+
+    <script src="{{ asset('js/dataTable.js') }}"></script>
+    
+    <script src="{{ asset('js/index.js')}}"></script>
   </body>
 </html>

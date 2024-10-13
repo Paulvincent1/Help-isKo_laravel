@@ -42,17 +42,10 @@ class EmployeeProfileController extends Controller
             $path = $file->storeAs('profile_img', $filename,'public');
 
             $fields['profile_img'] = 'storage/' . $path;
-
-            
-
         }
 
-
         $res = $user->employeeProfile()->create($fields);
-
         return response($res, 201);
-
-        
     }
 
     public function update(Request $request){
@@ -78,10 +71,7 @@ class EmployeeProfileController extends Controller
                 $path = $file->storeAs('profile_img', $filename, 'public');
 
                 $fields['profile_img'] = '/storage' . $path;
-
             }
-
-
         }
 
         $res = $user->employeeProfile()->create($fields);
