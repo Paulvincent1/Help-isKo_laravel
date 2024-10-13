@@ -82,6 +82,8 @@ class RetrieveStudentsController extends Controller
                 'active_duty_count' => $activeDutiesCount,
                 'completed_duty_count' => $completedDutiesCount,
                 'average_rating' => $formattedAverageRating,
+                'hours_to_complete' => $student->hkStatus->duty_hours,
+                'remaining_hours' => $student->hkStatus->remaining_hours,
                 'percentage' => round($percentage, 2)
             ];
         }
