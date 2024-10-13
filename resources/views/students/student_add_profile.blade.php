@@ -28,7 +28,7 @@
       </div>
       <form
         class="registration-layout"
-        action="{{ request()->route('id') ? route('students.exisitng_student_add_profile_post_store', ['id' => request()->route('id')]) : route('students.student_add_profile_post') }}"
+        action="{{ request()->route('id') ? route('students.existing_student_add_profile_post_store', ['id' => request()->route('id')]) : route('students.student_add_profile_post') }}"
         enctype="multipart/form-data"
         method="POST"
       >

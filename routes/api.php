@@ -62,6 +62,7 @@ Route::middleware(['auth:sanctum', isStudent::class])->group(function () {
 // Feedback routes
 // Route::get('/feedback/{id}', [StudentFeedbackController::class, 'show']);
 Route::get('/feedback/index/{student_id}', [StudentFeedbackController::class, 'index']);
+Route::get('/feedback/show-rating/{id}', [StudentFeedbackController::class, 'showRating']);
 
 // Professor routes
 Route::middleware(['auth:sanctum', isEmployee::class])->group(function () {

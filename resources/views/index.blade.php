@@ -130,7 +130,7 @@
     </div>
   </section>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ asset('js/chart.js')}}"></script>
   <script>
     const ctx = document.getElementById("myChart");
     let totalDutiesPerWeek = {!! json_encode($totalDutiesPerWeek) !!}

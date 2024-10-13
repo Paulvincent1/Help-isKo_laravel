@@ -63,7 +63,7 @@ class User extends Authenticatable
  // Assuming User can be a student
  public function feedbackReceived()
  {
-     return $this->hasMany(StudentFeedback::class, 'student_id');
+     return $this->hasMany(StudentFeedback::class, 'stud_id');
  }
 
  // Assuming User can be a professor

@@ -46,7 +46,12 @@ class StudentProfileController extends Controller
         }
         $userProfile = $id;
 
-        return view('students.student_profile', ['user' => $userProfile]);
+        $dutyCompleted = $id->notifications()->where('type', 'App\Notifications\Admin\StudentCompletedDutyNotification')->get();
+
+        $hkStatus = $id->hkStatus;
+
+        
+        return view('students.student_profile', ['user' => $userProfile, 'dutyCompleted' => $dutyCompleted, 'hkStatus' => $hkStatus]);
 
     }
 
@@ -54,9 +59,40 @@ class StudentProfileController extends Controller
     public function hkQuotaIndex(){
         return view('students.hkDutyQuota');
     }
+    public function hkQuotaStoreExisting(User $id){
+        return view('students.hkDutyQuota');
+    }
 
     public function hkQuotaStore(Request $request){
         $id = session('student_id');
+        $user = User::where('id', $id)->first();
+
+        if($user == null){
+            return redirect()->route('student');
+        }
+        
+        $fields = $request->validate([
+            'duty_hours' => 'required|numeric|max_digits:80'
+        ]);
+        
+        if($user->hkStatus() != null){
+            $user->hkStatus()->create([
+                'remaining_hours' => $fields['duty_hours'],
+                'duty_hours' => $fields['duty_hours'],
+            ]);
+            
+        }else{
+            $user->hkStatus()->update([
+                'remaining_hours' => $fields['duty_hours'],
+                'duty_hours' => $fields['duty_hours'],
+            ]);
+        }
+
+        return redirect()->route('students.student_add_profile');
+
+    }
+    public function hkQuotaIndexExistingStore(Request $request, User $id){
+        $id = $id->id;
         $user = User::where('id', $id)->first();
 
         if($user == null){
@@ -84,6 +120,12 @@ class StudentProfileController extends Controller
     }
 
     public function studentAddProfile(){
+        return view('students.student_add_profile');
+    }
+    public function existingStudentAddProfile(User $id){
+        if($id->hkStatus() == null){
+            return redirect()->route('students.hkDutyQuotaExisting');
+        }
         return view('students.student_add_profile');
     }
     public function edit(User $id){

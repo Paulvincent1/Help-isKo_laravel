@@ -28,7 +28,7 @@
       </div>
       <form
         class="registration-layout"
-        action="{{ route('students.hkDutyQuota_post') }}"
+        action="{{ request()->route('id') ? route('students.hkDutyQuotaExistingStore', ['id' => request()->route('id')]) : route('students.hkDutyQuota_post') }}"
         method="POST"
       >
       @csrf
