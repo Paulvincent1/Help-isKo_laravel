@@ -6,6 +6,7 @@ use App\Models\RenewalForm;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\DutyRecentActivities\Student\StudentRenewalFormSubmittedNotification; 
 
 class StudentRenewalFormController extends Controller
 {
@@ -64,6 +65,8 @@ class StudentRenewalFormController extends Controller
             'duty_hours' => $validatedData['duty_hours'],
             'approval_status' => 'pending',
         ]);
+
+        $user->notify(new StudentRenewalFormSubmittedNotification($renewalForm));
 
         // Return the response
         return response()->json([

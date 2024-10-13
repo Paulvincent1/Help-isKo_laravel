@@ -32,7 +32,7 @@ class AdminRenewalFormController extends Controller
         $renewalForm = RenewalForm::findOrFail($id);
         $renewalForm->update(['approval_status' => $validatedData['approval_status']]);
 
-        return redirect()->route('renewal.show', $renewalForm->id)
+        return redirect()->route('renewal', $renewalForm->id)
                      ->with('success', 'Renewal request updated successfully.');
     }
 

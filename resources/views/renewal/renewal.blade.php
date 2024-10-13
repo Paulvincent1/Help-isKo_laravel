@@ -17,6 +17,7 @@
                             <th>Photo</th>
                             <th>Name</th>
                             <th>Student ID</th>
+                            <th>Status</th> 
                             <th>View</th>
                         </tr>
                     </thead>
@@ -28,6 +29,11 @@
                             </td>
                             <td>{{ $form->user->name }}</td>
                             <td>{{ $form->student_number }}</td>
+                            <td>
+                                <span class="badge {{ $form->approval_status == 'approved' ? 'approved' : 'rejected' }}">
+                                    {{ ucfirst($form->approval_status) }}
+                                </span>
+                            </td> <!-- Status Column Data -->
                             <td>
                                 <a href="{{ route('renewal.show', $form->id) }}" class="btn btn-success">View</a>
                             </td>

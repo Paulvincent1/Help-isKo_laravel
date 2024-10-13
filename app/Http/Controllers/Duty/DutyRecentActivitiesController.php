@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Duty;
-use App\Notifications\DutyRecentActivities\Student\StudentDutyRequestedNotification;  // Added import for student duty notification
 
 class DutyRecentActivitiesController extends Controller
 {
@@ -20,7 +19,8 @@ class DutyRecentActivitiesController extends Controller
                                      'App\Notifications\DutyRecentActivities\DutyPostedNotification',
                                      'App\Notifications\DutyRecentActivities\DutyRemovedNotification',
                                      'App\Notifications\DutyRecentActivities\DutyEditedNotification',
-                                     'App\Notifications\DutyRecentActivities\Student\StudentDutyRequestedNotification'  
+                                     'App\Notifications\DutyRecentActivities\Student\StudentDutyRequestedNotification',
+                                     'App\Notifications\DutyRecentActivities\Student\StudentRenewalFormSubmittedNotification'
                                  ])
                                  ->latest()
                                  ->limit(20)
