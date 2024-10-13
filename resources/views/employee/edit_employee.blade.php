@@ -83,7 +83,7 @@
           <div>
             <label for="">Employee number</label>
             <input
-              type="number"
+              type="tel"
               name="employee_number"
               class="employee-input"
               placeholder="03-2324-035763"
