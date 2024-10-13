@@ -51,6 +51,7 @@ class Duty extends Model
 
         // Determine the new status based on current time
         $newStatus = $this->duty_status; // Start with existing status
+        $currentStatus = $this->duty_status;
 
         if ($this->is_locked) {
             if ($currentTime->greaterThanOrEqualTo($endTime)) {
@@ -72,18 +73,21 @@ class Duty extends Model
             \Log::info("Duty ID {$this->id} updated to status: {$newStatus}"); // Log the update
         }
 
-        if($newStatus == 'completed'){
-            $duties = $this->studentDutyRecords()->where('request_status','accepted')->with('student')->get();
-            foreach($duties as $duty){  
-                $dutyHours = ($this->duration / 60);
-                $rounded = round($dutyHours , 2);
-                \Log::info("nag complete {$rounded}"); 
-                    $remainingHours = $duty->student->hkStatus->remaining_hours;
-                    if(($remainingHours - $rounded) >= 0) {
-                        $duty->student->hkStatus->update([
-                            'remaining_hours' => ($remainingHours - $rounded)
-                        ]);
-                    }
+        if($currentStatus != 'completed'){
+            
+            if($newStatus == 'completed'){
+                $duties = $this->studentDutyRecords()->where('request_status','accepted')->with('student')->get();
+                foreach($duties as $duty){  
+                    $dutyHours = ($this->duration / 60);
+                    $rounded = round($dutyHours , 2);
+                    \Log::info("nag complete {$rounded}"); 
+                        $remainingHours = $duty->student->hkStatus->remaining_hours;
+                        if(($remainingHours - $rounded) >= 0) {
+                            $duty->student->hkStatus->update([
+                                'remaining_hours' => ($remainingHours - $rounded)
+                            ]);
+                        }
+                }
             }
         }
     }
