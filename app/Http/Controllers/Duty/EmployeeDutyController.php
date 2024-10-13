@@ -151,6 +151,8 @@ class EmployeeDutyController extends Controller
                         'profile_image' => $record->student->studentProfile->profile_img,
                         'active_duty_count' => $activeDutiesCount,
                         'completed_duty_count' => $completedDutiesCount,
+                        'hours_to_complete' => $hkStatus->duty_hours,
+                        'remaining_hours' => $hkStatus->remaining_hours,
                         'percentage' => round($percentage, 2)
                     ];
                 });
@@ -288,6 +290,8 @@ class EmployeeDutyController extends Controller
                             'profile_image' => $studentProfile ? $studentProfile->profile_img : null,
                             'active_duty_count' => $activeDutiesCount,
                             'completed_duty_count' => $completedDutiesCount,
+                            'hours_to_complete' => $hkStatus->duty_hours,
+                            'remaining_hours' => $hkStatus->remaining_hours,
                             'percentage' => round($percentage, 2)
                        ]
                    ];
