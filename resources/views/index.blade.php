@@ -32,13 +32,17 @@
               <tr>
                 <td>
                   <img
-                    src="{{ $employee->employeeProfile->profile_img == '' ? 'https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg' : $employee->employeeProfile->profile_img }}"
+                    src="{{ $employee->employeeProfile == null ||  $employee->employeeProfile->profile_img == '' ||  $employee->employeeProfile->profile_img == null  ? 'https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg' : $employee->employeeProfile->profile_img }}"
                     alt=""
                   />
                 </td>
                 <td>{{$employee->name}}</td>
-                <td>{{$employee->employeeProfile->employee_number}}</td>
+                <td>{{$employee->employeeProfile->employee_number ?? 'No employee profile'}}</td>
+                @if ($employee->employeeProfile === null)
+                <td><a href="{{ route('employee.existing_employee_add_profile', ['id' => $employee->id] )}}">Add Profile</a></td>
+                @else
                 <td><a href="{{ route('employee.viewProfile', ['id' => $employee->id] )}}">View</a></td>
+                @endif
               </tr>
               @endforeach
             
@@ -69,13 +73,19 @@
               <tr>
                 <td>
                   <img
-                    src="{{ $student->studentProfile->profile_img == '' ? 'https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg' : $student->studentProfile->profile_img}}"
+                    src="{{ $student->studentProfile == null ||  $student->studentProfile->profile_img == '' || $student->studentProfile->profile_img == null ? 'https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg' : $student->studentProfile->profile_img}}"
                     alt=""
                   />
                 </td>
                 <td>{{$student->name}}</td>
-                <td>{{$student->studentProfile->student_number}}</td>
-                <td><a href="{{ route('student.viewProfile', ['id' => $student->id]) }}">View</a></td>
+                <td>{{ $student->studentProfile->student_number ?? 'No student profile'}}</td>
+                @if ($student->studentProfile == null)
+                <td><a href="{{ route('students.existing_student_add_profile', ['id' => $student->id])}}">Add Profile</a></td>
+                @elseif ($student->hkStatus == null)
+                <td><a href="{{ route('students.existing_student_add_profile', ['id' => $student->id])}}">Add HK Status</a></td>
+                @else
+                <td><a href="{{ route('student.viewProfile', ['id' => $student->id])}}">View</a></td>
+                @endif
               </tr>
               @endforeach
             </tbody>

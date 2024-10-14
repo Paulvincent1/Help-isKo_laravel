@@ -161,6 +161,9 @@
     gap: 10px;
     align-items: center;
 }
+.profile_info-personal-details-header .delete-employee-student{
+    color: #fc3434;
+}
 
 .profile_info-personal-details-header a {
     text-decoration: none;

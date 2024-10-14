@@ -24,6 +24,9 @@ body {
 /* Sidebar */
 
 .sidebar {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
     background-color: white;
     flex-basis: 200px;
     border-radius: 10px;
@@ -80,6 +83,24 @@ body {
 }
 .active-link {
     color: #6bb577 !important;
+}
+
+.sidebar-logout {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.sidebar-logout input {
+    border: 0;
+    background-color: #fff;
+    color: #3b3b3b;
+    font-size: 14px;
+}
+
+.sidebar-logout input:hover {
+    cursor: pointer;
 }
 
 /* Main content */
