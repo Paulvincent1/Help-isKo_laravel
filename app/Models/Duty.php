@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Notifications\Admin\StudentCompletedDutyNotification;
+use App\Notifications\DutyNotifications\ActiveDutyNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
@@ -90,6 +91,9 @@ class Duty extends Model
                             ]);
                         }
                 }
+            }
+            if($newStatus == 'active'){
+                $this->employee->notify(new ActiveDutyNotification($this, $this->duty));
             }
         }
     }
