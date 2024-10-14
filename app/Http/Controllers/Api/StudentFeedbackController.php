@@ -17,10 +17,15 @@ class StudentFeedbackController extends Controller
             ->where('stud_id', $student_id)
             ->get();
 
-        // Return feedback details
+        // Filter feedbacks to only include those with a non-null comment
+        $filteredFeedbacks = $feedbacks->filter(function ($feedback) {
+            return $feedback->comment !== null;
+        });
+
+        // Return feedback details as a simple indexed array
         return response()->json([
             'student_id' => $student_id,
-            'feedbacks' => $feedbacks->map(function ($feedback) {
+            'feedbacks' => $filteredFeedbacks->values()->map(function ($feedback) {
                 $employee = $feedback->employee;
                 $profile = $employee ? $employee->employeeProfile : null;
 
@@ -35,7 +40,6 @@ class StudentFeedbackController extends Controller
             })
         ], 200);
     }
-
 
     public function showRating(User $id)
     {
@@ -87,82 +91,72 @@ class StudentFeedbackController extends Controller
         ]);
     }
 
-   
-   
-    public function show($id)
-    {
-        // Retrieve the feedback by ID
-        $feedback = StudentFeedback::find($id);
-    
-        // Check if feedback exists
-        if ($feedback) {
-
-            //average rating
-            $averageRating = StudentFeedback::where('stud_id', $feedback->stud_id)
-            ->whereNotNull('rating') // Ensure only entries with ratings are considered
-            ->average('rating');
-    
-            //get the first 2 of point digit 
-            $formattedAverageRating = number_format($averageRating, 2);
-        
-            return response()->json([
-                'id' => $feedback->id,
-                'stud_id' => $feedback->stud_id,
-                'prof_id' => $feedback->prof_id,
-                'rating' => $feedback->rating,
-                'average_rating' => $averageRating,
-                'comment' => $feedback->comment,
-                'created_at' => $feedback->created_at,
-                'updated_at' => $feedback->updated_at,
-               
-            ], 200);
-        } else {
-            // Return not found response
-            return response()->json(['message' => 'Feedback not found'], 404);
-        }
-    }
-    
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request, $student_id)
+    public function storeRating(Request $request, $student_id)
     {
         // Get the currently authenticated user
         $user = Auth::user();
-        
-        // Validate the request data
+
+        // Validate the request data for rating
         $data = $request->validate([
-            'rating' => 'nullable|integer|min:1|max:5',
-            'comment' => 'required|string|max:500'
+            'rating' => 'required|integer|min:1|max:5', // Make rating required
         ]);
 
-        // Check if the user has already given feedback for this student
-        $existingFeedback = StudentFeedback::where('stud_id', $student_id)
-            ->where('prof_id', $user->id) // Assuming prof_id is the user's ID
+        // Check if feedback already exists for this student and professor
+        $feedback = StudentFeedback::where('stud_id', $student_id)
+            ->where('prof_id', $user->id)
             ->first();
 
-        if ($existingFeedback) {
-            // Update the existing feedback
-            $existingFeedback->update([
-                'rating' => $data['rating'] ?? $existingFeedback->rating, // Update rating if provided
-                'comment' => $data['comment'],
+        if ($feedback) {
+            // If feedback exists, update the rating with the new value
+            $feedback->update([
+                'rating' => $data['rating'],
             ]);
-
-            // Return the updated feedback as JSON with a 200 status
-            return response()->json($existingFeedback, 200);
+            $message = 'Rating updated successfully.';
         } else {
-            // Create a new feedback entry
+            // Create a new feedback entry if it does not exist
             $feedback = StudentFeedback::create([
                 'stud_id' => $student_id,
                 'prof_id' => $user->id,
-                'rating' => $data['rating'] ?? null,
-                'comment' => $data['comment'],
+                'rating' => $data['rating'],
             ]);
-
-            // Return the feedback as JSON with a 200 status
-            return response()->json($feedback, 200);
+            $message = 'Rating created successfully.';
         }
+
+        // Return the feedback as JSON with a 200 status, including the unique ID
+        return response()->json([
+            'message' => $message, 
+            'feedback' => [
+                'id' => $feedback->id, // Include the unique ID
+                'rating' => $feedback->rating,
+                'stud_id' => $feedback->stud_id,
+                'prof_id' => $feedback->prof_id,
+                // Include any other fields you want to return
+            ]
+        ], 200);
     }
+
+
+    public function storeComment(Request $request, $student_id)
+    {
+        // Get the currently authenticated user
+        $user = Auth::user();
+
+        // Validate the request data for comment
+        $data = $request->validate([
+            'comment' => 'required|string|max:500',
+        ]);
+
+        // Create a new feedback entry with the comment
+        $feedback = StudentFeedback::create([
+            'stud_id' => $student_id,
+            'prof_id' => $user->id,
+            'comment' => $data['comment'],
+        ]);
+
+        // Return the feedback as JSON with a 200 status
+        return response()->json($feedback, 200);
+    }
+
 
     
 };
