@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Notifications\Admin\StudentCompletedDutyNotification;
 use App\Notifications\DutyNotifications\ActiveDutyNotification;
+use App\Notifications\DutyNotifications\CancelledDutyNotification;
 use App\Notifications\DutyNotifications\OngoingDutyNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -98,6 +99,9 @@ class Duty extends Model
             }
             if($newStatus == 'ongoing' && $currentStatus != 'ongoing'){
                 $this->employee->notify(new OngoingDutyNotification($this));
+            }
+            if($newStatus == 'cancelled' && $currentStatus != 'cancelled'){
+                $this->employee->notify(new CancelledDutyNotification($this,$this->employee));
             }
         }
     }
