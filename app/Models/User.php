@@ -60,17 +60,17 @@ class User extends Authenticatable
 
 
     
- // Assuming User can be a student
- public function feedbackReceived()
- {
-     return $this->hasMany(StudentFeedback::class, 'stud_id');
- }
+    // Assuming User can be a student
+    public function feedbackReceived()
+    {
+        return $this->hasMany(StudentFeedback::class, 'stud_id');
+    }
 
- // Assuming User can be a professor
- public function feedbackGiven()
- {
-     return $this->hasMany(StudentFeedback::class, 'professor_id');
- }
+    // Assuming User can be a professor
+    public function feedbackGiven()
+    {
+        return $this->hasMany(StudentFeedback::class, 'prof_id');
+    }
 
     public function hkStatus(){
         return $this->hasOne(HkStatus::class);
