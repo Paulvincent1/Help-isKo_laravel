@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
 use App\Models\RenewalForm;
@@ -33,9 +32,9 @@ class StudentRenewalFormController extends Controller
             'student_number' => 'required|string', 
             'attended_events' => 'required|integer|min:0',
             'shared_posts' => 'required|integer|min:0',
-            'registration_fee_picture' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Validate file
-            'disbursement_method' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Validate file
-            'duty_hours' => 'required|integer',
+            'registration_fee_picture' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', 
+            'disbursement_method' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
+            'duty_hours' => 'required|integer|in:25,50,75', 
         ]);
 
         // Handle registration fee picture file upload
@@ -62,7 +61,7 @@ class StudentRenewalFormController extends Controller
             'shared_posts' => $validatedData['shared_posts'],
             'registration_fee_picture' => $registrationFeePath, // Store the image path
             'disbursement_method' => $disbursementMethodPath,   // Store the image path
-            'duty_hours' => $validatedData['duty_hours'],
+            'duty_hours' => $validatedData['duty_hours'], // Store selected duty hours (25, 50, or 75)
             'approval_status' => 'pending',
         ]);
 

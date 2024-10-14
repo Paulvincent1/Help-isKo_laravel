@@ -51,7 +51,11 @@ class DutyRecentActivitiesController extends Controller
         } elseif ($activity->type === 'App\Notifications\DutyRecentActivities\Student\StudentDutyRequestedNotification') {
             $title = 'Requested';
             $description = 'You requested a duty!';
-        } else {
+        } elseif ($activity->type === 'App\Notifications\DutyRecentActivities\Student\StudentRenewalFormSubmittedNotification') {
+            $title = 'Renewed';
+            $description = 'You requested a renewal!';
+        }
+        else {
             $title = 'No title';
             $description = 'No description';
         }

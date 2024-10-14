@@ -39,13 +39,6 @@
                         <p><strong>Registration Fee Picture:</strong> No image available</p>
                     @endif
 
-                    <!-- Displaying Disbursement Method -->
-                    @if ($renewalForm->disbursement_method)
-                        <p><strong>Disbursement Method:</strong></p>
-                        <img src="{{ asset('storage/'.$renewalForm->disbursement_method) }}" alt="Disbursement Method" class="image-preview">
-                    @else
-                        <p><strong>Disbursement Method:</strong> No image available</p>
-                    @endif
                 </div>
             </div>
         </div>

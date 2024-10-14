@@ -66,10 +66,16 @@
           </div>
         </div>
         <div class="recent_activities">
-          <div class="recent_activities-header">
-            <p class="recent_activities-remaining-duty-header">Remaing Duty Hours</p>
-            <p>{{ $hkStatus->remaining_hours}} hours</p>
-          </div>
+        <div class="recent_activities-header">
+        <p class="recent_activities-remaining-duty-header">Remaining Duty Hours</p>
+
+        @if ($hkStatus && isset($hkStatus->remaining_hours))
+            <p>{{ $hkStatus->remaining_hours }} hours</p>
+        @else
+            <p>No Completed Duties</p>
+        @endif
+
+    </div>
           <div class="completed-duty">
             <p class="completed-duty-header">Completed Duties:</p>
             <div class="completed-duty-content">
