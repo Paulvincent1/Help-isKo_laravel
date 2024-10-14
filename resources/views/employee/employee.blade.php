@@ -27,7 +27,7 @@
             <tr>
               <td>
                 <img
-                  src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg"
+                  src="{{ $employee->employeeProfile->profile_img == '' ||  $employee->employeeProfile->profile_img == null  ? 'https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg' : $employee->employeeProfile->profile_img }}"
                   alt=""
                 />
               </td>

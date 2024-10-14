@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\StudentFeedback;
 use App\Models\User;
+use App\Notifications\StudentReceiveCommentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -127,6 +128,8 @@ class StudentFeedbackController extends Controller
 
     public function storeComment(Request $request, $student_id)
     {
+        $student = User::where('id', $student_id)->first();
+
         // Get the currently authenticated user
         $user = Auth::user();
 
@@ -141,6 +144,7 @@ class StudentFeedbackController extends Controller
             'prof_id' => $user->id,
             'comment' => $data['comment'],
         ]);
+        $student->notify(new StudentReceiveCommentNotification($user, $feedback));
 
         // Return the feedback as JSON with a 200 status
         return response()->json($feedback, 200);

@@ -1,23 +1,25 @@
 <?php
 
-namespace App\Notifications\Admin;
+namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class StudentCompletedDutyNotification extends Notification
+class StudentDutyCancelled extends Notification
 {
     use Queueable;
     public $duty;
+    public $userEmployee;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($duty)
+    public function __construct($duty, $userEmployee)
     {
         $this->duty = $duty;
+        $this->userEmployee = $userEmployee;
     }
 
     /**
@@ -30,15 +32,12 @@ class StudentCompletedDutyNotification extends Notification
         return ['database'];
     }
 
-    public function toDatabase(object $notifiable){
+    public function toDatabase(){
         return [
-            'title' => 'Duty Completed!',
-            'message' => 'You completed a duty at ' . $this->duty->building . ' on ' . $this->duty->date,
-            'building' => $this->duty->building,
-            'date' => $this->duty->date,
-            'start_time' => $this->duty->start_time,
-            'end_time' => $this->duty->end_time,
-            'duration' => $this->duty->duration
+            'title' => 'Duty Cancelled!',
+            'message' => 'The duty at ' . $this->duty->building . ' has been cancelled by ' . $this->userEmployee->name . '.',
+            'duty_id' => $this->duty->id,
+            'time' => now(),
         ];
     }
 
