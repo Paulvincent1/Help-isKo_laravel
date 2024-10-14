@@ -34,6 +34,7 @@ class StudentReceiveCommentNotification extends Notification
 
     public function toDatabase(){
         return [ 
+            'title' => 'Someone commented about you!',
             'message' => $this->employee->name . ' commented about you!'
         ];
     }
