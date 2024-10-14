@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Notifications\Admin\StudentCompletedDutyNotification;
 use App\Notifications\DutyNotifications\ActiveDutyNotification;
 use App\Notifications\DutyNotifications\CancelledDutyNotification;
+use App\Notifications\DutyNotifications\CompletedDutyNotification;
 use App\Notifications\DutyNotifications\OngoingDutyNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -88,6 +89,7 @@ class Duty extends Model
                         $remainingHours = $duty->student->hkStatus->remaining_hours;
                         if(($remainingHours - $rounded) >= 0) {
                             $duty->student->notify(new StudentCompletedDutyNotification($this));
+                            $duty->employee->notify(new CompletedDutyNotification($this, $this->employee));
                             $duty->student->hkStatus->update([
                                 'remaining_hours' => ($remainingHours - $rounded)
                             ]);
