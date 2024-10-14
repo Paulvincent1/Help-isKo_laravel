@@ -45,13 +45,13 @@ class StudentFeedbackController extends Controller
     {
         $user = $id;
         $feedbackReceives = $user->feedbackReceived; 
-        $count = $user->feedbackReceived->count();
+        $count = $feedbackReceives->count();
 
         $ratings = [];
         $totalRating = 0;
 
         // Collect only valid ratings (between 1 and 5)
-        foreach($feedbackReceives as $feedbackReceived){
+        foreach ($feedbackReceives as $feedbackReceived) {
             if ($feedbackReceived->rating >= 1 && $feedbackReceived->rating <= 5) {
                 $ratings[] = $feedbackReceived->rating;
             }
@@ -59,19 +59,13 @@ class StudentFeedbackController extends Controller
 
         // Check if there are any valid ratings to avoid division by zero
         if (count($ratings) > 0) {
-            foreach($ratings as $rating){
-                $totalRating += $rating;
-            }
-
-            $ave = ($totalRating / count($ratings));
-            $averageRating = round($ave, 1);
-
+            $totalRating = array_sum($ratings);
+            $averageRating = round($totalRating / count($ratings), 1);
             $ratingCounts = array_count_values($ratings);
-
             $percentages = [];
 
             // Calculate percentage for each rating from 1 to 5
-            for($i = 1; $i <= 5; $i++){
+            for ($i = 1; $i <= 5; $i++) {
                 $percent = isset($ratingCounts[$i]) ? (($ratingCounts[$i] / count($ratings)) * 100) : 0;
                 $percentages[$i] = round($percent, 2);
             }
@@ -83,11 +77,12 @@ class StudentFeedbackController extends Controller
 
         return response()->json([
             'average_rating' => $averageRating,
-            'excellent'=> $percentages[5],
+            'excellent' => $percentages[5],
             'good' => $percentages[4],
-            'average' =>$percentages[3],
+            'average' => $percentages[3],
             'below_average' => $percentages[2],
-            'poor' => $percentages[1]
+            'poor' => $percentages[1],
+            'total_users' => count($ratings) // Return the total count of users who provided ratings
         ]);
     }
 
@@ -111,7 +106,6 @@ class StudentFeedbackController extends Controller
             $feedback->update([
                 'rating' => $data['rating'],
             ]);
-            $message = 'Rating updated successfully.';
         } else {
             // Create a new feedback entry if it does not exist
             $feedback = StudentFeedback::create([
@@ -119,19 +113,14 @@ class StudentFeedbackController extends Controller
                 'prof_id' => $user->id,
                 'rating' => $data['rating'],
             ]);
-            $message = 'Rating created successfully.';
         }
 
         // Return the feedback as JSON with a 200 status, including the unique ID
         return response()->json([
-            'message' => $message, 
-            'feedback' => [
-                'id' => $feedback->id, // Include the unique ID
-                'rating' => $feedback->rating,
-                'stud_id' => $feedback->stud_id,
-                'prof_id' => $feedback->prof_id,
-                // Include any other fields you want to return
-            ]
+            'id' => $feedback->id, // Include the unique ID
+            'rating' => $feedback->rating,
+            'stud_id' => $feedback->stud_id,
+            'prof_id' => $feedback->prof_id,
         ], 200);
     }
 
@@ -157,6 +146,4 @@ class StudentFeedbackController extends Controller
         return response()->json($feedback, 200);
     }
 
-
-    
 };

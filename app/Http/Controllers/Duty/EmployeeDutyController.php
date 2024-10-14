@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Duty;
 use App\Models\User;
 use App\Models\StudentDutyRecord;
+use App\Models\StudentFeedback;
 use Carbon\Carbon;
 
 
@@ -127,6 +128,14 @@ class EmployeeDutyController extends Controller
                         })
                         ->count();
 
+                    // Get the average rating for the student from feedback
+                    $averageRating = StudentFeedback::where('stud_id', $record->student->id)
+                        ->whereNotNull('rating')
+                        ->average('rating');
+
+                    // $formattedAverageRating = $averageRating ? number_format($averageRating, 2) : 'No Rating';
+                    $formattedAverageRating = $averageRating ? round((float) $averageRating, 2) : 0.0;    
+
                     $hkStatus = $record->student->hkStatus;
                     $percentage = 0;
 
@@ -153,6 +162,7 @@ class EmployeeDutyController extends Controller
                         'completed_duty_count' => $completedDutiesCount,
                         'hours_to_complete' => $hkStatus->duty_hours,
                         'remaining_hours' => $hkStatus->remaining_hours,
+                        'average_rating' => $formattedAverageRating,
                         'percentage' => round($percentage, 2)
                     ];
                 });
@@ -253,6 +263,14 @@ class EmployeeDutyController extends Controller
                                 ->where('duty_status', 'completed');
                         })
                         ->count();
+                    
+                        // Get the average rating for the student from feedback
+                    $averageRating = StudentFeedback::where('stud_id', $student->id)
+                        ->whereNotNull('rating')
+                        ->average('rating');
+
+                    // $formattedAverageRating = $averageRating ? number_format($averageRating, 2) : 'No Rating';
+                    $formattedAverageRating = $averageRating ? round((float) $averageRating, 2) : 0.0;    
 
                     $hkStatus = $student->hkStatus;
                     $percentage = 0;
@@ -292,6 +310,7 @@ class EmployeeDutyController extends Controller
                             'completed_duty_count' => $completedDutiesCount,
                             'hours_to_complete' => $hkStatus->duty_hours,
                             'remaining_hours' => $hkStatus->remaining_hours,
+                            'average_rating' => $formattedAverageRating,
                             'percentage' => round($percentage, 2)
                        ]
                    ];
