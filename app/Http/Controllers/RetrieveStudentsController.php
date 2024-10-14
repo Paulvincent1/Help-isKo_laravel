@@ -51,7 +51,8 @@ class RetrieveStudentsController extends Controller
                 ->whereNotNull('rating')
                 ->average('rating');
 
-            $formattedAverageRating = $averageRating ? number_format($averageRating, 2) : 'No Rating';
+            // $formattedAverageRating = $averageRating ? number_format($averageRating, 2) : 'No Rating';
+            $formattedAverageRating = $averageRating ? round((float) $averageRating, 2) : 0.0;
 
             $hkStatus = $student->hkStatus;
             $percentage = 0;

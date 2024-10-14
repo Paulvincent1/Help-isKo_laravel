@@ -24,7 +24,7 @@ class StudentFeedback extends Model
 
     public function employee()
     {
-        return $this->belongsTo(EmployeeProfile::class, 'prof_id');
+        return $this->belongsTo(User::class, 'prof_id');
     }
 
 }
