@@ -32,6 +32,8 @@ class StudentCompletedDutyNotification extends Notification
 
     public function toDatabase(object $notifiable){
         return [
+            'title' => 'Duty Completed!',
+            'message' => 'You completed a duty at ' . $this->duty->building . ' on ' . $this->duty->date,
             'building' => $this->duty->building,
             'date' => $this->duty->date,
             'start_time' => $this->duty->start_time,
