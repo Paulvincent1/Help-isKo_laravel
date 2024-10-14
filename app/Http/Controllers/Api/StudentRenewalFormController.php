@@ -32,18 +32,13 @@ class StudentRenewalFormController extends Controller
             'student_number' => 'required|string', 
             'attended_events' => 'required|integer|min:0',
             'shared_posts' => 'required|integer|min:0',
-            'registration_fee_picture' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Validate file
-            'disbursement_method' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Validate file
+            'registration_fee_picture' => 'nullable|string', 
+            'disbursement_method' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
             'duty_hours' => 'required|integer',
         ]);
 
-        // Handle registration fee picture file upload
-        $registrationFeePath = '';
-        if ($request->hasFile('registration_fee_picture')) {
-            $file = $request->file('registration_fee_picture');
-            $fileName = time() . '_registration.' . $file->getClientOriginalExtension();
-            $registrationFeePath = $file->storeAs('uploads/registration_fees', $fileName, 'public');
-        }
+        // Assuming registration_fee_picture is a string URL
+        $registrationFeePath = $validatedData['registration_fee_picture'] ?? '';
 
         // Handle disbursement method file upload
         $disbursementMethodPath = '';
@@ -59,8 +54,8 @@ class StudentRenewalFormController extends Controller
             'student_number' => $validatedData['student_number'],  
             'attended_events' => $validatedData['attended_events'],
             'shared_posts' => $validatedData['shared_posts'],
-            'registration_fee_picture' => $registrationFeePath, // Store the image path
-            'disbursement_method' => $disbursementMethodPath,   // Store the image path
+            'registration_fee_picture' => $registrationFeePath, 
+            'disbursement_method' => $disbursementMethodPath,
             'duty_hours' => $validatedData['duty_hours'],
             'approval_status' => 'pending',
         ]);
