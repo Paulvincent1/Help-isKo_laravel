@@ -476,6 +476,11 @@ class EmployeeDutyController extends Controller
                 'is_locked' => true,
                 'duty_status' => 'active',  // Set the duty as active
             ]);
+            $duty->employee->notify(new ActiveDutyNotification($duty, $duty->employee));
+            $duties = $duty->studentDutyRecords()->where('request_status', 'accepted')->with('student')->get();
+            foreach($duties as $duty){
+                $duty->student->notify(new ActiveDutyNotification($duty, $duty->student));
+            }
     
             // Find and reject all undecided student requests
             $undecidedRequests = StudentDutyRecord::where('duty_id', $duty->id)
