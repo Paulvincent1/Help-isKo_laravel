@@ -97,14 +97,6 @@ class Duty extends Model
                         }
                 }
             }
-            if($newStatus == 'active'){
-                $this->employee->notify(new ActiveDutyNotification($this, $this->duty));
-                $duties = $this->studentDutyRecords()->where('request_status', 'accepted')->with('student')->get();
-
-                foreach($duties as $duty){
-                    $duty->student->notify(new ActiveDutyNotification($this, $this->duty));
-                }
-            }
             if($newStatus == 'ongoing' && $currentStatus != 'ongoing'){
                 $this->employee->notify(new OngoingDutyNotification($this));
 
