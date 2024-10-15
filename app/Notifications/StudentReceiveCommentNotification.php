@@ -1,23 +1,25 @@
 <?php
 
-namespace App\Notifications\Admin;
+namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class StudentCompletedDutyNotification extends Notification
+class StudentReceiveCommentNotification extends Notification
 {
     use Queueable;
-    public $duty;
+    public $employee;
+    public $feedback;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($duty)
+    public function __construct($employee, $feedback)
     {
-        $this->duty = $duty;
+        $this->employee = $employee;
+        $this->feedback = $feedback;
     }
 
     /**
@@ -30,18 +32,12 @@ class StudentCompletedDutyNotification extends Notification
         return ['database'];
     }
 
-    public function toDatabase(object $notifiable){
-        return [
-            'title' => 'Duty Completed!',
-            'message' => 'You completed a duty at ' . $this->duty->building . ' on ' . $this->duty->date,
-            'building' => $this->duty->building,
-            'date' => $this->duty->date,
-            'start_time' => $this->duty->start_time,
-            'end_time' => $this->duty->end_time,
-            'duration' => $this->duty->duration
+    public function toDatabase(){
+        return [ 
+            'title' => 'Someone commented about you!',
+            'message' => $this->employee->name . ' commented about you!'
         ];
     }
-
     /**
      * Get the array representation of the notification.
      *

@@ -21,6 +21,7 @@ Route::middleware(['guest'])->group(function () {
 
 
 Route::middleware([isAdmin::class, 'auth'])->group(function () {
+    Route::post('/logout-admin', [AdminAuthController::class, 'logout'])->name('logoutAdmin');
 
     Route::get('/', [AdminController::class, 'index'])->name('index');
     

@@ -3,6 +3,11 @@
 namespace App\Models;
 
 use App\Notifications\Admin\StudentCompletedDutyNotification;
+use App\Notifications\DutyNotifications\ActiveDutyNotification;
+use App\Notifications\DutyNotifications\CancelledDutyNotification;
+use App\Notifications\DutyNotifications\CompletedDutyNotification;
+use App\Notifications\DutyNotifications\OngoingDutyNotification;
+use App\Notifications\StudentDutyCancelled;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
@@ -85,10 +90,37 @@ class Duty extends Model
                         $remainingHours = $duty->student->hkStatus->remaining_hours;
                         if(($remainingHours - $rounded) >= 0) {
                             $duty->student->notify(new StudentCompletedDutyNotification($this));
+                            $duty->employee->notify(new CompletedDutyNotification($this, $this->employee));
                             $duty->student->hkStatus->update([
                                 'remaining_hours' => ($remainingHours - $rounded)
                             ]);
                         }
+                }
+            }
+            if($newStatus == 'active'){
+                $this->employee->notify(new ActiveDutyNotification($this, $this->duty));
+                $duties = $this->studentDutyRecords()->where('request_status', 'accepted')->with('student')->get();
+
+                foreach($duties as $duty){
+                    $duty->student->notify(new ActiveDutyNotification($this, $this->duty));
+                }
+            }
+            if($newStatus == 'ongoing' && $currentStatus != 'ongoing'){
+                $this->employee->notify(new OngoingDutyNotification($this));
+
+                $duties = $this->studentDutyRecords()->where('request_status', 'accepted')->with('student')->get();
+
+                foreach($duties as $duty){
+                    $duty->student->notify(new OngoingDutyNotification($this));
+                }
+            }
+            if($newStatus == 'cancelled' && $currentStatus != 'cancelled'){
+                $this->employee->notify(new CancelledDutyNotification($this,$this->employee));
+                
+                $duties = $this->studentDutyRecords()->where('request_status', 'accepted')->with('student')->get();
+
+                foreach($duties as $duty){
+                    $duty->student->notify(new StudentDutyCancelled($this, $this->employee));
                 }
             }
         }

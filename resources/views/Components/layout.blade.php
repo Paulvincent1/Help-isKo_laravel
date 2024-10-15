@@ -32,35 +32,46 @@
   <body>
     <div class="layout_admin">
       <section class="sidebar">
-        <div class="logo">
-          <img src="{{asset('asset/logo-removebg-preview.png')}}" alt="">
-          <p>Boaf</p>
-        </div>
+        <div>
+          <div class="logo">
+            <img src="{{asset('asset/logo-removebg-preview.png')}}" alt="">
+            <p>Boaf</p>
+          </div>
 
-        <nav>
-          <ul>
-            <li class="{{ request()->is('/') ? 'active' : ''}} {{  request()->is('duty*') ? 'active' : ''}}">
-              <span class="material-symbols-outlined"> dashboard </span
-              ><a href="{{ route('index') }}" class="{{ request()->is('/') ? 'active-link' : ''}} {{ request()->is('duty*') ? 'active-link' : ''}}">Dashboard </a>
-            </li>
-            <li class="{{ request()->is('employee*') ? 'active' : ''}}">
-              <span class="material-symbols-outlined"> badge </span
-              ><a href="{{ route('employee')}}" class="{{ request()->is('employee*') ? 'active-link' : ''}}">Employee </a>
-            </li>
-            <li class="{{ request()->is('student*') ? 'active' : ''}}">
-              <span class="material-symbols-outlined"> groups </span>
-              <a href="{{ route('student')}}" class="{{ request()->is('student*') ? 'active-link' : ''}}">Student </a>
-            </li>
-            <li class="{{ request()->is('announcement*') ? 'active' : ''}}">
-              <span class="material-symbols-outlined"> campaign </span>
-              <a href="{{ route('announcement') }}" class="{{ request()->is('announcement*') ? 'active-link' : ''}}">Announcement </a>
-            </li>
-            <li class="{{ request()->is('renewal*') ? 'active' : ''}}">
-              <span class="material-symbols-outlined"> view_list </span>
-              <a href="{{ route('renewal') }}"  class="{{ request()->is('renewal*') ? 'active-link' : ''}}">Renewal Requests </a>
-            </li>
-          </ul>
-        </nav>
+          <nav>
+            <ul>
+              <li class="{{ request()->is('/') ? 'active' : ''}} {{  request()->is('duty*') ? 'active' : ''}}">
+                <span class="material-symbols-outlined"> dashboard </span
+                ><a href="{{ route('index') }}" class="{{ request()->is('/') ? 'active-link' : ''}} {{ request()->is('duty*') ? 'active-link' : ''}}">Dashboard </a>
+              </li>
+              <li class="{{ request()->is('employee*') ? 'active' : ''}}">
+                <span class="material-symbols-outlined"> badge </span
+                ><a href="{{ route('employee')}}" class="{{ request()->is('employee*') ? 'active-link' : ''}}">Employee </a>
+              </li>
+              <li class="{{ request()->is('student*') ? 'active' : ''}}">
+                <span class="material-symbols-outlined"> groups </span>
+                <a href="{{ route('student')}}" class="{{ request()->is('student*') ? 'active-link' : ''}}">Student </a>
+              </li>
+              <li class="{{ request()->is('announcement*') ? 'active' : ''}}">
+                <span class="material-symbols-outlined"> campaign </span>
+                <a href="{{ route('announcement') }}" class="{{ request()->is('announcement*') ? 'active-link' : ''}}">Announcement </a>
+              </li>
+              <li class="{{ request()->is('renewal*') ? 'active' : ''}}">
+                <span class="material-symbols-outlined"> view_list </span>
+                <a href="{{ route('renewal') }}"  class="{{ request()->is('renewal*') ? 'active-link' : ''}}">Renewal Requests </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <div class="sidebar-logout">
+          <span class="material-symbols-outlined">
+            logout
+            </span>
+            <form action="{{ route('logoutAdmin') }}" method="POST">
+              @csrf
+              <input type="submit" value="Logout">
+            </form>
+        </div>
       </section>
 
 
