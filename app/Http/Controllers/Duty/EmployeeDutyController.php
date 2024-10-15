@@ -102,7 +102,7 @@ class EmployeeDutyController extends Controller
         }
 
         // Get the duties for the authenticated employee
-        $duties = Duty::where('emp_id', $employee->id)
+        $duties = Duty::where('emp_id', $employee->id)->where('duty_status', 'completed')
         ->get();
 
         // Prepare the response data
@@ -114,6 +114,11 @@ class EmployeeDutyController extends Controller
                 ->with('student.studentProfile')
                 ->get()
                 ->map(function ($record) {
+                    $activeDutiesCount =  $record->student->StudentDutyRecord()->whereHas('duty', function ($query) {
+                        $query->where('is_locked', true)
+                            ->where('duty_status', 'active');
+                    })
+                    ->count();
                     $activeDutiesCount = StudentDutyRecord::where('stud_id', $record->student->id)
                         ->whereHas('duty', function ($query) {
                             $query->where('is_locked', true)
