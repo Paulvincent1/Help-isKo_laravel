@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\RenewalForm;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Notifications\DutyNotifications\RenewalStatusNotification;
 
 class AdminRenewalFormController extends Controller
 {
@@ -32,8 +33,13 @@ class AdminRenewalFormController extends Controller
         $renewalForm = RenewalForm::findOrFail($id);
         $renewalForm->update(['approval_status' => $validatedData['approval_status']]);
 
-        return redirect()->route('renewal', $renewalForm->id)
-                     ->with('success', 'Renewal request updated successfully.');
+        $user = $renewalForm->user; // Assuming RenewalForm has a relation to User
+
+        // Send notification to the user
+        $user->notify(new RenewalStatusNotification($renewalForm, $validatedData['approval_status']));
+
+        return redirect()->route('renewal')
+                         ->with('success', 'Renewal request updated successfully.');
     }
 
     // Delete a renewal request
