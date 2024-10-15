@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 
 class EmployeeProfileController extends Controller
 {
@@ -21,8 +22,18 @@ class EmployeeProfileController extends Controller
 
     public function show(User $id)
     {
-        $userProfile = $id->employeeProfile;
+        if($id->employeeProfile == null){
+            return redirect()->back();
+        }
+        $userProfile = $id;
         return view('employee.employee_profile', ['user' => $userProfile]);
+    }
+
+    public function edit(User $id)
+    {
+        $employee = $id;
+    
+        return view('employee.edit_employee', ['employee' => $employee]);  
     }
 
     public function register(Request $request)
@@ -87,4 +98,82 @@ class EmployeeProfileController extends Controller
       
         return redirect()->back();
     }
+
+    public function existingEmployeeAddProfileStore(Request $request, User $id)
+    {
+        $id = $id->id;
+
+        $user = User::where('id', $id)->first();
+
+        if($user == null){
+            return redirect()->route('employee');
+        }
+
+        if ($user->employeeProfile == null) {
+            $fields = $request->validate([
+                'first_name' => 'required|max:255',
+                'last_name' => 'required|max:255',
+                'birthday' => 'required|max:255',
+                'contact_number' => 'required|max:255',
+                'employee_number' => 'required|max:255',
+                'profile_img' => 'image|mimes:jpg,bmp,png'
+            ]);
+
+            if ($request->hasFile('profile_img')) {
+                $file = $request->file('profile_img');
+                $filename = time() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('profile_img', $filename, 'public');
+
+                $fields['profile_img'] = 'storage/' . $path;
+            }
+            $user->employeeProfile()->create($fields);
+
+            session()->forget('emp_id');
+
+            return redirect()->route('employee');
+        }
+      
+        return redirect()->back();
+    }
+    
+    public function update(Request $request, User $id)
+    {
+        $id = $id->id;
+
+        $user = User::where('id', $id)->first();
+
+        if($user == null){
+            return redirect()->route('employee');
+        }
+
+        if ($user->employeeProfile != null) {
+            $fields = $request->validate([
+                'first_name' => 'required|max:255',
+                'last_name' => 'required|max:255',
+                'birthday' => 'required|max:255',
+                'contact_number' => 'required|max:255',
+                'employee_number' => 'required|max:255',
+                'profile_img' => 'image|mimes:jpg,bmp,png'
+            ]);
+
+            if ($request->hasFile('profile_img')) {
+                if(File::exists($user->employeeProfile->profile_img)){
+                    File::delete($user->employeeProfile->profile_img);
+                }
+                $file = $request->file('profile_img');
+                $filename = time() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('profile_img', $filename, 'public');
+
+                $fields['profile_img'] = 'storage/' . $path;
+            }
+            $user->employeeProfile()->update($fields);
+
+            session()->forget('emp_id');
+
+            return redirect()->route('employee');
+        }
+      
+        return redirect()->back();
+    }
+    
 }

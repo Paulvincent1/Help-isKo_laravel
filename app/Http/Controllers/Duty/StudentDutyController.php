@@ -45,7 +45,8 @@ class StudentDutyController extends Controller
                 'current_scholars' => $duty->current_scholars,
                 'duty_status' => $duty->duty_status,
                 'employee_name' => $duty->employee->name,
-                'employe_profile' => $duty->employee->employeeProfile->profile_img
+                'employe_profile' => $duty->employee->employeeProfile->profile_img,
+                'employee_number' => $duty->employee->employeeProfile->employee_number
             ];
         });
         return response()->json($response, 200);
@@ -111,11 +112,6 @@ class StudentDutyController extends Controller
             return $record->duty !== null;
         });
 
-        // If no duties are found, return a message
-        // if ($requestedDuties->isEmpty()) {
-        //     return response()->json(['message' => 'You have no requested duties at the moment.'], 200);
-        // }
-
         // Format the duties for the response
         $formattedDuties = $requestedDuties->map(function ($record) {
             $duty = $record->duty;
@@ -129,17 +125,21 @@ class StudentDutyController extends Controller
                 'date' => Carbon::parse($duty->date)->format('F j, Y'),
                 'building' => $duty->building,
                 'time' => Carbon::createFromFormat('H:i:s', $duty->start_time)->format('g:i A') . ' - ' . Carbon::createFromFormat('H:i:s', $duty->end_time)->format('g:i A'),
+                'max_scholars' => $duty->max_scholars,
                 'duty_status' => $duty->duty_status,
                 'request_status' => $record->request_status,
                 'employee_profile' => $employeeProfile ? [
+                    'employee_id' => $employeeProfile->id,
                     'profile_img' => $employeeProfile->profile_img,
-                    'position' => $employeeProfile->position,
+                    'employee_number' => $employeeProfile->employee_number
                 ] : null
             ];
-        });
+        })->values(); // Ensure keys are numeric and sequential (returns an array)
 
+        // Return the formatted duties as a JSON response
         return response()->json($formattedDuties);
     }
+
 
     // View details of a specific requested duty
     public function viewRequestedDutyDetails($dutyId)

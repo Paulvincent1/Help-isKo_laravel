@@ -27,13 +27,19 @@
             <tr>
               <td>
                 <img
-                src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg"
+                src="{{ $student->studentProfile == null || $student->studentProfile->profile_img == '' || $student->studentProfile->profile_img == null ? 'https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg' : $student->studentProfile->profile_img }}"
                 alt=""
                 />
               </td>
               <td>{{ $student->name }}</td>
-              <td>{{ $student->studentProfile->student_number}}</td>
+              <td>{{ $student->studentProfile->student_number ?? 'No student profile'}}</td>
+              @if ($student->studentProfile == null)
+              <td><a href="{{ route('students.existing_student_add_profile', ['id' => $student->id])}}">Add Profile</a></td>
+              @elseif ($student->hkStatus == null)
+              <td><a href="{{ route('students.existing_student_add_profile', ['id' => $student->id])}}">Add HK Status</a></td>
+              @else
               <td><a href="{{ route('student.viewProfile', ['id' => $student->id])}}">View</a></td>
+              @endif
             </tr>
             @endforeach
           </tbody>

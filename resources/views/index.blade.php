@@ -32,13 +32,17 @@
               <tr>
                 <td>
                   <img
-                    src="{{ $employee->employeeProfile->profile_img == '' ? 'https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg' : $employee->employeeProfile->profile_img }}"
+                    src="{{ $employee->employeeProfile == null ||  $employee->employeeProfile->profile_img == '' ||  $employee->employeeProfile->profile_img == null  ? 'https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg' : $employee->employeeProfile->profile_img }}"
                     alt=""
                   />
                 </td>
                 <td>{{$employee->name}}</td>
-                <td>{{$employee->employeeProfile->employee_number}}</td>
+                <td>{{$employee->employeeProfile->employee_number ?? 'No employee profile'}}</td>
+                @if ($employee->employeeProfile === null)
+                <td><a href="{{ route('employee.existing_employee_add_profile', ['id' => $employee->id] )}}">Add Profile</a></td>
+                @else
                 <td><a href="{{ route('employee.viewProfile', ['id' => $employee->id] )}}">View</a></td>
+                @endif
               </tr>
               @endforeach
             
@@ -69,13 +73,19 @@
               <tr>
                 <td>
                   <img
-                    src="{{ $student->studentProfile->profile_img == '' ? 'https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg' : $student->studentProfile->profile_img}}"
+                    src="{{ $student->studentProfile == null ||  $student->studentProfile->profile_img == '' || $student->studentProfile->profile_img == null ? 'https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg' : $student->studentProfile->profile_img}}"
                     alt=""
                   />
                 </td>
                 <td>{{$student->name}}</td>
-                <td>{{$student->studentProfile->student_number}}</td>
-                <td><a href="{{ route('student.viewProfile', ['id' => $student->id]) }}">View</a></td>
+                <td>{{ $student->studentProfile->student_number ?? 'No student profile'}}</td>
+                @if ($student->studentProfile == null)
+                <td><a href="{{ route('students.existing_student_add_profile', ['id' => $student->id])}}">Add Profile</a></td>
+                @elseif ($student->hkStatus == null)
+                <td><a href="{{ route('students.existing_student_add_profile', ['id' => $student->id])}}">Add HK Status</a></td>
+                @else
+                <td><a href="{{ route('student.viewProfile', ['id' => $student->id])}}">View</a></td>
+                @endif
               </tr>
               @endforeach
             </tbody>
@@ -93,7 +103,7 @@
           <p class="title">Total Employee</p>
           <div class="row-count">
             <p class="count">{{$employees->count()}}</p>
-            <a href="employee/employee.html">view all</a>
+            <a href="{{route('employee')}}">view all</a>
           </div>
         </div>
         <div class="student-data">
@@ -103,7 +113,7 @@
           <p class="title">Total Student</p>
           <div class="row-count">
             <p class="count">{{$students->count()}}</p>
-            <a href="student/student.html">view all</a>
+            <a href="{{route('student')}}">view all</a>
           </div>
         </div>
         <div class="renewal-data">
@@ -113,13 +123,49 @@
           <p class="title">Renewal Requests</p>
           <div class="row-count">
             <p class="count">400</p>
-            <a href="renewal/renewal.html">view all</a>
+            <a href="{{route('renewal')}}">view all</a>
           </div>
         </div>
       </div>
 
-      <div class="chart-1"></div>
+      <div class="chart-1">
+        <div class="chart">
+          <div class="chart-header">
+            <a href="{{route('duty')}}">See Duty Table</a>
+          </div>
+          <canvas id="myChart"></canvas>
+        </div>
+      </div>
       <!-- <div class="chart-2"></div> -->
     </div>
   </section>
+
+  <script src="{{ asset('js/chart.js')}}"></script>
+  <script>
+    const ctx = document.getElementById("myChart");
+    let totalDutiesPerWeek = {!! json_encode($totalDutiesPerWeek) !!}
+    console.log(totalDutiesPerWeek);
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        datasets: [
+          {
+            label: "# of Duty requests this week",
+            data: totalDutiesPerWeek,
+            borderWidth: 1,
+            backgroundColor: '#002855',
+          },
+        ],
+      },
+      options: {
+        // responsive: true
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  </script>
 </x-layout>

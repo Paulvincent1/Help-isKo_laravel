@@ -39,12 +39,33 @@ class RetrieveStudentsController extends Controller
                 })
                 ->count();
 
+            $completedDutiesCount = StudentDutyRecord::where('stud_id', $student->id)
+                ->whereHas('duty', function ($query) {
+                    $query->where('is_locked', true)
+                          ->where('duty_status', 'completed');
+                })
+                ->count();
+
             // Get the average rating for the student from feedback
             $averageRating = StudentFeedback::where('stud_id', $student->id)
                 ->whereNotNull('rating')
                 ->average('rating');
 
-            $formattedAverageRating = $averageRating ? number_format($averageRating, 2) : 'No Rating';
+            // $formattedAverageRating = $averageRating ? number_format($averageRating, 2) : 'No Rating';
+            $formattedAverageRating = $averageRating ? round((float) $averageRating, 2) : 0.0;
+
+            $hkStatus = $student->hkStatus;
+            $percentage = 0;
+
+            if ($hkStatus) {
+                $dutyHours = (float) $hkStatus->duty_hours;
+                $remainingHours = (float) $hkStatus->remaining_hours;
+
+                if ($dutyHours > 0) {
+                    $completedHours = $dutyHours - $remainingHours;
+                    $percentage = ($completedHours / $dutyHours) * 100;
+                }
+            }
 
             // Prepare student data
             $response[] = [
@@ -60,7 +81,11 @@ class RetrieveStudentsController extends Controller
                 'birthday' => $student->studentProfile->birthday ?? 'Unknown',
                 'contact_number' => $student->studentProfile->contact_number ?? 'Unknown',
                 'active_duty_count' => $activeDutiesCount,
+                'completed_duty_count' => $completedDutiesCount,
                 'average_rating' => $formattedAverageRating,
+                'hours_to_complete' => $student->hkStatus->duty_hours,
+                'remaining_hours' => $student->hkStatus->remaining_hours,
+                'percentage' => round($percentage, 2)
             ];
         }
 

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Duty;
 use App\Models\User;
 use App\Models\StudentDutyRecord;
+use App\Models\StudentFeedback;
 use Carbon\Carbon;
 
 
@@ -108,17 +109,45 @@ class EmployeeDutyController extends Controller
         $response = [];
 
         foreach ($duties as $duty) {
-            // Update duty_status if is_locked is true
-            // if ($duty->is_locked) {
-            //     $duty->duty_status = 'active';
-            // }
-
-            // Get the accepted students for this duty
             $acceptedStudents = StudentDutyRecord::where('duty_id', $duty->id)
                 ->where('request_status', 'accepted')
                 ->with('student.studentProfile')
                 ->get()
                 ->map(function ($record) {
+                    $activeDutiesCount = StudentDutyRecord::where('stud_id', $record->student->id)
+                        ->whereHas('duty', function ($query) {
+                            $query->where('is_locked', true)
+                                ->where('duty_status', 'active');
+                        })
+                        ->count();
+
+                    $completedDutiesCount = StudentDutyRecord::where('stud_id', $record->student->id)
+                        ->whereHas('duty', function ($query) {
+                            $query->where('is_locked', true)
+                                ->where('duty_status', 'completed');
+                        })
+                        ->count();
+
+                    // Get the average rating for the student from feedback
+                    $averageRating = StudentFeedback::where('stud_id', $record->student->id)
+                        ->whereNotNull('rating')
+                        ->average('rating');
+
+                    // $formattedAverageRating = $averageRating ? number_format($averageRating, 2) : 'No Rating';
+                    $formattedAverageRating = $averageRating ? round((float) $averageRating, 2) : 0.0;    
+
+                    $hkStatus = $record->student->hkStatus;
+                    $percentage = 0;
+
+                    if ($hkStatus) {
+                        $dutyHours = (float) $hkStatus->duty_hours;
+                        $remainingHours = (float) $hkStatus->remaining_hours;
+
+                        if ($dutyHours > 0) {
+                            $completedHours = $dutyHours - $remainingHours;
+                            $percentage = ($completedHours / $dutyHours) * 100;
+                        }
+                    }
                     return [
                         'student_id' => $record->student->id,
                         'name' => $record->student->name,
@@ -128,7 +157,13 @@ class EmployeeDutyController extends Controller
                         'semester' => $record->student->studentProfile->semester,
                         'course' => $record->student->studentProfile->course,
                         'request_status' => $record->request_status,
-                        'profile_image' => $record->student->studentProfile->profile_img
+                        'profile_image' => $record->student->studentProfile->profile_img,
+                        'active_duty_count' => $activeDutiesCount,
+                        'completed_duty_count' => $completedDutiesCount,
+                        'hours_to_complete' => $hkStatus->duty_hours,
+                        'remaining_hours' => $hkStatus->remaining_hours,
+                        'average_rating' => $formattedAverageRating,
+                        'percentage' => round($percentage, 2)
                     ];
                 });
 
@@ -144,24 +179,22 @@ class EmployeeDutyController extends Controller
     }
 
     public function show($dutyId)
-{
-    $employee = Auth::user();
+    {
+        $employee = Auth::user();
 
-    // Find the specific duty created by the employee
-    $duty = Duty::where('id', $dutyId)
-                ->where('emp_id', $employee->id)
-                ->first();
+        // Find the specific duty created by the employee
+        $duty = Duty::where('id', $dutyId)
+                    ->where('emp_id', $employee->id)
+                    ->first();
 
-    if (!$duty) {
-        return response()->json(['message' => 'Duty not found or unauthorized'], 404);
+        if (!$duty) {
+            return response()->json(['message' => 'Duty not found or unauthorized'], 404);
+        }
+
+        return response()->json($duty);
     }
 
-    return response()->json($duty);
-}
 
-
-    // Retrieve all pending requests for duties created by the employee
-   // Retrieve all pending requests for duties created by the employee
    public function getRequestsForAllDuties()
    {
        // Get the authenticated employee
@@ -217,6 +250,40 @@ class EmployeeDutyController extends Controller
                foreach ($requests as $request) {
                    $student = User::find($request->stud_id);
                    $studentProfile = $student ? $student->studentProfile : null;
+
+                   $activeDutiesCount = StudentDutyRecord::where('stud_id', $student->id)
+                        ->whereHas('duty', function ($query) {
+                            $query->where('is_locked', true)
+                                ->where('duty_status', 'active');
+                        })
+                        ->count();
+                    $completedDutiesCount = StudentDutyRecord::where('stud_id', $student->id)
+                        ->whereHas('duty', function ($query) {
+                            $query->where('is_locked', true)
+                                ->where('duty_status', 'completed');
+                        })
+                        ->count();
+                    
+                        // Get the average rating for the student from feedback
+                    $averageRating = StudentFeedback::where('stud_id', $student->id)
+                        ->whereNotNull('rating')
+                        ->average('rating');
+
+                    // $formattedAverageRating = $averageRating ? number_format($averageRating, 2) : 'No Rating';
+                    $formattedAverageRating = $averageRating ? round((float) $averageRating, 2) : 0.0;    
+
+                    $hkStatus = $student->hkStatus;
+                    $percentage = 0;
+
+                    if ($hkStatus) {
+                        $dutyHours = (float) $hkStatus->duty_hours;
+                        $remainingHours = (float) $hkStatus->remaining_hours;
+
+                        if ($dutyHours > 0) {
+                            $completedHours = $dutyHours - $remainingHours;
+                            $percentage = ($completedHours / $dutyHours) * 100;
+                        }
+                    }
    
                    // Compile the request details
                    $dutyDetails[] = [
@@ -230,15 +297,21 @@ class EmployeeDutyController extends Controller
                        'max_scholars' => $duty->max_scholars,
                        'request_count' => $requests->count(),
                        'student_data' => [
-                           'student_id' => $request->stud_id,
-                           'email' => $student->email,
-                           'name' => $student ? $student->name : 'Unknown',
-                           'last_name' => $studentProfile ? $studentProfile->last_name : null,
-                           'contact_number' => $studentProfile ? $studentProfile->contact_number : null,
-                           'student_number' => $studentProfile ? $studentProfile->student_number : null,
-                           'course' => $studentProfile ? $studentProfile->course : null,
-                           'semester' => $studentProfile ? $studentProfile->semester : null,
-                           'profile_image' => $studentProfile ? $studentProfile->profile_img : null,
+                            'student_id' => $request->stud_id,
+                            'email' => $student->email,
+                            'name' => $student ? $student->name : 'Unknown',
+                            'last_name' => $studentProfile ? $studentProfile->last_name : null,
+                            'contact_number' => $studentProfile ? $studentProfile->contact_number : null,
+                            'student_number' => $studentProfile ? $studentProfile->student_number : null,
+                            'course' => $studentProfile ? $studentProfile->course : null,
+                            'semester' => $studentProfile ? $studentProfile->semester : null,
+                            'profile_image' => $studentProfile ? $studentProfile->profile_img : null,
+                            'active_duty_count' => $activeDutiesCount,
+                            'completed_duty_count' => $completedDutiesCount,
+                            'hours_to_complete' => $hkStatus->duty_hours,
+                            'remaining_hours' => $hkStatus->remaining_hours,
+                            'average_rating' => $formattedAverageRating,
+                            'percentage' => round($percentage, 2)
                        ]
                    ];
                }

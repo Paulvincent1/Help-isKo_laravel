@@ -12,17 +12,20 @@
           <div class="display_profile-info">
             <div class="profile_info-personal-details">
               <p>Personal Details</p>
-              <p class="profile_info-personal-details-empid">
-                Employee ID: {{$user->employee_number}}
-              </p>
+              <div class="profile_info-personal-details-header">
+                <a href="{{ route('employee.edit',['id' => $user->id]) }}">Edit Profile</a>
+                <p class="profile_info-personal-details-empid">
+                  Employee ID: {{$user->employee_number}}
+                </p>
+              </div>
             </div>
             <div>
               <p>Basic Details</p>
-              <p>First name: {{ $user->first_name }}</p>
-              <p>Last name: {{ $user->last_name }}</p>
-              <p>Birthday: {{ $user->birthday }}</p>
-              <p>Contact Number: {{ $user->contact_number }}</p>
-              <p>Employee ID: {{ $user->employee_number }}</p>
+              <p>First name: {{ $user->employeeProfile->first_name }}</p>
+              <p>Last name: {{ $user->employeeProfile->last_name }}</p>
+              <p>Birthday: {{ $user->employeeProfile->birthday }}</p>
+              <p>Contact Number: {{ $user->employeeProfile->contact_number }}</p>
+              <p>Employee ID: {{ $user->employeeProfile->employee_number }}</p>
             </div>
           </div>
         </div>
