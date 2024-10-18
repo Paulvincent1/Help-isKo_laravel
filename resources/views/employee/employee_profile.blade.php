@@ -8,7 +8,7 @@
           />
         </header>
 
-        <div class="profile_info">
+        <div class="profile_info emp_profile_info">
           <div class="display_profile-info">
             <div class="profile_info-personal-details">
               <p>Personal Details</p>
@@ -29,6 +29,6 @@
             </div>
           </div>
         </div>
-        <div class="recent_activities"><p>Recent Activities</p></div>
+        {{-- <div class="recent_activities"><p>Recent Activities</p></div> --}}
       </section>
 </x-layout>
