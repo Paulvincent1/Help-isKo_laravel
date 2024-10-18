@@ -735,7 +735,8 @@ public function updateStatus($dutyId, Request $request)
                 $students[] = [
                     'student_id' => $studentRecord->student->id,
                     'name' => $studentRecord->student->name,
-                    'course' => $studentRecord->student->studentProfile->course
+                    'course' => $studentRecord->student->studentProfile->course,
+                    'profile_image' => $studentRecord->student->studentProfile->profile_img
                 ];
             }
 
