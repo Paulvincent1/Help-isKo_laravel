@@ -747,7 +747,8 @@ public function updateStatus($dutyId, Request $request)
                 'building' => $dutyToday->building,
                 'start_time' => $dutyToday->start_time,
                 'end_time' => $dutyToday->end_time,
-                'date' => $dutyToday->date
+                'date' => $dutyToday->date,
+                'fulfilled' => $studentRecord->hours_fulfilled
             ];
         }
 
