@@ -727,11 +727,19 @@ public function updateStatus($dutyId, Request $request)
         foreach($dutiesToday as $dutyToday) {
             $studentRecords = $dutyToday->studentDutyRecords()->where('request_status','accepted')->where('hours_fulfilled', false)->with('student')->get();
             foreach($studentRecords as $studentRecord){
-
-             $students = $studentRecord->student;
+                $students[] = [
+                    'student_id' => $studentRecord->student->id,
+                    'name' => $studentRecord->student->name,
+                    'course' => $studentRecord->student->studentProfile->course
+                ];
             }
-            $records['duties'][$dutyToday->building]['students'] = $students;
-            $records['duties'][$dutyToday->building]['duty_id'] = $dutyToday->id;
+            $records['duties'] = [
+                'students' => $students,
+                'duty_id' => $dutyToday->id,
+                'building' => $dutyToday->building,
+                'start_time' => $dutyToday->start_time,
+                'end_time' => $dutyToday->end_time
+            ];
         }
 
         return response()->json($records);
