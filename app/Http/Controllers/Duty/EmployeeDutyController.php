@@ -703,15 +703,15 @@ public function updateStatus($dutyId, Request $request)
     return response()->json(['message' => 'Duty status updated successfully', 'duty' => $duty]);
 }
 
-    public function completedToday(){
+    public function completedToday()
+    {
         $user = Auth::user();
         $duties = $user->duties()->where('duty_status', 'completed')->get();
 
         $dutiesToday = [];
         $records = [
-            'duties' => []
+            'duties' => []  // Initialize as an array of duties
         ];
-        $students = [];
 
         foreach($duties as $duty) {
             $currentTime = Carbon::now();
@@ -725,7 +725,12 @@ public function updateStatus($dutyId, Request $request)
         }
 
         foreach($dutiesToday as $dutyToday) {
-            $studentRecords = $dutyToday->studentDutyRecords()->where('request_status','accepted')->where('hours_fulfilled', false)->with('student')->get();
+            $students = []; // Reset the students array for each duty
+            $studentRecords = $dutyToday->studentDutyRecords()
+                ->where('request_status', 'accepted')
+                ->with('student')
+                ->get();
+
             foreach($studentRecords as $studentRecord){
                 $students[] = [
                     'student_id' => $studentRecord->student->id,
@@ -733,20 +738,24 @@ public function updateStatus($dutyId, Request $request)
                     'course' => $studentRecord->student->studentProfile->course
                 ];
             }
-            $records['duties'] = [
+
+            // Add this duty with students to the duties array
+            $records['duties'][] = [
                 'students' => $students,
                 'duty_id' => $dutyToday->id,
                 'building' => $dutyToday->building,
                 'start_time' => $dutyToday->start_time,
-                'end_time' => $dutyToday->end_time
+                'end_time' => $dutyToday->end_time,
+                'date' => $dutyToday->date
             ];
         }
 
         return response()->json($records);
-
-        
-
     }
+
+
+
+
 
     public function addDutyHourStudent(Request $request, User $studentId, Duty $dutyId) {
         $student = $studentId;
