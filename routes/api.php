@@ -91,6 +91,11 @@ Route::middleware(['auth:sanctum', isEmployee::class])->group(function () {
     Route::get('/employee/accepted-student-names', [EmployeeDutyController::class, 'getAcceptedStudentNames']);
     Route::patch('/duties/{dutyId}/status', [EmployeeDutyController::class, 'updateStatus']);
     Route::delete('/duties/{dutyId}/cancel', [EmployeeDutyController::class, 'cancelDuty']);
+
+
+    //Manually adding duty hours
+    Route::get('/employees/duties/completed/today', [EmployeeDutyController::class, 'completedToday']);
+    Route::put('/employees/duties/{studentId}/{dutyId}', [EmployeeDutyController::class, 'addDutyHourStudent']);
 });
 
 

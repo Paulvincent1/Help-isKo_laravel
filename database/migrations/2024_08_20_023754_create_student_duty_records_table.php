@@ -14,6 +14,7 @@ class CreateStudentDutyRecordsTable extends Migration
             $table->foreignId('duty_id')->constrained('duties')->cascadeOnDelete();
             $table->foreignId('emp_id')->constrained('users')->cascadeOnDelete();
             $table->enum('request_status', ['undecided', 'accepted', 'rejected'])->default('undecided');
+            $table->boolean('hours_fulfilled')->default(false);
             $table->timestamps();
         });
     }

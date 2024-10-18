@@ -54,6 +54,7 @@ class Duty extends Model
         $currentTime = Carbon::now();
         $startTime = Carbon::parse($this->date . ' ' . $this->start_time);
         $endTime = Carbon::parse($this->date . ' ' . $this->end_time);
+        $endTimeAddDay = $endTime->copy()->addDay(1);
 
         // Determine the new status based on current time
         $newStatus = $this->duty_status; // Start with existing status
@@ -79,24 +80,38 @@ class Duty extends Model
             \Log::info("Duty ID {$this->id} updated to status: {$newStatus}"); // Log the update
         }
 
-        if($currentStatus != 'completed'){
-            
-            if($newStatus == 'completed'){
+        if($newStatus == 'completed' || $currentStatus == 'completed') {
+            if($currentTime->greaterThanOrEqualTo($endTimeAddDay)){
                 $duties = $this->studentDutyRecords()->where('request_status','accepted')->with('student')->get();
-                foreach($duties as $duty){  
-                    $dutyHours = ($this->duration / 60);
-                    $rounded = round($dutyHours , 2);
-                    \Log::info("nag complete {$rounded}"); 
+                foreach($duties as $duty){
+                    if(!$duty->hours_fulfilled){
+                        $dutyHours = ($this->duration / 60);
+                        $rounded = round($dutyHours , 2);
                         $remainingHours = $duty->student->hkStatus->remaining_hours;
                         if(($remainingHours - $rounded) >= 0) {
                             $duty->student->notify(new StudentCompletedDutyNotification($this));
-                            $duty->employee->notify(new CompletedDutyNotification($this, $this->employee));
-                            $duty->student->hkStatus->update([
+
+                            $duty->student->hkStatus()->update([
                                 'remaining_hours' => ($remainingHours - $rounded)
                             ]);
+                            
+                            $duty->update([
+                               'hours_fulfilled' => true, 
+                            ]);
                         }
+                       
+                    }
                 }
             }
+        }
+
+
+        if($currentStatus != 'completed'){
+            
+            if($newStatus == 'completed'){
+                $duty->employee->notify(new CompletedDutyNotification($this, $this->employee));
+            }
+
             if($newStatus == 'ongoing' && $currentStatus != 'ongoing'){
                 $this->employee->notify(new OngoingDutyNotification($this));
 

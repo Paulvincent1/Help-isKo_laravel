@@ -19,6 +19,7 @@ use App\Models\Duty;
 use App\Models\User;
 use App\Models\StudentDutyRecord;
 use App\Models\StudentFeedback;
+use App\Notifications\Admin\StudentCompletedDutyNotification;
 use Carbon\Carbon;
 
 
@@ -701,4 +702,88 @@ public function updateStatus($dutyId, Request $request)
 
     return response()->json(['message' => 'Duty status updated successfully', 'duty' => $duty]);
 }
+
+    public function completedToday(){
+        $user = Auth::user();
+        $duties = $user->duties()->where('duty_status', 'completed')->get();
+
+        $dutiesToday = [];
+        $records = [
+            'duties' => []
+        ];
+        $students = [];
+
+        foreach($duties as $duty) {
+            $currentTime = Carbon::now();
+            $startTime = Carbon::parse($duty->date . ' ' . $duty->start_time);
+            $endTime = Carbon::parse($duty->date . ' ' . $duty->end_time);
+            $endTimeAddDay = $endTime->copy()->addDay(1);
+
+            if($currentTime->between($endTime, $endTimeAddDay)){
+                $dutiesToday[] = $duty;
+            }
+        }
+
+        foreach($dutiesToday as $dutyToday) {
+            $studentRecords = $dutyToday->studentDutyRecords()->where('request_status','accepted')->where('hours_fulfilled', false)->with('student')->get();
+            foreach($studentRecords as $studentRecord){
+
+             $students = $studentRecord->student;
+            }
+            $records['duties'][$dutyToday->building]['students'] = $students;
+            $records['duties'][$dutyToday->building]['duty_id'] = $dutyToday->id;
+        }
+
+        return response()->json($records);
+
+        
+
+    }
+
+    public function addDutyHourStudent(Request $request, User $studentId, Duty $dutyId) {
+        $student = $studentId;
+        $duty = $dutyId;
+
+        $fields = $request->validate([
+         'hour' => 'required|integer|min:0|max:23',
+         'minute' => 'required|integer|min:0|max:59',
+        ]);
+
+        $minutes = (($fields['hour'] * 60) + $fields['minute']);
+
+        if($duty->duration >= $minutes){
+            $record = $student->studentDutyRecords()->where('duty_id', $duty->id)->where('hours_fulfilled', false)->first();
+            if($record == null){
+                return response()->json([
+                    'message' => 'Already fulfilled'
+                ]);
+            }
+            $hours =  ($minutes / 60);
+            $rounded = round($hours, 2);
+            $remainingHours = $student->hkStatus->remaining_hours;
+            if(($remainingHours - $rounded) >= 0){
+                $hkStatus = $student->hkStatus()->update([
+                    'remaining_hours' => ($remainingHours - $rounded)
+                ]);
+                $record->update([
+                    'hours_fulfilled' => true
+                ]);
+                $student->notify(new StudentCompletedDutyNotification($duty));
+
+                
+                return response()->json([
+                    'message'=> 'successfully hours added',
+                    $hkStatus
+                ]);
+            }
+
+        }else {
+            return response()->json([
+                'message' => 'You cannot add that hour!'
+            ], 400);
+        }
+
+
+        
+    }
 }
