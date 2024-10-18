@@ -109,7 +109,7 @@ class Duty extends Model
         if($currentStatus != 'completed'){
             
             if($newStatus == 'completed'){
-                $duty->employee->notify(new CompletedDutyNotification($this, $this->employee));
+                $this->employee->notify(new CompletedDutyNotification($this, $this->employee));
             }
 
             if($newStatus == 'ongoing' && $currentStatus != 'ongoing'){
