@@ -48,7 +48,7 @@ class StudentRenewalFormController extends Controller
         $validatedData = $request->validate([
             'student_number' => 'required|string',
             'attended_events' => 'required|integer|min:0',
-            'shared_posts' => 'required|integer|min:0',
+            'shared_posts' => 'required|string',
             'registration_fee_picture' => 'nullable|string',
             'disbursement_method' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
             'duty_hours' => 'required|integer',
