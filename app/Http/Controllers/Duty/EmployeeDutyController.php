@@ -43,7 +43,6 @@ class EmployeeDutyController extends Controller
         // Parse start and end times with the date
         $dutyStartTime = Carbon::parse($data['date'] . ' ' . $data['start_time']);
         $dutyEndTime = Carbon::parse($data['date'] . ' ' . $data['end_time']);
-        $currentDateTime = Carbon::now();
     
         // Check if start time is equal to end time
         if ($dutyStartTime->equalTo($dutyEndTime)) {
@@ -82,6 +81,10 @@ class EmployeeDutyController extends Controller
             'is_locked' => false,
             'duty_status' => 'pending',
         ]);
+    
+        // Increment the posted_duty count in the employee profile
+        $employeeProfile = $employee->employeeProfile;
+        $employeeProfile->increment('posted_duty');
     
         // Trigger notification for the employee
         $employee->notify(new DutyPostedNotification($duty));
@@ -424,78 +427,84 @@ class EmployeeDutyController extends Controller
         return response()->json(['message' => 'Duty deleted successfully'], 200);
     }
     
-    public function acceptStudent(Request $request)
-    {
-        // Validate the incoming request
-        $data = $request->validate([
-            'duty_id' => 'required|integer',
-            'stud_id' => 'required|integer',
+  public function acceptStudent(Request $request)
+{
+    // Validate the incoming request
+    $data = $request->validate([
+        'duty_id' => 'required|integer',
+        'stud_id' => 'required|integer',
+    ]);
+
+    // Get the authenticated employee
+    $employee = Auth::user();
+
+    // Find the duty created by the employee
+    $duty = Duty::where('id', $data['duty_id'])
+        ->where('emp_id', $employee->id)
+        ->first();
+
+    if (!$duty) {
+        return response()->json(['message' => 'Duty not found or you do not have permission to handle student requests for it'], 404);
+    }
+
+    // Find the student's duty request
+    $studentDutyRecord = StudentDutyRecord::where('duty_id', $duty->id)
+        ->where('stud_id', $data['stud_id'])
+        ->where('request_status', 'undecided')
+        ->first();
+
+    if (!$studentDutyRecord) {
+        return response()->json(['message' => 'Student request not found or already decided'], 404);
+    }
+
+    // Ensure the duty is not over its max scholars limit
+    if ($duty->current_scholars >= $duty->max_scholars) {
+        return response()->json(['message' => 'Cannot accept more students, max scholars limit reached'], 400);
+    }
+
+    // Accept the student's request
+    $studentDutyRecord->update(['request_status' => 'accepted']);
+    $duty->increment('current_scholars');
+
+    // Increment the confirmed_duty count in the employee profile
+    $employeeProfile = $employee->employeeProfile;
+    $employeeProfile->increment('confirmed_duty');
+
+    // Notify the student
+    $student = User::find($data['stud_id']);
+    if ($student) {
+        $student->notify(new AcceptedDutyNotification($duty));
+    }
+
+    // **New Logic: Automatically reject all undecided requests when max_scholars is reached**
+    if ($duty->current_scholars >= $duty->max_scholars) {
+        // Lock the duty and update the status if max scholars limit is reached
+        $duty->update([
+            'is_locked' => true,
+            'duty_status' => 'active',  // Set the duty as active
         ]);
-    
-        // Get the authenticated employee
-        $employee = Auth::user();
-    
-        // Find the duty created by the employee
-        $duty = Duty::where('id', $data['duty_id'])
-            ->where('emp_id', $employee->id)
-            ->first();
-    
-        if (!$duty) {
-            return response()->json(['message' => 'Duty not found or you do not have permission to handle student requests for it'], 404);
-        }
-    
-        // Find the student's duty request
-        $studentDutyRecord = StudentDutyRecord::where('duty_id', $duty->id)
-            ->where('stud_id', $data['stud_id'])
+
+        $employeeProfile->increment('active_duty');
+        
+        // Find and reject all undecided student requests
+        $undecidedRequests = StudentDutyRecord::where('duty_id', $duty->id)
             ->where('request_status', 'undecided')
-            ->first();
-    
-        if (!$studentDutyRecord) {
-            return response()->json(['message' => 'Student request not found or already decided'], 404);
-        }
-    
-        // Ensure the duty is not over its max scholars limit
-        if ($duty->current_scholars >= $duty->max_scholars) {
-            return response()->json(['message' => 'Cannot accept more students, max scholars limit reached'], 400);
-        }
-    
-        // Accept the student's request
-        $studentDutyRecord->update(['request_status' => 'accepted']);
-        $duty->increment('current_scholars');
-    
-        // Notify the student
-        $student = User::find($data['stud_id']);
-        if ($student) {
-            $student->notify(new AcceptedDutyNotification($duty));
-        }
-    
-        // **New Logic: Automatically reject all undecided requests when max_scholars is reached**
-        if ($duty->current_scholars >= $duty->max_scholars) {
-            // Lock the duty and update the status if max scholars limit is reached
-            $duty->update([
-                'is_locked' => true,
-                'duty_status' => 'active',  // Set the duty as active
-            ]);
-    
-            // Find and reject all undecided student requests
-            $undecidedRequests = StudentDutyRecord::where('duty_id', $duty->id)
-                ->where('request_status', 'undecided')
-                ->get();
-    
-            foreach ($undecidedRequests as $undecidedRequest) {
-                // Update the request status to 'rejected'
-                $undecidedRequest->update(['request_status' => 'rejected']);
-    
-                // Notify the student
-                $student = User::find($undecidedRequest->stud_id);
-                if ($student) {
-                    $student->notify(new RejectedRequestNotification($duty));
-                }
+            ->get();
+
+        foreach ($undecidedRequests as $undecidedRequest) {
+            // Update the request status to 'rejected'
+            $undecidedRequest->update(['request_status' => 'rejected']);
+
+            // Notify the student
+            $student = User::find($undecidedRequest->stud_id);
+            if ($student) {
+                $student->notify(new RejectedRequestNotification($duty));
             }
         }
-    
-        return response()->json(['message' => 'Student accepted successfully', 'duty' => $duty], 200);
     }
+
+    return response()->json(['message' => 'Student accepted successfully', 'duty' => $duty], 200);
+}
 
     public function rejectStudent(Request $request)
     {
@@ -695,5 +704,28 @@ public function updateStatus($dutyId, Request $request)
     }
 
     return response()->json(['message' => 'Duty status updated successfully', 'duty' => $duty]);
+}
+public function getEmployeeCounts()
+{
+    // Get the authenticated employee
+    $employee = Auth::user();
+
+    // Ensure the authenticated user is an employee
+    if (!$employee || $employee->role !== 'employee') {
+        return response()->json(['message' => 'Unauthorized or invalid user role'], 403);
+    }
+
+    // Get the employee profile
+    $employeeProfile = $employee->employeeProfile;
+
+    // Prepare the response data
+    $counts = [
+        'confirmed_duty' => $employeeProfile->confirmed_duty,
+        'active_duty' => $employeeProfile->active_duty,
+        'posted_duty' => $employeeProfile->posted_duty,
+    ];
+
+    // Return the counts
+    return response()->json($counts, 200);
 }
 }
