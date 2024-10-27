@@ -51,6 +51,7 @@ class Duty extends Model
      */
     public function updateDutyStatus()
     {
+        $employeeProfile = $this->employee->employeeProfile; 
         $currentTime = Carbon::now();
         $startTime = Carbon::parse($this->date . ' ' . $this->start_time);
         $endTime = Carbon::parse($this->date . ' ' . $this->end_time);
@@ -77,7 +78,11 @@ class Duty extends Model
         // Update the database if the status has changed
         if ($newStatus !== $this->duty_status) {
             $this->update(['duty_status' => $newStatus]); // Update the duty status in the database
-            \Log::info("Duty ID {$this->id} updated to status: {$newStatus}"); // Log the update
+            \Log::info("Duty ID {$this->id} updated to status: {$newStatus}");
+            if($newStatus == 'completed'|| $currentStatus == 'completed') {    
+                $employeeProfile->decrement('active_duty');
+                \Log::info("Duty ID {$this->id} active status count decremented.");
+            }
         }
 
         if($newStatus == 'completed' || $currentStatus == 'completed') {
@@ -109,7 +114,7 @@ class Duty extends Model
         if($currentStatus != 'completed'){
             
             if($newStatus == 'completed'){
-                $duties->employee->notify(new CompletedDutyNotification($this, $this->employee));
+                $this->employee->notify(new CompletedDutyNotification($this, $this->employee));
             }
 
             if($newStatus == 'ongoing' && $currentStatus != 'ongoing'){
