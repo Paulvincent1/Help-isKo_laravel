@@ -104,7 +104,8 @@ class EmployeeDutyController extends Controller
 
         // Get the duties for the authenticated employee
         $duties = Duty::where('emp_id', $employee->id)
-        ->get();
+            ->where('duty_status', '!=', 'completed')
+            ->get();
 
         // Prepare the response data
         $response = [];
@@ -178,6 +179,94 @@ class EmployeeDutyController extends Controller
 
         return response()->json($response);
     }
+
+    public function showCompletedDuty()
+    {
+        // Get the authenticated employee
+        $employee = Auth::user();
+
+        // Ensure the authenticated user is an employee
+        if (!$employee || $employee->role !== 'employee') {
+            return response()->json(['message' => 'Unauthorized or invalid user role'], 403);
+        }
+
+        // Get the completed duties for the authenticated employee
+        $duties = Duty::where('emp_id', $employee->id)
+            ->where('duty_status', 'completed') // Only include completed duties
+            ->get();
+
+        // Prepare the response data
+        $response = [];
+
+        foreach ($duties as $duty) {
+            $acceptedStudents = StudentDutyRecord::where('duty_id', $duty->id)
+                ->where('request_status', 'accepted')
+                ->with('student.studentProfile')
+                ->get()
+                ->map(function ($record) {
+                    $activeDutiesCount = StudentDutyRecord::where('stud_id', $record->student->id)
+                        ->whereHas('duty', function ($query) {
+                            $query->where('is_locked', true)
+                                ->where('duty_status', 'active');
+                        })
+                        ->count();
+
+                    $completedDutiesCount = StudentDutyRecord::where('stud_id', $record->student->id)
+                        ->whereHas('duty', function ($query) {
+                            $query->where('is_locked', true)
+                                ->where('duty_status', 'completed');
+                        })
+                        ->count();
+
+                    // Get the average rating for the student from feedback
+                    $averageRating = StudentFeedback::where('stud_id', $record->student->id)
+                        ->whereNotNull('rating')
+                        ->average('rating');
+
+                    $formattedAverageRating = $averageRating ? round((float) $averageRating, 2) : 0.0;    
+
+                    $hkStatus = $record->student->hkStatus;
+                    $percentage = 0;
+
+                    if ($hkStatus) {
+                        $dutyHours = (float) $hkStatus->duty_hours;
+                        $remainingHours = (float) $hkStatus->remaining_hours;
+
+                        if ($dutyHours > 0) {
+                            $completedHours = $dutyHours - $remainingHours;
+                            $percentage = ($completedHours / $dutyHours) * 100;
+                        }
+                    }
+                    return [
+                        'student_id' => $record->student->id,
+                        'name' => $record->student->name,
+                        'email' => $record->student->email,
+                        'student_number' => $record->student->studentProfile->student_number,
+                        'contact_number' => $record->student->studentProfile->contact_number,
+                        'semester' => $record->student->studentProfile->semester,
+                        'course' => $record->student->studentProfile->course,
+                        'request_status' => $record->request_status,
+                        'profile_image' => $record->student->studentProfile->profile_img,
+                        'active_duty_count' => $activeDutiesCount,
+                        'completed_duty_count' => $completedDutiesCount,
+                        'hours_to_complete' => $hkStatus->duty_hours,
+                        'remaining_hours' => $hkStatus->remaining_hours,
+                        'average_rating' => $formattedAverageRating,
+                        'percentage' => round($percentage, 2)
+                    ];
+                });
+
+            // Add the raw duty and accepted students to the response
+            $response[] = [
+                'duty' => $duty, // Return the entire duty object
+                'profile_img' => $employee->employeeProfile->profile_img,
+                'accepted_students' => $acceptedStudents,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
 
     public function show($dutyId)
     {
@@ -719,7 +808,7 @@ public function updateStatus($dutyId, Request $request)
             $endTime = Carbon::parse($duty->date . ' ' . $duty->end_time);
             $endTimeAddDay = $endTime->copy()->addDay(1);
 
-            if($currentTime->between($endTime, $endTimeAddDay)){
+            if($endTime->between($startTime, $endTime)){
                 $dutiesToday[] = $duty;
             }
         }
