@@ -19,7 +19,7 @@ class DutyNotificationsController extends Controller
                 'App\Notifications\DutyNotifications\OngoingDutyNotification',
                 'App\Notifications\DutyNotifications\CompletedDutyNotification',
                 'App\Notifications\DutyNotifications\CancelledDutyNotification',
-                'App\Notifications\DutyNotifications\StudentRejectedRequestNotification',
+                'App\Notifications\DutyNotifications\RejectedRequestNotification',
                 'App\Notifications\DutyNotifications\AcceptedDutyNotification',
                 'App\Notifications\DutyNotifications\Student\StudentActiveDutyNotification',
                 'App\Notifications\DutyNotifications\Student\StudentOngoingDutyNotification',

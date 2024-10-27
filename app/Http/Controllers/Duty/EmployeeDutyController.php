@@ -105,7 +105,7 @@ class EmployeeDutyController extends Controller
         }
 
         // Get the duties for the authenticated employee
-        $duties = Duty::where('emp_id', $employee->id)
+        $duties = Duty::where('emp_id', $employee->id)->where('duty_status', 'completed')
         ->get();
 
         // Prepare the response data
@@ -117,6 +117,11 @@ class EmployeeDutyController extends Controller
                 ->with('student.studentProfile')
                 ->get()
                 ->map(function ($record) {
+                    $activeDutiesCount =  $record->student->StudentDutyRecord()->whereHas('duty', function ($query) {
+                        $query->where('is_locked', true)
+                            ->where('duty_status', 'active');
+                    })
+                    ->count();
                     $activeDutiesCount = StudentDutyRecord::where('stud_id', $record->student->id)
                         ->whereHas('duty', function ($query) {
                             $query->where('is_locked', true)
@@ -489,6 +494,7 @@ class EmployeeDutyController extends Controller
         // Find and reject all undecided student requests
         $undecidedRequests = StudentDutyRecord::where('duty_id', $duty->id)
             ->where('request_status', 'undecided')
+<<<<<<< HEAD
             ->get();
 
         foreach ($undecidedRequests as $undecidedRequest) {
@@ -499,6 +505,56 @@ class EmployeeDutyController extends Controller
             $student = User::find($undecidedRequest->stud_id);
             if ($student) {
                 $student->notify(new RejectedRequestNotification($duty));
+=======
+            ->first();
+    
+        if (!$studentDutyRecord) {
+            return response()->json(['message' => 'Student request not found or already decided'], 404);
+        }
+    
+        // Ensure the duty is not over its max scholars limit
+        if ($duty->current_scholars >= $duty->max_scholars) {
+            return response()->json(['message' => 'Cannot accept more students, max scholars limit reached'], 400);
+        }
+    
+        // Accept the student's request
+        $studentDutyRecord->update(['request_status' => 'accepted']);
+        $duty->increment('current_scholars');
+    
+        // Notify the student
+        $student = User::find($data['stud_id']);
+        if ($student) {
+            $student->notify(new AcceptedDutyNotification($duty));
+        }
+    
+        // **New Logic: Automatically reject all undecided requests when max_scholars is reached**
+        if ($duty->current_scholars >= $duty->max_scholars) {
+            // Lock the duty and update the status if max scholars limit is reached
+            $duty->update([
+                'is_locked' => true,
+                'duty_status' => 'active',  // Set the duty as active
+            ]);
+            $duty->employee->notify(new ActiveDutyNotification($duty, $duty->employee));
+            $duties = $duty->studentDutyRecords()->where('request_status', 'accepted')->with('student')->get();
+            foreach($duties as $duty){
+                $duty->student->notify(new ActiveDutyNotification($duty, $duty->student));
+            }
+    
+            // Find and reject all undecided student requests
+            $undecidedRequests = StudentDutyRecord::where('duty_id', $duty->id)
+                ->where('request_status', 'undecided')
+                ->get();
+    
+            foreach ($undecidedRequests as $undecidedRequest) {
+                // Update the request status to 'rejected'
+                $undecidedRequest->update(['request_status' => 'rejected']);
+    
+                // Notify the student
+                $student = User::find($undecidedRequest->stud_id);
+                if ($student) {
+                    $student->notify(new RejectedRequestNotification($duty));
+                }
+>>>>>>> origin/updated-branch
             }
         }
     }
