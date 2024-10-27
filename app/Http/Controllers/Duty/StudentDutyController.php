@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\DutyRecentActivities\Student\StudentDutyRequestedNotification;
+use App\Notifications\DutyRecentActivities\Student\StudentDutyCancelRequestedNotification;
 use App\Models\Duty;
 use App\Models\User;
 use App\Models\StudentDutyRecord;
@@ -186,10 +187,12 @@ class StudentDutyController extends Controller
     public function cancelRequest($dutyId)
     {
         $student = Auth::user();
+        $duty = Duty::find($dutyId);
 
         // Fetch the student's duty request
         $studentDutyRecord = StudentDutyRecord::where('duty_id', $dutyId)
             ->where('stud_id', $student->id)
+            ->orderBy('created_at', 'desc')
             ->first();
 
         // Check if the student's request exists and is still undecided
@@ -199,7 +202,8 @@ class StudentDutyController extends Controller
 
         // Proceed with cancellation
         $studentDutyRecord->delete();
-
+        
+        $student->notify(new StudentDutyCancelRequestedNotification($duty));
         return response()->json(['message' => 'Request canceled successfully']);
     }
 

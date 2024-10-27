@@ -20,6 +20,9 @@ return new class extends Migration
             $table->string('employee_number');
             $table->string('profile_img')->nullable(true);
             $table->foreignId('user_id')->unique()->constrained('users')->cascadeOnDelete();
+            $table->integer('confirmed_duty')->default(0);
+            $table->integer('active_duty')->default(0);
+            $table->integer('posted_duty')->default(0); 
             $table->timestamps();
         });
     }

@@ -20,7 +20,7 @@ class DutyRecentActivitiesController extends Controller
                                      'App\Notifications\DutyRecentActivities\DutyRemovedNotification',
                                      'App\Notifications\DutyRecentActivities\DutyEditedNotification',
                                      'App\Notifications\DutyRecentActivities\Student\StudentDutyRequestedNotification',
-                                     'App\Notifications\DutyRecentActivities\Student\StudentRenewalFormSubmittedNotification'
+                                     'App\Notifications\DutyRecentActivities\Student\StudentDutyCancelRequestedNotification'
                                  ])
                                  ->latest()
                                  ->limit(20)
@@ -51,11 +51,10 @@ class DutyRecentActivitiesController extends Controller
         } elseif ($activity->type === 'App\Notifications\DutyRecentActivities\Student\StudentDutyRequestedNotification') {
             $title = 'Requested';
             $description = 'You requested a duty!';
-        } elseif ($activity->type === 'App\Notifications\DutyRecentActivities\Student\StudentRenewalFormSubmittedNotification') {
-            $title = 'Renewed';
-            $description = 'You requested a renewal!';
-        }
-        else {
+        } elseif ($activity->type === 'App\Notifications\DutyRecentActivities\Student\StudentDutyCancelRequestedNotification'){
+            $title = 'Cancelled';
+            $description = 'You cancelled a duty!';
+        } else {
             $title = 'No title';
             $description = 'No description';
         }

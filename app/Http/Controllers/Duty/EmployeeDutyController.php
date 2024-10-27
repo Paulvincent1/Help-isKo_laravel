@@ -19,6 +19,7 @@ use App\Models\Duty;
 use App\Models\User;
 use App\Models\StudentDutyRecord;
 use App\Models\StudentFeedback;
+use App\Notifications\Admin\StudentCompletedDutyNotification;
 use Carbon\Carbon;
 
 
@@ -82,9 +83,8 @@ class EmployeeDutyController extends Controller
             'is_locked' => false,
             'duty_status' => 'pending',
         ]);
-    
-        // Increment the posted_duty count in the employee profile
-        $employeeProfile = $employee->employeeProfile;
+
+        $employeeProfile = $employee->employeeProfile; 
         $employeeProfile->increment('posted_duty');
     
         // Trigger notification for the employee
@@ -106,8 +106,9 @@ class EmployeeDutyController extends Controller
         }
 
         // Get the duties for the authenticated employee
-        $duties = Duty::where('emp_id', $employee->id)->where('duty_status', 'completed')
-        ->get();
+        $duties = Duty::where('emp_id', $employee->id)
+            ->where('duty_status', '!=', 'completed')
+            ->get();
 
         // Prepare the response data
         $response = [];
@@ -186,6 +187,94 @@ class EmployeeDutyController extends Controller
 
         return response()->json($response);
     }
+
+    public function showCompletedDuty()
+    {
+        // Get the authenticated employee
+        $employee = Auth::user();
+
+        // Ensure the authenticated user is an employee
+        if (!$employee || $employee->role !== 'employee') {
+            return response()->json(['message' => 'Unauthorized or invalid user role'], 403);
+        }
+
+        // Get the completed duties for the authenticated employee
+        $duties = Duty::where('emp_id', $employee->id)
+            ->where('duty_status', 'completed') // Only include completed duties
+            ->get();
+
+        // Prepare the response data
+        $response = [];
+
+        foreach ($duties as $duty) {
+            $acceptedStudents = StudentDutyRecord::where('duty_id', $duty->id)
+                ->where('request_status', 'accepted')
+                ->with('student.studentProfile')
+                ->get()
+                ->map(function ($record) {
+                    $activeDutiesCount = StudentDutyRecord::where('stud_id', $record->student->id)
+                        ->whereHas('duty', function ($query) {
+                            $query->where('is_locked', true)
+                                ->where('duty_status', 'active');
+                        })
+                        ->count();
+
+                    $completedDutiesCount = StudentDutyRecord::where('stud_id', $record->student->id)
+                        ->whereHas('duty', function ($query) {
+                            $query->where('is_locked', true)
+                                ->where('duty_status', 'completed');
+                        })
+                        ->count();
+
+                    // Get the average rating for the student from feedback
+                    $averageRating = StudentFeedback::where('stud_id', $record->student->id)
+                        ->whereNotNull('rating')
+                        ->average('rating');
+
+                    $formattedAverageRating = $averageRating ? round((float) $averageRating, 2) : 0.0;    
+
+                    $hkStatus = $record->student->hkStatus;
+                    $percentage = 0;
+
+                    if ($hkStatus) {
+                        $dutyHours = (float) $hkStatus->duty_hours;
+                        $remainingHours = (float) $hkStatus->remaining_hours;
+
+                        if ($dutyHours > 0) {
+                            $completedHours = $dutyHours - $remainingHours;
+                            $percentage = ($completedHours / $dutyHours) * 100;
+                        }
+                    }
+                    return [
+                        'student_id' => $record->student->id,
+                        'name' => $record->student->name,
+                        'email' => $record->student->email,
+                        'student_number' => $record->student->studentProfile->student_number,
+                        'contact_number' => $record->student->studentProfile->contact_number,
+                        'semester' => $record->student->studentProfile->semester,
+                        'course' => $record->student->studentProfile->course,
+                        'request_status' => $record->request_status,
+                        'profile_image' => $record->student->studentProfile->profile_img,
+                        'active_duty_count' => $activeDutiesCount,
+                        'completed_duty_count' => $completedDutiesCount,
+                        'hours_to_complete' => $hkStatus->duty_hours,
+                        'remaining_hours' => $hkStatus->remaining_hours,
+                        'average_rating' => $formattedAverageRating,
+                        'percentage' => round($percentage, 2)
+                    ];
+                });
+
+            // Add the raw duty and accepted students to the response
+            $response[] = [
+                'duty' => $duty, // Return the entire duty object
+                'profile_img' => $employee->employeeProfile->profile_img,
+                'accepted_students' => $acceptedStudents,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
 
     public function show($dutyId)
     {
@@ -427,6 +516,9 @@ class EmployeeDutyController extends Controller
     
         // Delete the duty
         $duty->delete();
+
+        $employeeProfile = $employee->employeeProfile;
+        $employeeProfile->decrement('posted_duty'); 
     
         $employee->notify(new DutyRemovedNotification($duty));
     
@@ -434,7 +526,7 @@ class EmployeeDutyController extends Controller
     }
     
     public function acceptStudent(Request $request)
-    {
+    {   
         // Validate the incoming request
         $data = $request->validate([
             'duty_id' => 'required|integer',
@@ -443,6 +535,9 @@ class EmployeeDutyController extends Controller
     
         // Get the authenticated employee
         $employee = Auth::user();
+
+        
+        $employeeProfile = $employee->employeeProfile; 
     
         // Find the duty created by the employee
         $duty = Duty::where('id', $data['duty_id'])
@@ -483,11 +578,14 @@ class EmployeeDutyController extends Controller
             // Lock the duty and update the status if max scholars limit is reached
             $duty->update([
                 'is_locked' => true,
-                'duty_status' => 'active',  
+                'duty_status' => 'active',  // Set the duty as active
             ]);
-    
-            // Increment the active_duty count for the employee
-            $employee->employeeProfile->increment('active_duty');
+            $employeeProfile->increment('active_duty');
+            $duty->employee->notify(new ActiveDutyNotification($duty, $duty->employee));
+            $duties = $duty->studentDutyRecords()->where('request_status', 'accepted')->with('student')->get();
+            foreach($duties as $duty){
+                $duty->student->notify(new ActiveDutyNotification($duty, $duty->student));
+            }
     
             // Find and reject all undecided student requests
             $undecidedRequests = StudentDutyRecord::where('duty_id', $duty->id)
@@ -708,27 +806,143 @@ public function updateStatus($dutyId, Request $request)
 
     return response()->json(['message' => 'Duty status updated successfully', 'duty' => $duty]);
 }
-public function getEmployeeCounts()
-{
-    // Get the authenticated employee
-    $employee = Auth::user();
 
-    // Ensure the authenticated user is an employee
-    if (!$employee || $employee->role !== 'employee') {
-        return response()->json(['message' => 'Unauthorized or invalid user role'], 403);
+    public function completedToday()
+    {
+        $user = Auth::user();
+        $duties = $user->duties()->where('duty_status', 'completed')->get();
+
+        $dutiesToday = [];
+        $records = [
+            'duties' => []  // Initialize as an array of duties
+        ];
+
+        foreach($duties as $duty) {
+            $currentTime = Carbon::now();
+            $startTime = Carbon::parse($duty->date . ' ' . $duty->start_time);
+            $endTime = Carbon::parse($duty->date . ' ' . $duty->end_time);
+            $endTimeAddDay = $endTime->copy()->addDay(1);
+
+            if($endTime->between($startTime, $endTime)){
+                $dutiesToday[] = $duty;
+            }
+        }
+
+        foreach($dutiesToday as $dutyToday) {
+            $students = []; // Reset the students array for each duty
+            $studentRecords = $dutyToday->studentDutyRecords()
+                ->where('request_status', 'accepted')
+                ->with('student')
+                ->get();
+
+            foreach($studentRecords as $studentRecord){
+                $students[] = [
+                    'student_id' => $studentRecord->student->id,
+                    'name' => $studentRecord->student->name,
+                    'student_number' => $studentRecord->student->studentProfile->student_number,
+                    'course' => $studentRecord->student->studentProfile->course,
+                    'profile_image' => $studentRecord->student->studentProfile->profile_img
+                ];
+            }
+
+            // Add this duty with students to the duties array
+            $records['duties'][] = [
+                'students' => $students,
+                'duty_id' => $dutyToday->id,
+                'building' => $dutyToday->building,
+                'start_time' => $dutyToday->start_time,
+                'end_time' => $dutyToday->end_time,
+                'date' => $dutyToday->date,
+                'fulfilled' => $studentRecord->hours_fulfilled
+            ];
+        }
+
+        return response()->json($records);
     }
 
-    // Get the employee profile
-    $employeeProfile = $employee->employeeProfile;
 
-    // Prepare the response data
-    $counts = [
-        'confirmed_duty' => $employeeProfile->confirmed_duty,
-        'active_duty' => $employeeProfile->active_duty,
-        'posted_duty' => $employeeProfile->posted_duty,
-    ];
 
-    // Return the counts
-    return response()->json($counts, 200);
-}
+
+
+    public function addDutyHourStudent(Request $request, User $studentId, Duty $dutyId) {
+
+        $employee = Auth::user();
+
+        if (!$employee || $employee->role !== 'employee') {
+            return response()->json(['message' => 'Unauthorized or invalid user role'], 403);
+        }
+
+        $student = $studentId;
+        $duty = $dutyId;
+
+        $fields = $request->validate([
+         'hour' => 'required|integer|min:0|max:23',
+         'minute' => 'required|integer|min:0|max:59',
+        ]);
+
+        $minutes = (($fields['hour'] * 60) + $fields['minute']);
+
+        $employeeProfile = $employee->employeeProfile;
+
+        if($duty->duration >= $minutes){
+            $record = $student->studentDutyRecords()->where('duty_id', $duty->id)->where('hours_fulfilled', false)->first();
+            if($record == null){
+                return response()->json([
+                    'message' => 'Already fulfilled'
+                ]);
+            }
+            $hours =  ($minutes / 60);
+            $rounded = round($hours, 2);
+            $remainingHours = $student->hkStatus->remaining_hours;
+            if(($remainingHours - $rounded) >= 0){
+                $hkStatus = $student->hkStatus()->update([
+                    'remaining_hours' => ($remainingHours - $rounded)
+                ]);
+                $record->update([
+                    'hours_fulfilled' => true
+                ]);
+
+                $employeeProfile->increment('confirmed_duty');
+
+                $student->notify(new StudentCompletedDutyNotification($duty));
+                
+                return response()->json([
+                    'message'=> 'successfully hours added',
+                    $hkStatus
+                ]);
+            }
+
+        }else {
+            return response()->json([
+                'message' => 'You cannot add that hour!'
+            ], 400);
+        }
+
+
+        
+    }
+
+    public function getEmployeeCounts()
+    {
+        // Get the authenticated employee
+        $employee = Auth::user();
+
+        // Ensure the authenticated user is an employee
+        if (!$employee || $employee->role !== 'employee') {
+            return response()->json(['message' => 'Unauthorized or invalid user role'], 403);
+        }
+
+        // Get the employee profile
+        $employeeProfile = $employee->employeeProfile;
+
+        // Prepare the response data
+        $counts = [
+            'confirmed_duty' => $employeeProfile->confirmed_duty,
+            'active_duty' => $employeeProfile->active_duty,
+            'posted_duty' => $employeeProfile->posted_duty,
+        ];
+
+        // Return the counts
+        return response()->json($counts, 200);
+    }
 }

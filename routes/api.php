@@ -79,6 +79,7 @@ Route::middleware(['auth:sanctum', isEmployee::class])->group(function () {
     // Employee duties APIs
     Route::post('/employees/duties/create', [EmployeeDutyController::class, 'create']);
     Route::get('/employees/duty', [EmployeeDutyController::class, 'index']);
+    Route::get('/employees/completed/duty', [EmployeeDutyController::class, 'showCompletedDuty']);
     Route::get('/employees/duties/{dutyId}', [EmployeeDutyController::class, 'show']);
     Route::get('/employees/duties/requests/student', [EmployeeDutyController::class, 'getRequestsForAllDuties']);
     Route::get('/employee/counts', [EmployeeDutyController::class, 'getEmployeeCounts']);
@@ -92,6 +93,11 @@ Route::middleware(['auth:sanctum', isEmployee::class])->group(function () {
     Route::get('/employee/accepted-student-names', [EmployeeDutyController::class, 'getAcceptedStudentNames']);
     Route::patch('/duties/{dutyId}/status', [EmployeeDutyController::class, 'updateStatus']);
     Route::delete('/duties/{dutyId}/cancel', [EmployeeDutyController::class, 'cancelDuty']);
+
+
+    //Manually adding duty hours
+    Route::get('/employees/duties/completed/today', [EmployeeDutyController::class, 'completedToday']);
+    Route::put('/employees/duties/{studentId}/{dutyId}', [EmployeeDutyController::class, 'addDutyHourStudent']);
 });
 
 

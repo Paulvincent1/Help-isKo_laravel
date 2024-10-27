@@ -51,9 +51,11 @@ class Duty extends Model
      */
     public function updateDutyStatus()
     {
+        $employeeProfile = $this->employee->employeeProfile; 
         $currentTime = Carbon::now();
         $startTime = Carbon::parse($this->date . ' ' . $this->start_time);
         $endTime = Carbon::parse($this->date . ' ' . $this->end_time);
+        $endTimeAddDay = $endTime->copy()->addDay(1);
 
         // Determine the new status based on current time
         $newStatus = $this->duty_status; // Start with existing status
@@ -76,27 +78,45 @@ class Duty extends Model
         // Update the database if the status has changed
         if ($newStatus !== $this->duty_status) {
             $this->update(['duty_status' => $newStatus]); // Update the duty status in the database
-            \Log::info("Duty ID {$this->id} updated to status: {$newStatus}"); // Log the update
+            \Log::info("Duty ID {$this->id} updated to status: {$newStatus}");
+            if($newStatus == 'completed'|| $currentStatus == 'completed') {    
+                $employeeProfile->decrement('active_duty');
+                \Log::info("Duty ID {$this->id} active status count decremented.");
+            }
         }
+
+        if($newStatus == 'completed' || $currentStatus == 'completed') {
+            if($currentTime->greaterThanOrEqualTo($endTimeAddDay)){
+                $duties = $this->studentDutyRecords()->where('request_status','accepted')->with('student')->get();
+                foreach($duties as $duty){
+                    if(!$duty->hours_fulfilled){
+                        $dutyHours = ($this->duration / 60);
+                        $rounded = round($dutyHours , 2);
+                        $remainingHours = $duty->student->hkStatus->remaining_hours;
+                        if(($remainingHours - $rounded) >= 0) {
+                            $duty->student->notify(new StudentCompletedDutyNotification($this));
+
+                            $duty->student->hkStatus()->update([
+                                'remaining_hours' => ($remainingHours - $rounded)
+                            ]);
+                            
+                            $duty->update([
+                               'hours_fulfilled' => true, 
+                            ]);
+                        }
+                       
+                    }
+                }
+            }
+        }
+
 
         if($currentStatus != 'completed'){
             
             if($newStatus == 'completed'){
-                $duties = $this->studentDutyRecords()->where('request_status','accepted')->with('student')->get();
-                foreach($duties as $duty){  
-                    $dutyHours = ($this->duration / 60);
-                    $rounded = round($dutyHours , 2);
-                    \Log::info("nag complete {$rounded}"); 
-                        $remainingHours = $duty->student->hkStatus->remaining_hours;
-                        if(($remainingHours - $rounded) >= 0) {
-                            $duty->student->notify(new StudentCompletedDutyNotification($this));
-                            $duty->employee->notify(new CompletedDutyNotification($this, $this->employee));
-                            $duty->student->hkStatus->update([
-                                'remaining_hours' => ($remainingHours - $rounded)
-                            ]);
-                        }
-                }
+                $this->employee->notify(new CompletedDutyNotification($this, $this->employee));
             }
+
             if($newStatus == 'ongoing' && $currentStatus != 'ongoing'){
                 if ($currentStatus === 'active') {
                     $this->employee->employeeProfile->decrement('active_duty');
