@@ -190,6 +190,7 @@ class StudentDutyController extends Controller
         // Fetch the student's duty request
         $studentDutyRecord = StudentDutyRecord::where('duty_id', $dutyId)
             ->where('stud_id', $student->id)
+            ->orderBy('created_at', 'desc')
             ->first();
 
         // Check if the student's request exists and is still undecided
