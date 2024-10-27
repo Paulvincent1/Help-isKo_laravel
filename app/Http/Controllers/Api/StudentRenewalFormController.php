@@ -5,7 +5,7 @@ use App\Models\RenewalForm;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Notifications\DutyRecentActivities\Student\StudentRenewalFormSubmittedNotification; 
+use App\Notifications\DutyRecentActivities\Student\StudentRenewalFormSubmittedNotification;
 
 class StudentRenewalFormController extends Controller
 {
@@ -29,12 +29,12 @@ class StudentRenewalFormController extends Controller
 
         // Validate incoming request
         $validatedData = $request->validate([
-            'student_number' => 'required|string', 
+            'student_number' => 'required|string',
             'attended_events' => 'required|integer|min:0',
-            'shared_posts' => 'required|integer|min:0',
-            'registration_fee_picture' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', 
-            'disbursement_method' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
-            'duty_hours' => 'required|integer|in:25,50,75', 
+            'shared_posts' => 'required|string|url', // Ensure shared_posts is a valid URL
+            'registration_fee_picture' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
+            'orf_url' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Validation for ORF image file
+            'duty_hours' => 'required|integer',
         ]);
 
         // Handle registration fee picture file upload
@@ -45,23 +45,23 @@ class StudentRenewalFormController extends Controller
             $registrationFeePath = $file->storeAs('uploads/registration_fees', $fileName, 'public');
         }
 
-        // Handle disbursement method file upload
-        $disbursementMethodPath = '';
-        if ($request->hasFile('disbursement_method')) {
-            $file = $request->file('disbursement_method');
-            $fileName = time() . '_disbursement.' . $file->getClientOriginalExtension();
-            $disbursementMethodPath = $file->storeAs('uploads/disbursement_methods', $fileName, 'public');
+        // Handle ORF (Official Receipt Form) image file upload
+        $orfPath = '';
+        if ($request->hasFile('orf_url')) {
+            $file = $request->file('orf_url');
+            $fileName = time() . '_orf.' . $file->getClientOriginalExtension();
+            $orfPath = $file->storeAs('uploads/orf', $fileName, 'public');
         }
 
         // Create the renewal form record
         $renewalForm = RenewalForm::create([
-            'user_id' => $user->id,  
-            'student_number' => $validatedData['student_number'],  
+            'user_id' => $user->id,
+            'student_number' => $validatedData['student_number'],
             'attended_events' => $validatedData['attended_events'],
-            'shared_posts' => $validatedData['shared_posts'],
-            'registration_fee_picture' => $registrationFeePath, // Store the image path
-            'disbursement_method' => $disbursementMethodPath,   // Store the image path
-            'duty_hours' => $validatedData['duty_hours'], // Store selected duty hours (25, 50, or 75)
+            'shared_posts' => $validatedData['shared_posts'], 
+            'registration_fee_picture' => $registrationFeePath, // Store registration image path
+            'orf_url' => $orfPath, // Store ORF image path
+            'duty_hours' => $validatedData['duty_hours'], 
             'approval_status' => 'pending',
         ]);
 

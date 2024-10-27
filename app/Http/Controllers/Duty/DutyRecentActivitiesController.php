@@ -71,11 +71,7 @@ class DutyRecentActivitiesController extends Controller
             'description' => $description,
             'message' => $activity->data['message'] ?? 'No message available',
             'date' => $this->getFormattedDate($activity->created_at),  // Display formatted date (Today, Yesterday, or full date)
-<<<<<<< HEAD
-            'duty_info' => $dutyInfo  // Include duty info for create, update, and requested activities
-=======
             'duty' => $dutyInfo  // Include duty info for create and update activities
->>>>>>> duties-updated
         ];
     }
 

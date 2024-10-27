@@ -39,6 +39,13 @@
                         <p><strong>Registration Fee Picture:</strong> No image available</p>
                     @endif
 
+                    <!-- Displaying ORF URL Image -->
+                    @if ($renewalForm->orf_url)
+                        <p><strong>ORF Image:</strong></p>
+                        <img src="{{ asset('storage/'.$renewalForm->orf_url) }}" alt="ORF Image" class="image-preview">
+                    @else
+                        <p><strong>ORF Image:</strong> No image available</p>
+                    @endif
                 </div>
             </div>
         </div>
@@ -54,6 +61,7 @@
                 <div class="form-group">
                     <label for="approval_status">Approval Status</label>
                     <select name="approval_status" class="form-control btn-update-renewal-dropdown" required>
+                        <option value="" disabled selected style="color: grey;">Update Status</option>
                         <option value="approved" {{ $renewalForm->approval_status == 'approved' ? 'selected' : '' }}>Approved</option>
                         <option value="rejected" {{ $renewalForm->approval_status == 'rejected' ? 'selected' : '' }}>Rejected</option>
                     </select>
