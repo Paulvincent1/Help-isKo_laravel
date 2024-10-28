@@ -26,7 +26,7 @@ class StudentRenewalFormSubmittedNotification extends Notification
     {
         return new BroadcastMessage([
             'title' => 'Renewed',
-            'description' => 'Renewal Form Submitted!',
+            'description' => 'You requested for HK renewal!',
             'message' => 'Your renewal form has been submitted successfully.',
             'renewal_form_id' => $this->renewalForm->id,
             'time' => now(),
@@ -36,8 +36,8 @@ class StudentRenewalFormSubmittedNotification extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'title' => 'Renewed!',
-            'description' => 'Renewal Form Submitted!',
+            'title' => 'Renewed',
+            'description' => 'You requested for HK renewal!',
             'message' => 'Your renewal form has been submitted successfully.',
             'renewal_form_id' => $this->renewalForm->id,
             'time' => now(),

@@ -119,6 +119,11 @@ class EmployeeDutyController extends Controller
                 ->with('student.studentProfile')
                 ->get()
                 ->map(function ($record) {
+                    $activeDutiesCount =  $record->student->StudentDutyRecord()->whereHas('duty', function ($query) {
+                        $query->where('is_locked', true)
+                            ->where('duty_status', 'active');
+                    })
+                    ->count();
                     $activeDutiesCount = StudentDutyRecord::where('stud_id', $record->student->id)
                         ->whereHas('duty', function ($query) {
                             $query->where('is_locked', true)
@@ -601,7 +606,7 @@ class EmployeeDutyController extends Controller
     
         return response()->json(['message' => 'Student accepted successfully', 'duty' => $duty], 200);
     }
-
+    
     public function rejectStudent(Request $request)
     {
         // Validate the incoming request

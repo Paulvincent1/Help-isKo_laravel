@@ -117,7 +117,7 @@
             <div>
               <label for="">Student ID</label>
               <input
-                type="number"
+                type="tel"
                 name="student_number"
                 class="employee-input"
                 placeholder="ex. 03-2323-xxxxxx"

@@ -28,6 +28,7 @@ class DutyNotificationsController extends Controller
                 'App\Notifications\DutyNotifications\Student\StudentCancelledDutyNotification',
                 'App\Notifications\StudentDutyCancelled',
                 'App\Notifications\StudentReceiveCommentNotification',
+                'App\Notifications\DutyNotifications\RenewalStatusNotification', 
             ])
             ->latest()
             ->get();

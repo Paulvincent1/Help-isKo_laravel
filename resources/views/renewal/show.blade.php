@@ -39,12 +39,12 @@
                         <p><strong>Registration Fee Picture:</strong> No image available</p>
                     @endif
 
-                    <!-- Displaying Disbursement Method -->
+                    <!-- Displaying Disbursement Method Image -->
                     @if ($renewalForm->disbursement_method)
-                        <p><strong>Disbursement Method:</strong></p>
-                        <img src="{{ asset('storage/'.$renewalForm->disbursement_method) }}" alt="Disbursement Method" class="image-preview">
+                        <p><strong>Disbursement Method Image:</strong></p>
+                        <img src="{{ asset('storage/'.$renewalForm->disbursement_method) }}" alt="Disbursement Method Image" class="image-preview">
                     @else
-                        <p><strong>Disbursement Method:</strong> No image available</p>
+                        <p><strong>Disbursement Method Image:</strong> No image available</p>
                     @endif
                 </div>
             </div>
@@ -61,6 +61,7 @@
                 <div class="form-group">
                     <label for="approval_status">Approval Status</label>
                     <select name="approval_status" class="form-control btn-update-renewal-dropdown" required>
+                        <option value="" disabled selected style="color: grey;">Update Status</option>
                         <option value="approved" {{ $renewalForm->approval_status == 'approved' ? 'selected' : '' }}>Approved</option>
                         <option value="rejected" {{ $renewalForm->approval_status == 'rejected' ? 'selected' : '' }}>Rejected</option>
                     </select>
