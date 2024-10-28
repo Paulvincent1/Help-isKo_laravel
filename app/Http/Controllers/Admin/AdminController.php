@@ -8,6 +8,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\RenewalForm;
 
 class AdminController extends Controller
 {
@@ -16,9 +17,9 @@ class AdminController extends Controller
     public function index()
     {
         $employees = User::with('employeeProfile')->where('role', 'employee')->get();
-
+        $renewalCount = RenewalForm::count();
         $students = User::with('studentProfile')->where('role', 'student')->get();
-        // Get the start and end of the current week
+
         $startOfWeek = Carbon::now()->startOfWeek();  // Monday of current week
         $endOfWeek = Carbon::now()->endOfWeek(); 
         
@@ -45,6 +46,6 @@ class AdminController extends Controller
         // dd(  $totalDutiesPerWeek);
 
 
-        return view('index',['students' => $students, 'employees' => $employees, 'totalDutiesPerWeek' => $totalDutiesPerWeek]);
+        return view('index',['students' => $students, 'employees' => $employees, 'totalDutiesPerWeek' => $totalDutiesPerWeek, 'renewalCount' => $renewalCount]);
     }
 }

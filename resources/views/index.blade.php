@@ -122,7 +122,7 @@
           </div>
           <p class="title">Renewal Requests</p>
           <div class="row-count">
-            <p class="count">400</p>
+          <p class="count">{{ $renewalCount ?? 0 }}</p>
             <a href="{{route('renewal')}}">view all</a>
           </div>
         </div>

@@ -39,12 +39,12 @@
                         <p><strong>Registration Fee Picture:</strong> No image available</p>
                     @endif
 
-                    <!-- Displaying ORF URL Image -->
-                    @if ($renewalForm->orf_url)
-                        <p><strong>ORF Image:</strong></p>
-                        <img src="{{ asset('storage/'.$renewalForm->orf_url) }}" alt="ORF Image" class="image-preview">
+                    <!-- Displaying Disbursement Method Image -->
+                    @if ($renewalForm->disbursement_method)
+                        <p><strong>Disbursement Method Image:</strong></p>
+                        <img src="{{ asset('storage/'.$renewalForm->disbursement_method) }}" alt="Disbursement Method Image" class="image-preview">
                     @else
-                        <p><strong>ORF Image:</strong> No image available</p>
+                        <p><strong>Disbursement Method Image:</strong> No image available</p>
                     @endif
                 </div>
             </div>
