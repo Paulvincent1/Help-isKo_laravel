@@ -14,6 +14,7 @@ class StudentDutyRecord extends Model
         'duty_id',
         'emp_id',  
         'request_status',
+        'hours_fulfilled',
     ];
 
     // Relationship back to User (student)

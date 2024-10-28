@@ -88,7 +88,7 @@ class User extends Authenticatable
     // Relationship to duties a professor creates
     public function duties()
     {
-        return $this->hasMany(Duty::class, 'prof_id');
+        return $this->hasMany(Duty::class, 'emp_id');
     }
 
 
