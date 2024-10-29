@@ -32,20 +32,20 @@
                     </p>
 
                     <!-- Displaying Registration Fee Picture -->
-                    @if ($renewalForm->registration_fee_picture)
+                    <!-- @if ($renewalForm->registration_fee_picture)
                         <p><strong>Registration Fee Picture:</strong></p>
                         <img src="{{ asset('storage/'.$renewalForm->registration_fee_picture) }}" alt="Registration Fee Picture" class="image-preview">
                     @else
-                        <p><strong>Registration Fee Picture:</strong> No image available</p>
+                        <p><strong>Registration Fee Picture:</strong> No image available</p> -->
                     @endif
 
                     <!-- Displaying Disbursement Method Image -->
-                    @if ($renewalForm->disbursement_method)
+                    <!-- @if ($renewalForm->disbursement_method)
                         <p><strong>Disbursement Method Image:</strong></p>
                         <img src="{{ asset('storage/'.$renewalForm->disbursement_method) }}" alt="Disbursement Method Image" class="image-preview">
                     @else
                         <p><strong>Disbursement Method Image:</strong> No image available</p>
-                    @endif
+                    @endif -->
                 </div>
             </div>
         </div>

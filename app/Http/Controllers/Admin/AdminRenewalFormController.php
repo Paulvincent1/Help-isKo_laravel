@@ -31,6 +31,13 @@ class AdminRenewalFormController extends Controller
         ]);
 
         $renewalForm = RenewalForm::findOrFail($id);
+        if($validatedData['approval_status'] === 'approved'){
+            $studentDutyHours = $renewalForm->user->hkStatus->duty_hours;
+            $renewalForm->user->hkStatus()->update([
+               'remaining_hours' => $studentDutyHours 
+            ]);
+        }
+       
         $renewalForm->update(['approval_status' => $validatedData['approval_status']]);
 
         $user = $renewalForm->user; // Assuming RenewalForm has a relation to User

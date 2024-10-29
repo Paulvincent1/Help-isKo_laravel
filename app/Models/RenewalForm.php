@@ -15,7 +15,7 @@ class RenewalForm extends Model
         'attended_events',
         'shared_posts',
         'registration_fee_picture',
-        'orf_url',                  
+        'disbursement_method',                  
         'duty_hours',
         'approval_status',
     ];

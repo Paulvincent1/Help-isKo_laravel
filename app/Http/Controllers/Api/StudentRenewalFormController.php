@@ -50,7 +50,7 @@ class StudentRenewalFormController extends Controller
             'attended_events' => 'required|integer|min:0',
             'shared_posts' => 'required|string',
             'registration_fee_picture' => 'nullable|string',
-            'disbursement_method' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
+            'disbursement_method' => 'nullable|string',
             'duty_hours' => 'required|integer',
         ]);
 
