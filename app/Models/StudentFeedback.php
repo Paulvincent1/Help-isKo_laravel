@@ -22,7 +22,7 @@ class StudentFeedback extends Model
         return $this->belongsTo(User::class, 'stud_id');
     }
 
-    public function professor()
+    public function employee()
     {
         return $this->belongsTo(User::class, 'prof_id');
     }

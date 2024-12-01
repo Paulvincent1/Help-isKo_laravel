@@ -49,7 +49,7 @@ class CompletedDutyNotification extends Notification
         if ($this->user->role === 'student') {
             return 'You completed a duty at ' . $this->duty->building . ' on ' . $this->duty->date;
         } elseif ($this->user->role === 'employee') {
-            return 'Student ' . $this->user->name . ' completed the duty at ' . $this->duty->building . ' on ' . $this->duty->date;
+            return 'This Duty is completed successfully at ' . $this->duty->building . ' on ' . $this->duty->date;
         }
     }
 }

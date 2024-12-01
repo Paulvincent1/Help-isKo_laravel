@@ -19,18 +19,15 @@ class HkStatusController extends Controller
 
             $completedHours = $dutyHours - $remainingHours;
             $percentage = ($completedHours / $dutyHours) * 100;
-
-            return response()->json([
-                'name' => $user->name,
-                'hk-status' => $hkStatus,
-                'percentage' => round($percentage, 2) . '%'
-            ]);
         }
 
         return response()->json([
-            'message' => 'No HK Status found'
-        ], 404);
+            'name' => $user->name,
+            'hk-status' => $hkStatus,
+            'percentage' => round($percentage, 2)
+        ]);
     }
+
 
     public function store(Request $request)
     {

@@ -9,8 +9,6 @@ body {
 }
 
 .layout_admin {
-    /* height: 100vh; */
-
     display: flex;
 }
 
@@ -37,7 +35,6 @@ body {
 }
 
 .sidebar_content {
-    /* background-color: aqua; */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -67,7 +64,6 @@ body {
 }
 
 .sidebar nav {
-    /* width: 350px; */
     padding-left: 20px;
 }
 
@@ -86,7 +82,6 @@ body {
 
     align-items: center;
 
-    /* border: 1px solid black; */
     position: relative;
     color: green;
     border-radius: 50px 0 0 50px;
@@ -102,8 +97,6 @@ body {
     width: 30px;
     border-radius: 0 0 50px 0;
 
-    /* background-color: red; */
-    /* border: 1px solid black; */
     position: absolute;
     top: 0;
     right: 0;
@@ -119,8 +112,6 @@ body {
     width: 30px;
     border-radius: 0 50px 0 0;
 
-    /* background-color: red; */
-    /* border: 1px solid black; */
     position: absolute;
     top: 0;
     right: 0;
@@ -140,7 +131,6 @@ body {
 
     padding: 0 50px;
     padding-top: 50px;
-    /* overflow: auto; */
 }
 
 .main_content h1 {
@@ -170,12 +160,7 @@ body {
     justify-content: space-between;
 }
 
-/* student */
-
 .main_content_nav {
-    /* max-width: 300px; */
-    /* background-color: #e5e5e5; */
-
     margin-bottom: 20px;
 }
 
@@ -195,43 +180,9 @@ body {
     position: relative;
 }
 
-/* @keyframes up {
-  0% {
-  }
-  100% {
-  }
-} */
-
-/* .main_content_nav a::before {
-  color: ;
-} */
-
-/* .main_content_nav a::before {
-  position: absolute;
-  content: "";
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: red;
-  transition: transform 0.2s ease-in;
-  transform-origin: bottom;
-  transform: scaleY(0);
-
-  z-index: -1;
-}
-
-.main_content_nav a:hover::before {
-  transform: scaleY(1);
-} */
-
 .main_content_nav .selected_main {
     background-color: green;
     color: white;
-}
-
-.add_form-student {
-    /* background-color: #e5e5e5; */
 }
 
 .guide_tab {
@@ -307,21 +258,6 @@ hr {
 .create_account-content div label {
     font-weight: 900;
 }
-.submit-button-add,
-.back-button {
-    display: inline-block;
-    padding: 10px 20px;
-    border: 0;
-    background-color: #0077b6;
-    color: white;
-    cursor: pointer;
-}
-
-.button-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-}
 
 .submit-button {
     display: flex;
@@ -341,7 +277,6 @@ hr {
 }
 
 form .form_layout {
-    /* display: grid; */
     background-color: #e5e5e5;
     padding: 50px 60px;
 }
@@ -382,42 +317,62 @@ form .form_layout .form_layout-information div input:focus {
     outline: 1px solid blue;
 }
 
-#student_number {
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
-/*students progress bar dashboard*/
-
-.progress-tracking {
-    width: 80%;
-    margin: 20px auto;
+.target-selection label,
+.date-selection label {
+    font-size: 16px;
+    color: #333;
+    margin-right: 10px;
 }
 
-table {
+.target-selection select,
+.date-selection input {
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+.announcement-form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    max-width: 100%;
+    position: relative;
+}
+
+.announcement {
     width: 100%;
-    border-collapse: collapse;
+    height: 150px;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    resize: none;
 }
 
-th,
-td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+input[type="submit"] {
+    padding: 10px 20px;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
-th {
-    background-color: #007bff;
-    color: white;
+.footer {
+    text-align: right;
+    font-style: italic;
 }
 
-.progress-bar {
-    width: 100%;
-    background-color: #f3f3f3;
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.progress {
-    height: 20px;
-    background-color: #28a745;
-    border-radius: 5px;
+.footer p {
+    margin: 0;
 }
