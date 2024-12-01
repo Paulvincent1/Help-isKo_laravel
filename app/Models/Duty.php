@@ -2,6 +2,12 @@
 
 namespace App\Models;
 
+use App\Notifications\Admin\StudentCompletedDutyNotification;
+use App\Notifications\DutyNotifications\ActiveDutyNotification;
+use App\Notifications\DutyNotifications\CancelledDutyNotification;
+use App\Notifications\DutyNotifications\CompletedDutyNotification;
+use App\Notifications\DutyNotifications\OngoingDutyNotification;
+use App\Notifications\StudentDutyCancelled;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
@@ -43,25 +49,95 @@ class Duty extends Model
      * @param string $value
      * @return string
      */
-    public function getDutyStatusAttribute($value)
+    public function updateDutyStatus()
     {
-        // If duty_status is 'cancelled' or 'completed' in the database, return it as is
-        if (in_array($value, ['cancelled', 'completed'])) {
-            return $value;
-        }
-
+        $employeeProfile = $this->employee->employeeProfile; 
         $currentTime = Carbon::now();
         $startTime = Carbon::parse($this->date . ' ' . $this->start_time);
         $endTime = Carbon::parse($this->date . ' ' . $this->end_time);
+        $endTimeAddDay = $endTime->copy()->addDay(1);
 
-        if ($currentTime->greaterThanOrEqualTo($endTime)) {
-            return 'completed';
-        } elseif ($currentTime->between($startTime, $endTime)) {
-            return 'ongoing';
-        } elseif ($currentTime->greaterThanOrEqualTo($startTime)) {
-            return 'active';
+        // Determine the new status based on current time
+        $newStatus = $this->duty_status; // Start with existing status
+        $currentStatus = $this->duty_status;
+
+        if ($this->is_locked) {
+            if ($currentTime->greaterThanOrEqualTo($endTime)) {
+                $newStatus = 'completed';
+            }elseif ($currentTime->between($startTime, $endTime)) {
+                $newStatus = 'ongoing';
+            } else {
+                $newStatus = 'active';
+            }
+        } elseif ($currentTime->diffInSeconds($startTime) <= 60) {
+            $newStatus = 'cancelled';
         } else {
-            return 'pending';
+            $newStatus = 'pending';
+        }
+
+        // Update the database if the status has changed
+        if ($newStatus !== $this->duty_status) {
+            $this->update(['duty_status' => $newStatus]); // Update the duty status in the database
+            \Log::info("Duty ID {$this->id} updated to status: {$newStatus}");
+            if($newStatus == 'completed'|| $currentStatus == 'completed') {    
+                $employeeProfile->decrement('active_duty');
+                \Log::info("Duty ID {$this->id} active status count decremented.");
+            }
+        }
+
+        if($newStatus == 'completed' || $currentStatus == 'completed') {
+            if($currentTime->greaterThanOrEqualTo($endTimeAddDay)){
+                $duties = $this->studentDutyRecords()->where('request_status','accepted')->with('student')->get();
+                foreach($duties as $duty){
+                    if(!$duty->hours_fulfilled){
+                        $dutyHours = ($this->duration / 60);
+                        $rounded = round($dutyHours , 2);
+                        $remainingHours = $duty->student->hkStatus->remaining_hours;
+                        if(($remainingHours - $rounded) >= 0) {
+                            $duty->student->notify(new StudentCompletedDutyNotification($this));
+
+                            $duty->student->hkStatus()->update([
+                                'remaining_hours' => ($remainingHours - $rounded)
+                            ]);
+                            
+                            $duty->update([
+                               'hours_fulfilled' => true, 
+                            ]);
+                        }
+                       
+                    }
+                }
+            }
+        }
+
+
+        if($currentStatus != 'completed'){
+            
+            if($newStatus == 'completed'){
+                $this->employee->notify(new CompletedDutyNotification($this, $this->employee));
+            }
+
+            if($newStatus == 'ongoing' && $currentStatus != 'ongoing'){
+                if ($currentStatus === 'active') {
+                    $this->employee->employeeProfile->decrement('active_duty');
+                }
+                $this->employee->notify(new OngoingDutyNotification($this));
+
+                $duties = $this->studentDutyRecords()->where('request_status', 'accepted')->with('student')->get();
+
+                foreach($duties as $duty){
+                    $duty->student->notify(new OngoingDutyNotification($this));
+                }
+            }
+            if($newStatus == 'cancelled' && $currentStatus != 'cancelled'){
+                $this->employee->notify(new CancelledDutyNotification($this,$this->employee));
+                
+                $duties = $this->studentDutyRecords()->where('request_status', 'accepted')->with('student')->get();
+
+                foreach($duties as $duty){
+                    $duty->student->notify(new StudentDutyCancelled($this, $this->employee));
+                }
+            }
         }
     }
 }

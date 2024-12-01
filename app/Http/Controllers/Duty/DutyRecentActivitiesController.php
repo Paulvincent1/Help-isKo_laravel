@@ -18,10 +18,12 @@ class DutyRecentActivitiesController extends Controller
                                  ->whereIn('type', [
                                      'App\Notifications\DutyRecentActivities\DutyPostedNotification',
                                      'App\Notifications\DutyRecentActivities\DutyRemovedNotification',
-                                     'App\Notifications\DutyRecentActivities\DutyEditedNotification'
+                                     'App\Notifications\DutyRecentActivities\DutyEditedNotification',
+                                     'App\Notifications\DutyRecentActivities\Student\StudentDutyRequestedNotification',
+                                     'App\Notifications\DutyRecentActivities\Student\StudentDutyCancelRequestedNotification'
                                  ])
                                  ->latest()
-                                 ->limit(10)
+                                 ->limit(20)
                                  ->get();
 
         $formattedActivities = [];
@@ -46,14 +48,20 @@ class DutyRecentActivitiesController extends Controller
         } elseif ($activity->type === 'App\Notifications\DutyRecentActivities\DutyRemovedNotification') {
             $title = 'Deleted';
             $description = 'You removed a duty!';
+        } elseif ($activity->type === 'App\Notifications\DutyRecentActivities\Student\StudentDutyRequestedNotification') {
+            $title = 'Requested';
+            $description = 'You requested a duty!';
+        } elseif ($activity->type === 'App\Notifications\DutyRecentActivities\Student\StudentDutyCancelRequestedNotification'){
+            $title = 'Cancelled';
+            $description = 'You cancelled a duty!';
         } else {
             $title = 'No title';
             $description = 'No description';
         }
 
-        // For Create and Update, return the duty info
+        // For Create, Update, and Request, return the duty info
         $dutyInfo = null;
-        if ($title === 'Created' || $title === 'Updated') {
+        if (in_array($title, ['Created', 'Updated', 'Requested'])) {
             $dutyInfo = $this->getDutyInfo($activity->data['duty_id']);
         }
 
@@ -62,7 +70,7 @@ class DutyRecentActivitiesController extends Controller
             'description' => $description,
             'message' => $activity->data['message'] ?? 'No message available',
             'date' => $this->getFormattedDate($activity->created_at),  // Display formatted date (Today, Yesterday, or full date)
-            'duty_info' => $dutyInfo  // Include duty info for create and update activities
+            'duty' => $dutyInfo  // Include duty info for create and update activities
         ];
     }
 
@@ -77,6 +85,7 @@ class DutyRecentActivitiesController extends Controller
 
         // Return the duty details as needed
         return [
+            'id' => $duty->id,
             'building' => $duty->building,
             'date' => $duty->date,
             'start_time' => $duty->start_time,

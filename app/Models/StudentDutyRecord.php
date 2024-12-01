@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StudentDutyRecord extends Model
 {
@@ -15,6 +14,7 @@ class StudentDutyRecord extends Model
         'duty_id',
         'emp_id',  
         'request_status',
+        'hours_fulfilled',
     ];
 
     // Relationship back to User (student)

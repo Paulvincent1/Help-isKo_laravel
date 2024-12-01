@@ -1,0 +1,146 @@
+/* Renewal Request Page Styling */
+
+/* Header styling */
+.main_content-profile header {
+    grid-column: 1 / span 2;
+    padding: 0 20px;
+    background-color: white;
+    border-radius: 10px;
+    font-size: 32px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.main_content-profile header img {
+    height: 30px;
+    border-radius: 50px;
+}
+
+
+/* Profile information section */
+.profile_info {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.display_profile-info {
+    flex: 1;
+    overflow: auto;
+}
+
+/* Adjusting the student ID font size to be smaller */
+.profile_info-personal-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.profile_info-personal-details-header {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Smaller font for student ID */
+.profile_info-personal-details-id {
+    padding: 5px 10px;
+    background-color: #eaf5ff;
+    color: #349bfc;
+    font-size: 1px; /* Reduced font size */
+    font-weight: 500;
+}
+
+
+.profile_info-details {
+    padding-top: 20px;
+    font-size: 16px;
+}
+
+.profile_info p:first-child {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.profile_info p {
+    margin-bottom: 10px;
+}
+
+.recent_activities {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+/* Specific Badge styling for Approval Status */
+.badge.approved {
+    background-color: #28a745;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.badge.rejected {
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* Flex adjustments */
+.profile_info-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+/* Media images */
+.media-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin: 10px 0;
+}
+/* Update Button */
+.btn-update-renewal-dropdown {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/* Update Button */
+.btn-update-renewal {
+    background-color: #349bfc;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn-update-renewal:hover {
+    background-color: #1f7edb;
+}
+
+/* Delete Button */
+.btn-delete-renewal {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.btn-delete-renewal:hover {
+    background-color: #b22a35;
+}
